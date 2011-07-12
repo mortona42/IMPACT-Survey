@@ -172,7 +172,7 @@ function manage_libraries_fix_pref_name($pref_name, $lib_name, $uid, $fscs_key) 
   $pref_name = array(
   	'data' => array(
     	'#markup' => isset($pref_name) ? $pref_name : (isset($lib_name) ? $lib_name : 'Library name not set'),
-      '#prefix' => "<a href='profile-library_registration/$uid/view' title='$fscs_key'>",
+      '#prefix' => "<a href='/admin/manage_libraries/profile-library_registration/$uid/view' title='$fscs_key'>",
       '#suffix' => '</a>'
     )
   );
