@@ -56,20 +56,6 @@ function manage_libraries_menu() {
 		'type' => MENU_NORMAL_ITEM,
   );
 
-  $items['admin/manage_libraries/%manage_libraries_check_type/%manage_libraries_check_uid/edit'] = array(
-		'title' => 'Name Here',
-		'title callback' => 'manage_libraries_get_library_name',
-		'title arguments' => array(3),
-		'description' => 'Manage the Profiles',
-		'page callback' => 'manage_libraries_admin_edit',
-		'page arguments' => array(2,3),
-		'access callback' => 'user_access',
-		'access arguments' => array('profiles management'),	
-		'file' => 'contrib/profile2_page.inc',
-		'file path' => drupal_get_path('module','profile2'),
-		'type' => MENU_NORMAL_ITEM,
-  );
-
   $items['admin/manage_libraries/%manage_libraries_selected_users/custom'] = array(
 		'title' => 'Filtered Profiles',
 		'description' => 'Manage the Selected Profiles',
@@ -264,29 +250,8 @@ function manage_libraries_admin_view($type,$uid){
   $profile = profile2_load($pid);
 
   $output = profile2_page_view($profile);
-
-  $button = "<a href='./edit'><input type='submit' id='edit_submit' name='op' class='form-submit' value='Edit'></a>";
+  $button = "<a href='/profile-$type/$uid/edit'><input type='submit' id='edit_submit' name='op' class='form-submit' value='Edit'></a>";
   return render($output).$button;
-}
-
-
-/*
- * The Edit page of the forms
- */
-function manage_libraries_admin_edit($type,$uid){
-
-  //get the pid
-  $sql="select pid from {profile} where uid=:uid and type=:type";
-  $pid=db_query($sql,array('uid'=>$uid, 'type'=>$type))->fetchField();
-
-  $profile = profile2_load($pid);
-
-  $output=drupal_get_form('profile2_form', $profile);
-
-  //$button = "<a href='../".$uid."'><input type='button value='View'>View</input></a>";
-
-  return render($output);
-
 }
 
 
