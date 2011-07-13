@@ -1,0 +1,85 @@
+<?php
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function new_library_registration_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+
+}
+function new_library_registration_form_profile2_edit_library_registration_form_alter(&$form, &$form_state, $form_id) {
+
+  // Use a custom template implemented in our impact theme's template.php, and library-registration.tpl.php
+  $form['#theme'][] = 'library_registration';
+  $form['account']['name']['#type'] = 'select';
+  // Get state selection
+  $selected = isset($form_state['values']['profile_library_registration']['field_library_reg_state']['und'][0]['value'])
+    ? $form_state['values']['profile_library_registration']['field_library_reg_state']['und'][0]['value'] 
+    : '';
+  $form['account']['name']['#options'] = _new_library_registration_library_names($selected);
+  $form['account']['name']['#prefix'] = '<div id="system-select">';
+  $form['account']['name']['#suffix'] = '</div>';
+  $form['account']['mail']['#description'] = 
+  	t('A valid e-mail address. All e-mails from the system will be sent to this address. 
+  	The e-mail address is not made public and will only be used for important information from us or if you wish to receive a new password.');
+  	//dpm($form);
+  $form['profile_library_registration']['field_library_reg_state']['und']['#options'] = _new_library_registration_library_states();
+  $form['profile_library_registration']['field_library_reg_state']['und']['#ajax'] = array(
+    'callback' => 'new_library_registration_state_change_callback',
+    'wrapper' => 'edit-profile-library-registration-field-library-reg-system',
+  );
+  dpm($form);
+}
+// Use library_lookup table in the database to collect available states
+function _new_library_registration_library_states() {
+  //$states = array('Select your state' => 'Select your state'); 
+  $states = db_select('library_lookup', 'll')
+    ->fields('ll', array('library_state'))
+    ->distinct()
+    ->orderBy('library_state', 'ASC')
+    ->execute()
+    // Uses state string as both key and value for options array
+    ->fetchAllKeyed(0,0);
+  return $states;
+    /*
+  $query = "SELECT DISTINCT library_state FROM {library_lookup} ";
+  $result = db_query($query);
+  $states = array('Select your state');
+  $i = 1;
+  foreach ($result as $state) {
+    if($state->library_state != 'Test') {
+      $states[$i] = $state -> library_state;
+      $i++;
+    }
+  }
+  $states[] = 'Test';
+  return drupal_map_assoc($states);*/
+}
+/**
+ * Selects just the system dropdown to be returned for re-rendering
+ */
+function new_library_registration_state_change_callback(&$form, $form_state) {
+  //dpm($form);
+    return $form['profile_library_registration']['field_library_reg_system']['und'];
+    //$form['account']['name'];
+}
+
+/**
+ * Helper function to populate the second dropdown. This would normally be
+ * pulling data from the database.
+ *
+ * @param key. This will determine which set of options is returned.
+ *
+ * @return array of options
+ */
+function _new_library_registration_library_names($key = '') {
+    if($key != '') {
+      $query = "SELECT fscs_key, library_name  FROM {library_lookup} WHERE library_state = '$key' 
+        ORDER BY library_name";
+      $result = db_query($query);
+      $result_keyed = $result->fetchAllKeyed();
+      array_unshift($result_keyed, 'Select your system');
+  	  return $result_keyed;
+    }
+    else {
+      return array('fscskey' => ' -- ');
+    }
+}

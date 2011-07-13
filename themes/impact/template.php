@@ -1,4 +1,12 @@
 <?php
+function impact_theme($existing, $type, $theme, $path){
+  return array(
+    'library_registration' => array(
+      'render element' => 'form',
+      'template' => 'templates/library-registration',
+    ),
+  );
+}
 function impact_preprocess_page(&$variables)
 {
    
