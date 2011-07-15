@@ -41,7 +41,7 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
       $field_suffix = isset($form['profile_imls_data'][$field]['und'][0]['value']['#field_suffix']) ? $form['profile_imls_data'][$field]['und'][0]['value']['#field_suffix'] : '';
       $form['profile_imls_data'][$field]['und'][0]['value']['#title_display'] = 'none';
       $form['profile_imls_data'][$field]['und'][0]['#prefix'] = '<tr class="' . $zebra . '"><td class="imls-field-name">' . $form['profile_imls_data'][$field]['und'][0]['value']['#title'] . $description . '</td><td class="imls-prev-data">' . $imls_data[$field] . '</td><td class="imls-field-prefix">' . $field_prefix . '</td><td class="imls-current-value">';
-      $form['profile_imls_data'][$field]['und'][0]['#suffix'] = '<span class="imls-field-suffix">' . $field_suffix . '</span></td></tr>';
+      $form['profile_imls_data'][$field]['und'][0]['#suffix'] = '</td><td class="imls-field-suffix">' . $field_suffix . '</td></tr>';
       if(empty($form['profile_imls_data'][$field]['und'][0]['value']['#default_value']))
         $form['profile_imls_data'][$field]['und'][0]['value']['#default_value'] = $imls_data[$field];
       // Unset fields so that they are not rendered again
@@ -52,6 +52,8 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
   }
   $form['profile_imls_data']['#prefix'] = '<table class="library_form"><thead><tr><th class="imls-field-name">Field</th><th class="imls-prev-data">2008 IMLS Data</th><th class="imls-field-prefix"></th><th class="imls-current-value">Current Value</th></tr></thead><tbody>';
   $form['profile_imls_data']['#suffix'] = '</tbody></table>';
+
+  dpm($form);
 }
 /*
  function imls_data_form_submit($form, &$form_state) {
