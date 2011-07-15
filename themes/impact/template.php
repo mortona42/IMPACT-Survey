@@ -142,3 +142,14 @@
           return l($image, $variables['url'], array('html' => true, 'attributes' => array('class' => array('feed-icon'), 'title' => $text)));
       }
   }
+function impact_theme($existing, $type, $theme, $path) {
+  return array(
+    'imls_data_view' => array(
+      'render element' => 'imls_data',
+      'template' => 'templates/imls_data_view'
+    )
+  );
+}
+/*
+function impact_preprocess_imls_data_view(&$variables) {
+}*/
