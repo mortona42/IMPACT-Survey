@@ -82,3 +82,42 @@ function imls_data_calculate_sq_feet($fscs) {
   }
   return $sum;
 }
+/*function imls_data_profile2_view_alter(&$build) {
+  // Get IMLS Data
+  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  $query_system = "SELECT * FROM {library_lookup} WHERE fscs_key = '$fscs'";
+  $result_system = db_query($query_system)->fetchObject();
+  $imls_data = array (
+    'field_legalpop' => $result_system->popu_lsa,
+    'field_visits' => $result_system->visits,
+    'field_hours' => $result_system->hrs_open,
+    'field_sq_ft' => imls_data_calculate_sq_feet($fscs),
+    'field_circ' => $result_system->tot_cir,
+    'field_expend_tot' => $result_system->tot_op_exp,
+    'field_fte' => $result_system->tot_staff,
+    'field_terminals' => $result_system->gp_terms,
+    'field_pac_uses' => $result_system->pit_usr
+  );
+  global $user;
+  $profile = profile2_load_by_user($user->uid, 'imls_data');
+  dpm($profile);
+  
+  $header = array('Field', '2008 IMLS Data', 'Current Value');
+  $rows = array();
+  foreach ($build['#entity'] as $field => $values) {
+    $field_splode = explode('_', $field);
+    if($field_splode[0] == 'field') {
+      $values['und'][0]['#prefix'] = '<td>asdf</td>';
+      //dpm($values['und'][0]['value']);
+      $rows[] = array('hello', $imls_data[$field], $values['und'][0]['value']);
+    }
+  }
+  
+  //$build['#theme']= 'imls_data_view';
+  //dpm($build);
+  //$imls_data = 
+  //$build[0]['#markup'] = $build['#entity']->view();
+  //$build[]
+  $build['#entity']->entity_view_prepared = FALSE;
+  dpm($build);
+}*/
