@@ -24,24 +24,13 @@ function myimpact_setting_menu() {
 		//'access arguments' => array('myimpact page'),
 	 	'weight' => -50,
 	 	'menu_name' => "menu-my-impact",
-		'type' => MENU_NORMAL_ITEM, 	
-  );
-	
-	$items['myimpact/registration'] = array(
-		'title' => 'My IMPACT',
-		'description' => 'my impact page',
-		'page callback' => 'myimpact_setting_myimpact_registration_page',
-		'access callback' => TRUE,
-	 	'weight' => -50,
-	 	'menu_name' => "My IMPACT",
 		'type' => MENU_NORMAL_ITEM,
-	 	
-  );  
+  );
 		
   //confirm the imls_data
   $items['imls_data/%/confirm'] = array(
         'page callback' => 'drupal_get_form',
-      	'page arguments' => array('myimpact_setting_submit_confirm_form',0),
+      	'page arguments' => array('myimpact_setting_submit_confirm_form', 0),
         'title' => 'Submit Confirm',
       	'type' => MENU_CALLBACK,
       	'access callback' => 'user_access',
@@ -51,7 +40,7 @@ function myimpact_setting_menu() {
   //confirm the intake form
   $items['intake_form/%/confirm'] = array(
         'page callback' => 'drupal_get_form',
-      	'page arguments' => array('myimpact_setting_submit_confirm_form',0),
+      	'page arguments' => array('myimpact_setting_submit_confirm_form', 0),
         'title' => 'Submit Confirm',
       	'type' => MENU_CALLBACK,
       	'access callback' => 'user_access',
@@ -67,13 +56,13 @@ function myimpact_setting_menu() {
 function myimpact_setting_permission(){
   return array(
 		'imls and intake submit' => array( 
-		'title' => t('IMLS Data and intake form submit'), 
-		'description' => t('Allow users to submit the IMLS Data and intake form'),
-  ),
-  		'myimpact page' => array(
+			'title' => t('IMLS Data and intake form submit'), 
+			'description' => t('Allow users to submit the IMLS Data and intake form'),
+    ),
+  	'myimpact page' => array(
   		'title' => t('Myimpact Page'), 
-		'description' => t('Allow users to go to the myimpact page'),
-  ),
+			'description' => t('Allow users to go to the myimpact page'),
+    ),
   );
 }
 
@@ -125,11 +114,8 @@ function myimpact_setting_form_profile2_form_alter(&$form, &$form_state, $form_i
   }
 
   //add submit button to imls data and intake form
-  if($form_id=="profile2_edit_imls_data_form" or $form_id=="profile2_edit_intake_form_form")
-  {
-     
-    $form['#submit']['1'] = "myimpact_setting_profile2_user_submit";
-     
+  if($form_id=="profile2_edit_imls_data_form" or $form_id=="profile2_edit_intake_form_form"){
+    $form['#submit'][1] = "myimpact_setting_profile2_user_submit";
     $form['actions']['done']=array(
   		'#type'=>'submit', 
   		'#value'=>'Submit', 
@@ -145,7 +131,7 @@ function myimpact_setting_form_profile2_form_alter(&$form, &$form_state, $form_i
   
   //change the save button to submit button
 
-  if($form_id=="profile2_edit_survey_fielding_form") $form['actions']['submit']['#value']="Submit";  
+  if($form_id=="profile2_edit_survey_fielding_form") $form['actions']['submit']['#value']="Submit";
 }
 
 /*
@@ -154,20 +140,29 @@ function myimpact_setting_form_profile2_form_alter(&$form, &$form_state, $form_i
 function myimpact_setting_submit_confirm_form($form, &$form_state, $type){
 
   global $user;
+  
+  switch ($type) {
+    case "imls_data":
+    	$type_print = "IMLS Data";
+    	break;
+    case "intake_form":
+    	$type_print = "Intake Form";
+    	break;
+  }
 
-  $confirm_question = t('Are you sure you want to submit the IMLS Data?');
-  $description = "After submitting, you will have no access to edit the form any more";
+  $question = t('Are you sure you want to submit your !type_print?', array('!type_print' => $type_print));
+  $description = t('After submitting, you will not be allowed to edit this form.');
    
   $form_state['value']['type']=$type;
-
-  return confirm_form($form, $confirm_question, "profile-$type/$user->uid/edit", $description);
+  
+  return confirm_form($form, $question, "profile-$type/$user->uid/edit", $description);
 }
 
 function myimpact_setting_submit_confirm_form_submit($form, &$form_state){
   global $user;
 
   $type=$form_state['value']['type'];
-  $insert=(myimpact_setting_insert_status($user->uid, $type))?'Thank you! You have submitted successfully.':'You have submitted before. Thank you!';
+  $insert=(myimpact_setting_insert_status($user->uid, $type))?'Thank you! You have submitted successfully.':'You have already submitted this form.  Please contact us for assistance.';
 
   drupal_set_message($insert);
   $form_state['redirect'] = "profile-$type/$user->uid";
@@ -184,7 +179,7 @@ function myimpact_setting_status_submit_submit($form, &$form_state){
   if(isset($form['profile_imls_data'])) $type="imls_data";
   if(isset($form['profile_intake_form'])) $type="intake_form";
 
-  $insert=(myimpact_setting_insert_status($path[($count-2)], $type))?'Thank you! You have submitted successfully.':'You have submitted before. Thank you!';
+  $insert=(myimpact_setting_insert_status($path[($count-2)], $type))?'Thank you! You have submitted successfully.':'You have already submitted this form.  Please contact us for assistance.';
 
   drupal_set_message($insert);
 }
@@ -616,11 +611,6 @@ function myimpact_setting_convUri($uri="", $publicPath){
   $position=explode("://",$uri);
 
   return $publicPath."/".$position[1];
-}
-
-function myimpact_setting_myimpact_registration_page(){
-	return '<h3>Thank you for your application</h3>Your account is currently pending approval by the site administrator.
-In the meantime, a welcome message with further instructions has been sent to your e-mail address.<br><a href="/">Home</a>';
 }
 
 /*
