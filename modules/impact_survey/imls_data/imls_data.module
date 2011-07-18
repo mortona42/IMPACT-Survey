@@ -52,8 +52,6 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
   }
   $form['profile_imls_data']['#prefix'] = '<table class="library_form"><thead><tr><th class="imls-field-name">Field</th><th class="imls-prev-data">2008 IMLS Data</th><th class="imls-field-prefix"></th><th class="imls-current-value">Current Value</th></tr></thead><tbody>';
   $form['profile_imls_data']['#suffix'] = '</tbody></table>';
-
-  dpm($form);
 }
 /*
  function imls_data_form_submit($form, &$form_state) {
