@@ -29,7 +29,7 @@ print render($content);
 <p class="code"><code>
 	<?php $fscs = token_replace("[current-user:profile-library-registration:field-library-reg-system]");
 $field_image = $node->field_image['und'][0]['filename'];
-$code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hotlinked&utm_content=$field_image&utm_term=$fscs&utm_campaign=pre-pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='http://impactsurvey.org/codebox/host/$field_image' border='0' /&gt;&lt;/a&gt;";
+$code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hotlinked&utm_content=$field_image&utm_term=$fscs&utm_campaign=pre-pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='http://impactsurvey.org/codebox/img/$field_image' border='0' /&gt;&lt;/a&gt;";
 print $code;?>
 </code></p>
 <h3>Instructions - Hosted</h3>
@@ -37,8 +37,7 @@ print $code;?>
 <ol>
 	<li>Right click on the image and save it to your computer.</li>
 	<li>Upload the image to a new directory called "impact" in the root of your web directory</li>
-	<li>Press the button to select and copy your code.</li>
-	<li>Paste this code into your website files.<br>You may need to adjust the image location.</li>
+	<li>Copy and paste this code into your website files.<br>You may need to adjust the image location.</li>
 </ol>
 <p class="code"><code>
 	<?php $fscs = token_replace("[current-user:profile-library-registration:field-library-reg-system]");
