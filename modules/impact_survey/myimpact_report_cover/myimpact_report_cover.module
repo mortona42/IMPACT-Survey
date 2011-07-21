@@ -1,0 +1,53 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function myimpact_report_cover_menu() {
+  $items = array();
+
+  $items['myimpact/report_cover'] = array(
+    'title' => 'report cover sample image',
+    'description' => 'to display in myimpact',
+    'page callback' => 'myimpact_report_cover_display',
+    'page arguments' => array(),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_is_logged_in',
+  );
+
+  return $items;
+}
+
+function myimpact_report_cover_display() {
+  // Load the svg file as a DomDocument
+  $svg_path = drupal_get_path('module', 'myimpact_report_cover') . '/myimpact_report_cover.svg';
+  $report_cover_svg = new DomDocument;
+  // realpath fixes file paths for different OS
+  $report_cover_svg->Load(drupal_realpath($svg_path));
+  
+  // Get the uri of the user's photo
+  global $user;
+  if($users_photo_logo = profile2_load_by_user($user->uid, 'photo_logo')) {
+    dpm($users_photo_logo);
+    $user_photo = $users_photo_logo->field_reg_library_pic['und'][0]['uri'];
+  } else {
+    $user_photo = variable_get('file_public_path', base_path() . '/files');
+    global $conf;
+    dpm($conf);
+  }
+  dpm(field_info_storage_settings('image'));
+  
+  // Set impact logo location
+  $logo_location = base_path() . drupal_get_path('theme', 'impact') . '/logo.png';
+  //dpm(drupal_realpath($logo_location));
+  $impact_logo = $report_cover_svg->getElementsByTagName('image')->item(0);
+  $impact_logo->setAttribute('xlink:href', $logo_location);
+  $lib_photo = $report_cover_svg->getElementsByTagName('image')->item(1);
+  $lib_photo->setAttribute('xlink:href', file_create_url($user_photo));
+  
+  
+  //dpm($report_cover_svg->saveXML());
+  //$tagName->setAttributeNode
+  //dpm($tagName->getAttributeNode('xlink:href')->value);
+  //drupal_add_http_header('Content-type','image/svg+xml; charset=utf-8');
+  return $report_cover_svg->saveXML();
+}

@@ -1,0 +1,67 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="180px"
+	 height="260px" viewBox="0 0 612 792" enable-background="new 0 0 612 792" xml:space="preserve">
+ <g id="scale">
+    <g id="Thin_Lines">
+	    <line fill="none" stroke="#7B309B" stroke-miterlimit="10" x1="372" y1="-3" x2="372" y2="792"/>
+	    <line fill="none" stroke="#7B309B" stroke-miterlimit="10" x1="368" y1="-3" x2="368" y2="792"/>
+	    <line fill="none" stroke="#7B309B" stroke-miterlimit="10" x1="364" y1="-3" x2="365" y2="792"/>
+	    <line fill="none" stroke="#7B309B" stroke-miterlimit="10" x1="360" y1="-3" x2="362" y2="792"/>
+	    <line fill="none" stroke="#7B309B" stroke-width="2" stroke-miterlimit="10" x1="0" y1="127" x2="359" y2="127"/>
+    </g>
+    <g id="Purple_Sidebar">
+	    <rect x="375" y="-3" fill="#7B309B" width="241" height="794"/>
+    </g>
+    <g id="Green_Bar_Border">
+	    <rect x="-5" y="150" fill="#FFFFFF" stroke="#FFFFFF" stroke-miterlimit="10" width="595" height="115"/>
+    </g>
+    <g id="Green_Bar">
+	    <rect y="153" fill="#47680E" width="586" height="110"/>
+    </g>
+    <g id="Green_Bar_Text">
+	    <text transform="matrix(1 0 0 1 27 193)" fill="#FFFFFF" font-family="'Bodoni MT'" font-size="36" id="libname">
+		    King County Library System
+	    </text>
+	    <text transform="matrix(1 0 0 1 27 240)" fill="#FFFFFF" font-family="'Bodoni MT'" font-size="36">Survey Results</text>
+    </g>
+    <g id="Month_x2C__Year">
+	    <text transform="matrix(1 0 0 1 395 316)"><tspan x="0" y="0" fill="#FFFFFF" font-family="'Calibri'" font-size="24">[s.month],</tspan><tspan x="0" y="28" fill="#FFFFFF" font-family="'Calibri'" font-size="24">[s.year]</tspan></text>
+    </g>
+    <g id="Raster_Logo">
+	    <image overflow="visible" width="320" height="121" xlink:href="impact.png"  transform="matrix(0.775 0 0 0.775 7 28.543)">
+	    </image>
+    </g>
+    <g id="About_Text">
+	
+	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
+	
+	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
+	
+	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
+	
+	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
+	
+	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
+	
+	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
+	
+	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
+	    <text transform="matrix(1 0 0 1 395 516)" fill="#FFFFFF" font-family="'Calibri'" font-weight="bold" font-size="11">The IMPACT Survey</text>
+	    <text transform="matrix(1 0 0 1 395 544)">
+	        <tspan x="0" y="0" fill="#FFFFFF" font-family="'Calibri'" font-size="11">An online tool that allows public libraries to</tspan>
+            <tspan x="0" y="18" fill="#FFFFFF" font-family="'Calibri'" font-size="11">collect information about how their </tspan>
+            <tspan x="0" y="36" fill="#FFFFFF" font-family="'Calibri'" font-size="11">communities use and benefit from the</tspan>
+            <tspan x="0" y="54" fill="#FFFFFF" font-family="'Calibri'" font-size="11">library's computers and Internet connection.</tspan>
+            <tspan x="0" y="90" fill="#FFFFFF" font-family="'Calibri'" font-size="11">Prepared for [s.lib_name] by the</tspan>
+            <tspan x="0" y="108" fill="#FFFFFF" font-family="'Calibri'" font-size="11">University of Washington Information School</tspan>
+            <tspan x="0" y="126" fill="#FFFFFF" font-family="'Calibri'" font-size="11">with generous support from the Bill &amp;</tspan>
+            <tspan x="0" y="144" fill="#FFFFFF" font-family="'Calibri'" font-size="11">Melinda Gates Foundation.</tspan>
+        </text>
+    </g>
+    <g id="Library_Photo">
+		<image overflow="visible" width="273" height="121" xlink:href="impact.png"  transform="matrix(1 0 0 1 144.3335 425.333)">
+	  </image>
+		    <!--<rect x="45" y="312" fill="#FFFFFF" stroke="#231F20" stroke-width="3" stroke-miterlimit="10" width="273" height="226"/>
+	    <text transform="matrix(1 0 0 1 144.3335 425.333)" font-family="'Calibri-Bold'" font-size="11">Photo Placeholder</text>-->
+    </g>
+  </g>
+</svg>
