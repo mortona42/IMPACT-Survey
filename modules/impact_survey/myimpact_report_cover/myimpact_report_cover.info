@@ -1,0 +1,4 @@
+name = My IMPACT report cover
+description = Load the report cover svg for display in myimpact
+core = 7.x
+package = IMPACT

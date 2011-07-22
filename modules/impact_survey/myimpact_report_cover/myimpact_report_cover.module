@@ -1,0 +1,81 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function myimpact_report_cover_menu() {
+  $items = array();
+
+  $items['myimpact/report_cover'] = array(
+    'title' => 'report cover sample image',
+    'description' => 'to display in myimpact',
+    'page callback' => 'myimpact_report_cover_display',
+    'page arguments' => array(),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_is_logged_in',
+  );
+
+  return $items;
+}
+
+function myimpact_report_cover_display() {
+  // Load the svg file as a DomDocument
+  $svg_path = drupal_get_path('module', 'myimpact_report_cover') . '/myimpact_report_cover.svg';
+  // Load svg xml using DomDocument
+  $report_cover = new DOMDocument;
+  // realpath fixes file paths for different OS
+  $report_cover->Load(drupal_realpath($svg_path));
+  
+  global $user;
+  $uid = $user->uid;
+  // Set the images from user's uploaded photos
+  myimpact_report_cover_image($report_cover, $uid);
+  myimpact_report_cover_date($report_cover, $uid);
+  return $report_cover->saveXML();
+}
+// Set the images for the report cover
+function myimpact_report_cover_image(&$report_cover, $uid) {
+  $library_images = array();
+  $users_photo_logo = profile2_load_by_user($uid, 'photo_logo');
+  
+  // Check logo
+  if(!empty($users_photo_logo->field_reg_logo_pic)) {
+    $library_images['logo'] = $users_photo_logo->field_reg_logo_pic['und'][0]['uri'];
+  } else {
+    $library_images['logo'] = 'public://photo_logo/default_logo.gif';
+  }
+  
+  // Check photo
+  if(!empty($users_photo_logo->field_reg_library_pic)) {
+    $library_images['photo'] = $users_photo_logo->field_reg_library_pic['und'][0]['uri'];
+  } else {
+    $library_images['photo'] = 'public://photo_logo/default_photo.jpg';
+  }
+  
+  // return value is an object (DOMNodeList) containing all image elements in the svg
+  $report_images = $report_cover->getElementsByTagName('image');
+  // Set logo
+  $report_images->item(0)->setAttribute('xlink:href', file_create_url($library_images['logo']));
+  // Set photo
+  $report_images->item(1)->setAttribute('xlink:href', file_create_url($library_images['photo']));
+}
+// Return survey fielding end date as an array holding month and year
+function myimpact_report_cover_date(&$report_cover, $uid) {
+  // Load the survey_fielding profile that has the field
+  $end_dates = array();
+  if($survey_end = profile2_load_by_user($uid, 'survey_fielding')){
+    $survey_end = strtotime($survey_end->field_fielding_date['und'][0]['value2']);
+    $end_dates = array(
+    	'month' => date('F', $survey_end),
+      'year' => date('Y', $survey_end)
+    );
+  }
+  else {
+    $end_dates = array(
+      'month' => date('F'),
+      'year' => date('Y')
+    );
+  }
+  $report_date_element = $report_cover->getElementsByTagName('g')->item(6)->getElementsByTagName('tspan');
+  $report_date_element->item(0)->nodeValue = $end_dates['month'];
+  $report_date_element->item(1)->nodeValue = $end_dates['year'];
+}
