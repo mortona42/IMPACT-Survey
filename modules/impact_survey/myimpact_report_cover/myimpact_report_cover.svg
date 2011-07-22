@@ -1,3 +1,5 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="180px"
 	 height="260px" viewBox="0 0 612 792" enable-background="new 0 0 612 792" xml:space="preserve">
  <g id="scale">
@@ -33,18 +35,6 @@
     <g id="About_Text">
 	
 	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
-	
-	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
-	
-	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
-	
-	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
-	
-	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
-	
-	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
-	
-	    <text transform="matrix(1 0 0 1 4412 4554)" font-family="'Calibri'" font-size="11">The IMPACT Survey</text>
 	    <text transform="matrix(1 0 0 1 395 516)" fill="#FFFFFF" font-family="'Calibri'" font-weight="bold" font-size="11">The IMPACT Survey</text>
 	    <text transform="matrix(1 0 0 1 395 544)">
 	        <tspan x="0" y="0" fill="#FFFFFF" font-family="'Calibri'" font-size="11">An online tool that allows public libraries to</tspan>
@@ -58,7 +48,7 @@
         </text>
     </g>
     <g id="Library_Photo">
-		<image overflow="visible" width="273" height="121" xlink:href="impact.png"  transform="matrix(1 0 0 1 144.3335 425.333)">
+		<image overflow="visible" width="273" height="121" xlink:href="impact.png"  transform="matrix(1 0 0 1 0 300)">
 	  </image>
 		    <!--<rect x="45" y="312" fill="#FFFFFF" stroke="#231F20" stroke-width="3" stroke-miterlimit="10" width="273" height="226"/>
 	    <text transform="matrix(1 0 0 1 144.3335 425.333)" font-family="'Calibri-Bold'" font-size="11">Photo Placeholder</text>-->

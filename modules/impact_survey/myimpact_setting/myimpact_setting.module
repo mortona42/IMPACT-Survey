@@ -596,7 +596,6 @@ function myimpact_setting_myimpact_page(){
   	'pic_output' =>$pic_output,
   	'tag' => $tag,
   );
-  dpm($content);
 	return theme('myimpact_setting', $content);
 }
 
