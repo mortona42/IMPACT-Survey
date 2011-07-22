@@ -22,7 +22,6 @@ function myimpact_report_cover_display() {
   $svg_path = drupal_get_path('module', 'myimpact_report_cover') . '/myimpact_report_cover.svg';
   // Load svg xml using DomDocument
   $report_cover = new DOMDocument;
-  $report_cover->validateOnParse = true;
   // realpath fixes file paths for different OS
   $report_cover->Load(drupal_realpath($svg_path));
   
