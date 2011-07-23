@@ -1,0 +1,92 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function library_branch_menu() {
+  $items = array();
+
+  $items['libr'] = array(
+    'title' => 'libr',
+    'description' => 'libr',
+    'page callback' => 'library_branch_test',
+    'access callback' => TRUE
+  );
+
+  return $items;
+}
+function library_branch_test() {
+  $node = new StdClass();
+  foreach(library_branch_fetch_imls_branches('HI0001') as $branch) {
+    //dpm($branch);
+    $node->id = NULL;
+    $node->type = 'library_branch';
+    $node->title = 'asdf';
+    $node->uid = 1;
+    $node->fscs_key = 'NY0001';
+    $node->fscs_seq = 1;
+    $node->sq_feet = 1000;
+    
+    //dpm($node);
+    node_object_prepare($node);
+    //dpm($node);
+    
+    //dpm(node_load());
+    //node_submit($node);
+    //node_save($node);
+    //dpm($node);
+    
+    //dpm($node);
+  }
+  
+  return 'asdf';
+  
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function library_branch_node_info() {
+  return array(
+    'library_branch' => array(
+      'name' => t('Library Branch'),
+      'module' => 'library_branch',
+      'base' => 'library_branch',
+      'description' => t('Stores information on library branches'),
+      'title_label' => 'Branch Name',
+    )
+  );
+}
+function library_branch_form($branch, &$form_state) {
+  $form['branch_data'] = square_feet_fetch_branches('HI0001')->fetchAll;
+
+  $form['square_feet'][$branch->id] = array(
+    '#type' => 'textfield',
+    '#prefix' => "<tr><td>$branch->lib_name</td><td>$branch->sq_feet</td><td>",
+    '#suffix' => '</td></tr>',
+    '#default_value' => $branch->sq_feet,
+  );
+
+  return $form;
+}
+function library_branch_fetch_imls_branches($fscs) {
+  $branches = 'SELECT id, lib_name, sq_feet FROM {square_feet} WHERE fscs_key = :fscs';
+  $branches = db_query($branches, array(':fscs' => $fscs));
+    
+  //dpm($branches);
+  
+  return $branches;
+}
+/**
+ * Implements hook_insert().
+ */
+function library_branch_insert($node) {
+  db_insert('library_branch')
+    ->fields(array(
+      'id' => $node->id,
+      'fscs_key' => $node->fscs_key,
+      'fscs_seq' => $node->fscs_seq,
+      'branch_name' => $node->title,
+      'sq_feet' => $node->sq_feet,
+    ))
+    ->execute();
+}

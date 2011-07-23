@@ -1,0 +1,49 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+function library_branch_schema() {
+  $schema['library_branch'] = array(
+    'description' => 'stores information about library branches',
+    'fields' => array(
+      'id' => array(
+        'description' => 'primary identifier',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'fscs_key' => array(
+        'description' => 'Federal Library ID',
+        'type' => 'varchar',
+        'length' => 8,
+        'not null' => TRUE,
+      ),
+      'fscs_seq' => array(
+        'description' => 'Identifies different branches in a system',
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'branch_name' => array(
+        'description' => 'Name of library branch',
+        'type' => 'text',
+        'size' => 'small',
+        'not null' => TRUE,
+      ),
+      'sq_feet' => array(
+        'description' => 'Size of library branch',
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+    ),
+    'unique keys' => array(
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

@@ -1,0 +1,27 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function wtf_lol_menu() {
+  $items = array();
+
+  $items['wtf_lol'] = array(
+    'title' => 'asdf',
+    'description' => 'asdf',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wtf_lol_form'),
+    'access callback' => TRUE
+  );
+
+  return $items;
+}
+function wtf_lol_form($form, $form_state) {
+  $form = array();
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  
+  return $form;
+}
