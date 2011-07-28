@@ -172,10 +172,6 @@ input, fieldset, textarea {
 	color: #7B309B;
 	font-weight:bold;
 }
-/**  Advocacy Tools  **/
-#advocacy-list li {
-	list-style:url(/drupal/sites/impactsurvey.org/files/images/pdf-icon.png);
-}
 /**  Codebox  **/
 div.codebox {
 }
