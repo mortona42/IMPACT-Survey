@@ -22,7 +22,7 @@
      
       //delete the tabs of profile2 and edit the "Edit" title
       if ($tell[0] == 'profile') {
-          $variables['tabs'] = '';
+          //$variables['tabs'] = '';
           $tell2 = explode('/', $tell[1]);
           if (isset($tell2[2]) && $tell2[2] == 'edit') {
               //get the label of the page

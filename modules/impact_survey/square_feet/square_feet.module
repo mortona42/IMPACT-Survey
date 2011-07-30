@@ -8,280 +8,284 @@ function square_feet_menu() {
   $items['sqft'] = array(
     'title' => 'sqft',
     'description' => 'sqft',
+    'page callback' => 'square_feet_user',
+    'access callback' => TRUE
+  );
+  $items['missing'] = array(
+    'title' => 'missing',
+    'description' => 'missing',
+    'page callback' => 'square_feet_missing',
+    'access callback' => TRUE
+  );
+  $items['sqft/%'] = array(
+    'title' => 'test',
+    'description' => 'test',
     'page callback' => 'square_feet_test',
+    'page arguments' => array(1),
     'access callback' => TRUE
   );
-  $items['sqft/fetch/%'] = array(
-    'title' => 'sqft',
-    'description' => 'sqft',
-    'page callback' => 'square_feet_fetch_branches',
-    'page arguments' => array(2),
+  $items['branches'] = array(
+    'title' => 'Verify Branches',
+    'description' => 'Do we have all your branches?',
+    'page callback' => 'square_feet_verify_branches_user',
     'access callback' => TRUE
   );
-
+  $items['branches/%'] = array(
+    'title' => 'Verify Branches (Test)',
+    'description' => 'Do we have all your branches?',
+    'page callback' => 'square_feet_verify_branches',
+    'page arguments' => array(1),
+    'access callback' => TRUE
+  );
+  
+  $items['profile-imls_data/%profile2_by_uid/verify'] = array(
+    'title' => 'Verify Branches & sq ft',
+    'description' => 'Verify branches and square feet',
+    'page callback' => 'square_feet_verify',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1
+  );
+  
   return $items;
 }
-function square_feet_test() {
+function square_feet_verify($imls_profile) {
+  $reg_query = "SELECT pid FROM {profile} WHERE uid = $imls_profile->uid AND type = 'library_registration'";
+  $reg_value = db_query($reg_query)->fetch();
+  //dpm($reg_value);
   
-  return drupal_get_form('square_feet_form', square_feet_fetch_branches('HI0001'));
+  $fscs_query = "SELECT field_library_reg_system_value FROM {field_data_field_library_reg_system} WHERE entity_id = $reg_value->pid";
+  $fscs = db_query($fscs_query)->fetch();
+  //dpm($fscs);
   
-}/*
-function square_feet_form_alter($form, $form_state) {
-  //dpm($form);
-}*/
+  drupal_set_title('Verify Branches & sq ft');
+  //$query = "SELECT f.field_library_reg_system_value FROM {profile} p JOIN {field_data_field_library_reg_system} WHERE entity_id = :pid";
+  //$fscs = db_query($query, array(':pid' => $uid->pid))->fetchAll();
+  //dpm($fscs);
+  
+  //$fscs = 'HI0001';//token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  $branches = square_feet_form_get_records($fscs);
+  
+  $valid_branches = array();
+  $missing_branches = array();
+  
+  // Seperate good and bad values
+  foreach($branches as $branch) {
+    $field_value = isset($branch->new_sq_feet) ? $branch->new_sq_feet : $branch->old_sq_feet;
+    if($field_value < 1) {
+      $missing_branches[] = $branch;
+    }
+    else {
+      $valid_branches[] = $branch;
+    }
+  }
+  
+  
+  return drupal_get_form('square_feet_verify_form', $missing_branches, $valid_branches);
+}
+function square_feet_verify_form($form, &$form_state, $missing_branches, $valid_branches) {
+  $form = array();
+  $count = 0;
+  
+  $form['missing'] = array(
+    '#type' => 'container',
+    '#prefix' => '<h3>Missing Data</h3><table><tr><th>Library Name</th><th>2008 IMLS Data</th><th>Current Value</th></tr>',
+    '#suffix' => '</table>',
+    '#tree' => TRUE,
+    '#weight' => 1
+  );
+  foreach($missing_branches as $branch) {
+    $count++;
+    $field_value = isset($branch->new_sq_feet) ? $branch->new_sq_feet : $branch->old_sq_feet;
+    
+    $form['missing'][$branch->id] = array(
+      '#type' => 'textfield',
+      '#prefix' => '<tr><td>' . capwords($branch->lib_name) . '</td><td>0</td><td>',
+      '#suffix' => '</td></tr>',
+      '#default_value' => 0,
+    );
+  }
+  
+  $form['valid'] = array(
+    '#type' => 'container',
+    '#prefix' => '<h3>Valid Data</h3><table><tr><th>Library Name</th><th>2008 IMLS Data</th><th>Current Value</th></tr>',
+    '#suffix' => '</table>',
+    '#tree' => TRUE,
+    '#weight' => 3
+  );
+  foreach($valid_branches as $branch) {
+    $count++;
+    $field_value = isset($branch->new_sq_feet) ? $branch->new_sq_feet : $branch->old_sq_feet;
+    
+    $form['valid'][$branch->id] = array(
+      '#type' => 'textfield',
+      '#prefix' => '<tr><td>' . capwords($branch->lib_name) . "</td><td>$branch->old_sq_feet</td><td>",
+      '#suffix' => '</td></tr>',
+      '#default_value' => $field_value,
+    );
+  }
+  
+  $form['count'] = array(
+    '#markup' => "<h4>$count total branches</h4>",
+    '#weight' => 0
+  );
+  
+  $form['submit top'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#weight' => 2
+  );
+  $form['submit bottom'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#weight' => 4
+  );
+  
+  return $form;
+}
 
-/*function square_feet_menu() {
-  $items = array();
-  $items['square_feet'] = array(
-    'title' => 'Calculate total square feet',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('square_feet_form'),
-    'access arguments' => array('access content'),
-    'description' => t('Calculate square feet'),
-    //'type' => MENU_CALLBACK,
-  );
-  $items['square_feet/edit_all'] = array(
-    'title' => 'Edit square feet',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('square_feet_change_all_form'),
-    'access arguments' => array('access content'),
-    'description' => t('Calculate square feet'),
-    //'type' => MENU_CALLBACK,
-  );
-  $items['square_feet/calculate/%'] = array(
-    'page callback' => 'square_feet_calculate',
-    'page arguments' => array(2),
-    'access arguments' => TRUE,
-    'type' => MENU_CALLBACK,
-  );
+function square_feet_verify_branches_user() {
+  $fscs = 'HI0001';//token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  return square_feet_verify_branches($fscs);
+}
+function square_feet_verify_branches($fscs) {
+  drupal_set_title('Verify Branches');
+  $branches = square_feet_fetch_branches($fscs);
+  $output = '<ul>';
+  $count = 0;
+  foreach($branches as $branch) {
+    $count++;
+    $output .= '<li>'.capwords($branch->lib_name).'</li>';
+  }
+  $output .= '</ul>';
   
-  $items['sqft/%'] = array(
-    'title' => 'sqft',
-  	'page callback' => 'square_feet_fetch_branches',
-    'page arguments' => array(1),
-    'access arguments' => TRUE,
+  $output = "<h3>$count total branches</h3></br>" . $output;
+  return $output;
+}
+
+function square_feet_user() {
+  $fscs = 'HI0001';//token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  $records = square_feet_form_get_records($fscs);
+  drupal_set_title('Edit All Square Feet Values');
+  return drupal_get_form('square_feet_form', $records, NULL);
+}
+
+function square_feet_test($fscs) {
+  $records = square_feet_form_get_records($fscs);
+  return drupal_get_form('square_feet_form', $records, NULL);
+}
+// Display a form for missing sq ft values, followed by a table with good values
+function square_feet_missing() {
+  drupal_set_title('Enter Missing SQ FT Values');
+  $records = square_feet_form_get_records('HI0001');
+  $valid_branches = array();
+  $missing_branches = array();
+  
+  // Seperate good and bad values
+  foreach($records as $branch) {
+    $field_value = isset($branch->new_sq_feet) ? $branch->new_sq_feet : $branch->old_sq_feet;
+    if($field_value < 1) {
+      $missing_branches[] = $branch;
+    }
+    else {
+      $valid_branches[] = $branch;
+    }
+  }
+  $header = array(
+    'Library Name',
+    '2008 IMLS Data',
+    'Current Value'
   );
-  return $items;
-}*/
+  $rows = array();
+  foreach($valid_branches as $branch) {
+    $rows[] = array($branch->lib_name, $branch->old_sq_feet, $branch->new_sq_feet);
+  }
+  $table = theme('table', array('header' => $header, 'rows' => $rows));
+  $output = drupal_get_form('square_feet_form', $missing_branches, $table);
+  
+  return $output;
+}
 
 // Returns branch info for a given fscs key
 function square_feet_fetch_branches($fscs) {
-  $branches = 'SELECT id, lib_name, sq_feet FROM {square_feet} WHERE fscs_key = :fscs';
+  $branches = 'SELECT id, lib_name FROM {square_feet} WHERE fscs_key = :fscs ORDER BY lib_name';
   $branches = db_query($branches, array(':fscs' => $fscs));
-    
-  //dpm($branches);
-  
-  return $branches;
+
+  return $branches->fetchAll();
 }
 /**
  * Implements hook_form().
  */
-function square_feet_form($form, &$form_state, $branches) {
+function square_feet_form($form, &$form_state, $branches, $table = NULL) {
+  // might as well fix this!
+  $records = $branches;
+  
   $form['square_feet'] = array(
     '#type' => 'container',
     '#prefix' => '<table><tr><th>Library Name</th><th>2008 IMLS Data</th><th>Current Value</th></tr>',
-    '#suffix' => '</table>'
+    '#suffix' => '</table>',
+    '#tree' => TRUE
   );
   
-  foreach($branches as $branch) {
+  foreach($records as $branch) {
+    $field_value = isset($branch->new_sq_feet) ? $branch->new_sq_feet : $branch->old_sq_feet;
+    
     $form['square_feet'][$branch->id] = array(
       '#type' => 'textfield',
-      '#prefix' => "<tr><td>$branch->lib_name</td><td>$branch->sq_feet</td><td>",
+      '#prefix' => "<tr><td>$branch->lib_name</td><td>$branch->old_sq_feet</td><td>",
       '#suffix' => '</td></tr>',
-      '#default_value' => $branch->sq_feet,
+      '#default_value' => $field_value,
     );
   }
   
-
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
+    '#suffix' => $table  // $table is output from theme('table') to attach to the end of the form for reference
   );
-  
-  
-  //$form = drupal_get_form('library_branch_form', );
   
   return $form;
 }
+
 function square_feet_form_submit($form, &$form_state) {
-  dpm($form_state);
-  return 'asdf';
+  dpm($form_state['values']);
+  foreach($form_state['values']['square_feet'] as $branch_id => $sq_feet) {
+    // check for bookmobiles/missing data
+    //if($sq_feet > 0) {
+      db_merge('library_branch')
+        ->key(array('branch_id' => $branch_id))
+        ->fields(array(
+        		'sq_feet' => $sq_feet,
+          ))
+        ->execute();
+    //}
+  }
+  //return 'asdf';
+}
+// returns an array of branches for a given fscs key
+function square_feet_form_get_records($fscs) {
+  $imls_query = "SELECT s.id, s.lib_name, s.sq_feet AS 'old_sq_feet', l.sq_feet AS 'new_sq_feet' FROM {square_feet} s LEFT JOIN {library_branch} l ON s.id = l.branch_id WHERE fscs_key = :fscs ORDER BY s.lib_name";
+  $imls_records = db_query($imls_query, array(':fscs' => $fscs));
+  $imls_branches = $imls_records->fetchAll();
+  return $imls_branches;
 }
 
+// capwords should be moved to somewhere it can be reused
 
-/*function square_feet_form($form_state) {
-  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
-  //$fscs = 'NY0004';
-  $query = 'SELECT id, lib_name, sq_feet FROM {square_feet} WHERE fscs_key = :fscs';
-  $result = db_query($query, array(":fscs" => $fscs));
-  $total_sq_feet = 0;
-  $missing_data = 0;
-
-  $form['square_feet'] = array(
-    '#title' => 'Square Feet',
-  //'#validate' => array('square_feet_entry_validate'),
-    '#submit' => array('square_feet_form_submit'),
-  );
-
-  // $form['square_feet']['total'] is weight = 0, so this gets weight = 1
-  $form['square_feet']['table'] = array(
-  	'#tree' => TRUE,
-	'#weight' => 1,
-    	'#prefix' => '<table>',
-    	'#suffix' => '</table>',
-  );
-  // Put edited fields under 'entries' so they can be referenced
-  $form['square_feet']['table']['entries'] = array(
-    '#weight' => 2,
-  );
-  // Set weight to entries' so that sub elements maintain order
-  $form['square_feet']['table']['static'] = array(
-    '#weight' => 2,
-  );
-
-  $weight = 2;
-  foreach ($result as $record) {
-    $weight++;
-    if($record->sq_feet == -1) {
-      $missing_data ++;
-      $form['square_feet']['table']['entries'][$record->id] = array(
-      '#type' => 'textfield',
-      '#default_value' => $record->sq_feet,
-      '#element_validate' => array('square_feet_entry_validate'),
-      '#prefix' => "<tr><td>$record->lib_name</td><td>",
-      '#suffix' => '</td></tr>',
-      '#weight' => $weight,
-      '#size' => 8,
-      );
-    }else if($record->sq_feet == -3) {
-      $form['square_feet']['table']['static'][$record->id] = array(
-        //'#title' => $record->lib_name,
-        '#type' => 'item',
-        '#markup' => 'N/A',
-        '#prefix' => "<tr><td>$record->lib_name</td><td>",
-        '#suffix' => '</td></tr>',
-      	'#weight' => $weight,
-      );
-    }else{
-      $total_sq_feet += $record->sq_feet;
-      $form['square_feet']['table']['static'][$record->id] = array(
-        //'#title' => $record->lib_name,
-        '#type' => 'item',
-        '#markup' => $record->sq_feet . ' sq ft',
-        '#prefix' => "<tr><td>$record->lib_name</td><td>",
-        '#suffix' => '</td></tr>',
-      	'#weight' => $weight,
-      );
-    }
-  }
-
-  if($missing_data > 1)
-    $missing = "Missing $missing_data entries.";
-  else if($missing_data == 1)
-    $missing = "Missing 1 entry.";
-  else
-    $missing = $total_sq_feet . ' sq ft';
-  
-    $form['square_feet']['total'] = array (
-    '#title' => 'Total:',
-    '#type' => 'item',
-    '#markup' => $missing,
-    '#weight' => 0,
-  );
-  	$form['square_feet']['change'] = array (
-  		'#type' => 'item',
-  		'#prefix' => '<a href="square_feet/edit_all">',
-  		'#markup' => "<input type='button' value= 'Edit all'/>",
-  		'#suffix' => '</a>',
-      	'#weight' => 9998, 
-  		//'#button_type' = 'button',
-  	);
-
-  if($missing == 0) {
-    $form['square_feet']['submit'] = array (
-      '#type' => 'submit',
-      '#value' => 'Save changes',
-      '#weight' => 9999,
-    );
-  }
-  return $form;
+// A better version of ucwords that capitalizes just the first word, regardless 
+// of the previous case. It also capitalizes the first word after an array of delimiters.
+// @$string - the string to be capitalized
+// @$delimiters  (optional) - an array of characters that should be followed by a capital letter
+// This function accomplishes a similar task to ucwords(strtolower("Some string"))
+function capwords($string, $delimiters = array('-','/','(', ' ')) {
+$string = strtolower($string);
+foreach ($delimiters as $delim) {
+$string = explode($delim, $string);
+foreach ($string as $index=>$capword) {
+  $string[$index] = ucfirst($capword);
 }
-// Render all fields as text entries
-function square_feet_change_all_form($form_state) {
-  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
-  //$fscs = 'NY0004';
-  $query = 'SELECT id, lib_name, sq_feet FROM {square_feet} WHERE fscs_key = :fscs';
-  $result = db_query($query, array(":fscs" => $fscs));
-  $total_sq_feet = 0;
-
-  $form['square_feet'] = array(
-    '#title' => 'Square Feet',
-  //'#validate' => array('square_feet_entry_validate'),
-    '#submit' => array('square_feet_change_all_form_submit'),
-  );
-
-  // $form['square_feet']['total'] is weight = 0, so this gets weight = 1
-  $form['square_feet']['table'] = array(
-  	'#tree' => TRUE,
-	'#weight' => 1,
-    	'#prefix' => '<table>',
-    	'#suffix' => '</table>',
-  );
-  $weight = 1;
-  foreach ($result as $record) {
-    $weight++;
-      $form['square_feet']['table'][$record->id] = array(
-      '#type' => 'textfield',
-      '#default_value' => $record->sq_feet,
-      '#element_validate' => array('square_feet_entry_validate'),
-      '#prefix' => "<tr><td>$record->lib_name</td><td>",
-      '#suffix' => '</td></tr>',
-      '#weight' => $weight,
-      '#size' => 8,
-      );
-  }
-  
-    $form['square_feet']['total'] = array (
-    '#title' => 'Total:',
-    '#type' => 'item',
-    '#markup' => $total_sq_feet . ' sq ft',
-    '#weight' => 0,
-  );
-
-    $form['square_feet']['submit'] = array (
-      '#type' => 'submit',
-      '#value' => 'Save changes',
-      '#weight' => 9999,
-    );
-  return $form;
+$string = implode($delim, $string);
 }
-function square_feet_entry_validate($element, &$form_state) {
-  //dpm($element);
-  if($element['#value'] < 1)
-  form_error($element, t('Please enter the size of this branch.'));
+return $string;
 }
-function square_feet_form_submit($form, &$form_state) {
-  foreach($form_state['values']['table']['entries'] as $entry=>$value) {
-    $update = db_update('square_feet')
-    ->fields(array(
-        'sq_feet' => $value,
-    ))
-    ->condition('id', $entry)
-    ->execute();
-  }
-  drupal_set_message('Your entries have been saved');
-}
-function square_feet_change_all_form_submit($form, &$form_state) {
-  foreach($form_state['values']['table'] as $entry=>$value) {
-    if($value != $form['square_feet']['table'][$entry]['#default_value']) {
-    $update = db_update('dr_square_feet')
-    ->fields(array(
-        'sq_feet' => $value,
-    ))
-    ->condition('id', $entry)
-    ->execute();
-   }
-  }
-  drupal_set_message('Your entries have been saved');
-  $form_state['redirect'] = 'square_feet';
-}*/
