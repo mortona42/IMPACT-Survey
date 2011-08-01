@@ -146,11 +146,6 @@ class views_handler extends views_object {
   var $query = NULL;
 
   /**
-   * The type of the handler, for example filter/footer/field.
-   */
-  var $handler_type = NULL;
-
-  /**
    * init the handler with necessary data.
    * @param $view
    *   The $view object this handler is attached to.
@@ -796,9 +791,7 @@ class views_many_to_one_helper {
           // query optimization, INNER joins are slightly faster, so use them
           // when we know we can.
           $join = $this->get_join();
-          if (isset($join)) {
-            $join->type = 'INNER';
-          }
+          $join->type = 'INNER';
           $this->handler->table_alias = $this->handler->query->ensure_table($this->handler->table, $this->handler->relationship, $join);
           $this->handler->view->many_to_one_tables[$field] = $this->handler->value;
         }
