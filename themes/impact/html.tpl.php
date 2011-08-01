@@ -10,7 +10,7 @@
   
   <?php // Hack for IE svg
   if($head_title=='My IMPACT | IMPACT Survey'): ?>
-  <script src="<?php print drupal_get_path('module', 'myimpact_setting'); ?>/svg.js" data-path="<?php print drupal_get_path('module', 'myimpact_setting'); ?>"></script>
+  <script src="<?php print drupal_get_path('module', 'myimpact_report_cover'); ?>/svg.js" data-path="<?php print drupal_get_path('module', 'myimpact_report_cover'); ?>"></script>
   <?php endif; ?>
   
   <?php print $styles; ?>
