@@ -581,7 +581,7 @@ function myimpact_setting_myimpact_page(){
   
   // Hijack/test photo/logo
   //$sample_cover = drupal_get_path('module', 'myimpact_setting') . '/myimpact_setting_report_cover.svg';
-  $pic_output = myimpact_report_cover_display();
+  $pic_output = '<script type="image/svg+xml">' . myimpact_report_cover_display() . '</script>';
   
   
   $content = array(
