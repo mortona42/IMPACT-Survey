@@ -4,7 +4,6 @@ description = Modified version of Kanji
 core = 7.x
 engine = phptemplate
 stylesheets[all][] = style.css
-stylesheets[all][] = local.css
 stylesheets[print][] = print.css
 stylesheets[all][] = sf/css/superfish.css
 stylesheets[all][] = sf/css/theme.css

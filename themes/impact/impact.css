@@ -115,11 +115,10 @@ input, fieldset, textarea {
 	text-align:center;
 }
 /**  Sidebar **/
-.region-sidebar-first #block-faq-faq_categories ul,
 .region-sidebar-first #block-menu-menu-my-impact ul.menu {
 	padding:0;
+  margin-left:0;
 }
-.region-sidebar-first #block-faq-faq_categories div.item-list > ul > li,
 .region-sidebar-first #block-menu-menu-my-impact ul.menu > li {
 	list-style:none;
 	width:150px;
@@ -132,7 +131,6 @@ input, fieldset, textarea {
 	background-color:#809F45;
 	text-align:center;
 }
-.region-sidebar-first #block-faq-faq_categories ul a,
 .region-sidebar-first #block-menu-menu-my-impact ul a {
 	color:white;
 	text-decoration:none;
@@ -256,4 +254,9 @@ tbody {
 /**  Node  **/
 .node {
   border:none;
+}
+/** header fielding **/
+#dateHead {
+  float:right;
+  margin:-106px 45px 0 0;
 }
