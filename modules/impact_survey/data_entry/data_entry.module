@@ -1,0 +1,79 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function data_entry_menu() {
+  $items = array();
+
+  $items['data_entry'] = array(
+    'title' => 'Paper Survey Data Entry',
+    'description' => 'Paper Survey Data Entry',
+    'page callback' => 'data_entry_index',
+    'page arguments' => array(),
+    'access callback' => TRUE
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function data_entry_theme() {
+  return array(
+    'data_entry' => array(
+      'template' => 'data_entry',
+    ),
+  );
+}
+
+function data_entry_index() {
+  $paper = FALSE;
+  
+  return theme('data_entry', array('paper' => $paper));
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function data_entry_block_info() {
+  $blocks['paper_survey_instructions'] = array(
+    'info' => t('Paper Survey Instructions'), 
+    'cache' => DRUPAL_NO_CACHE,
+    'status' => TRUE,
+    'region' => 'content top',
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'profile-survey_fielding'
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+/*function data_entry_block_configure($delta = '') {
+  $form = array();
+  if($delta = 'paper_survey_instructions') {
+   $form[''] = array(
+      '#type' => '', 
+      '#title' => t(''), 
+      '#default_value' =>, 
+      '#options' =>,
+    );
+  }
+  return $form;
+}*/
+
+/**
+ * Implements hook_block_view().
+ */
+function data_entry_block_view($delta = '') {
+  $block = array();
+  
+  if($delta == 'paper_survey_instructions') {
+    $block['subject'] = t('Paper Survey Instructions');
+    $block['content'] = 'hey dude';
+  }
+  return $block;
+}
