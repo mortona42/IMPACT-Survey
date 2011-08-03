@@ -41,9 +41,9 @@ function data_entry_block_info() {
     'info' => t('Paper Survey Instructions'), 
     'cache' => DRUPAL_NO_CACHE,
     'status' => TRUE,
-    'region' => 'content top',
+    'region' => 'content bottom',
     'visibility' => BLOCK_VISIBILITY_LISTED,
-    'pages' => 'profile-survey_fielding'
+    'pages' => 'profile-survey_fielding profile-survey_fielding/*'
   );
 
   return $blocks;
@@ -52,18 +52,62 @@ function data_entry_block_info() {
 /**
  * Implements hook_block_configure().
  */
-/*function data_entry_block_configure($delta = '') {
+function data_entry_block_configure($delta = '') {
   $form = array();
   if($delta = 'paper_survey_instructions') {
-   $form[''] = array(
-      '#type' => '', 
-      '#title' => t(''), 
-      '#default_value' =>, 
-      '#options' =>,
+    $form['incomplete_forms'] = array(
+      '#type' => 'textarea', 
+      '#title' => t('Incomplete Forms'), 
+      '#default_value' => variable_get('data_entry_incomplete_forms', 'This is text for incomplete IMLS/Intake forms'), 
+      //'#options' =>,
+     );
+    $form['not_selected'] = array(
+      '#type' => 'textarea', 
+      '#title' => t('Not Selected'), 
+      '#default_value' => variable_get('data_entry_not_selected', 'This is text for before entering fielding dates'), 
+      //'#options' =>,
+    );
+    $form['before_start'] = array(
+      '#type' => 'textarea', 
+      '#title' => t('Before Start'), 
+      '#default_value' => variable_get('data_entry_before_start', 'This is text for before the selected dates have started'), 
+      //'#options' =>,
+    );
+    $form['in_progress'] = array(
+      '#type' => 'textarea', 
+      '#title' => t('In Progress'), 
+      '#default_value' => variable_get('data_entry_in_progress', 'This is text for a survey in progress'), 
+      //'#options' =>,
+    );
+    $form['extend_dates'] = array(
+      '#type' => 'textarea', 
+      '#title' => t('Extend Dates'), 
+      '#default_value' => variable_get('data_entry_extend_dates', 'This is text for the extend survey form'), 
+      //'#options' =>,
+    );
+    $form['after_ended'] = array(
+      '#type' => 'textarea', 
+      '#title' => t('After ended'), 
+      '#default_value' => variable_get('data_entry_after_ended', 'This is text for after the survey has ended'), 
+      //'#options' =>,
     );
   }
   return $form;
-}*/
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function data_entry_block_save($delta = '', $edit = array()) {
+  if ($delta == 'paper_survey_instructions') {
+    variable_set('data_entry_incomplete_forms', $edit['incomplete_forms']);
+    variable_set('data_entry_not_selected', $edit['not_selected']);
+    variable_set('data_entry_before_start', $edit['before_start']);
+    variable_set('data_entry_in_progress', $edit['in_progress']);
+    variable_set('data_entry_extend_dates', $edit['extend_dates']);
+    variable_set('data_entry_after_ended', $edit['after_ended']);
+  }
+}
 
 /**
  * Implements hook_block_view().
@@ -71,9 +115,69 @@ function data_entry_block_info() {
 function data_entry_block_view($delta = '') {
   $block = array();
   
+  global $user;
+  
+  // Check if IMLS/Intake forms are submitted
+  $sql = 'SELECT type FROM {myimpact_profile_status} WHERE uid = :uid';
+	$submitted = db_query($sql, array(':uid' => $user->uid))->rowCount();
+	if ($submitted < 2) {
+	  $situation = 'incomplete';
+	}else {
+	  $situation = 'unselected';
+	}
+	
+  // Check if survey fielding form has been submitted
+	if($submitted >= 2) {
+  	$sql = 'SELECT pid FROM {profile} WHERE type = :type AND uid = :uid';
+  	$ff = db_query($sql, array(':type' => 'survey_fielding', ':uid' => $user->uid));
+
+  	// If it has been, check dates
+  	if($ff->rowCount() > 0) {
+  	  
+  	  $sql = 'SELECT field_fielding_date_value, field_fielding_date_value2 FROM {field_data_field_fielding_date} WHERE entity_id = :eid';
+		  $survey_fielding = db_query($sql, array(':eid' => $ff->fetchField()));
+		
+		  $fielding_dates = $survey_fielding->fetchAssoc();
+
+		  // Has the survey started yet?
+		  if(strtotime($fielding_dates['field_fielding_date_value']) < time()) {
+		    // Has the survey ended yet?
+		    if(strtotime($fielding_dates['field_fielding_date_value2']) < time()) {
+		      $situation = 'ended';
+		    } else {
+		      $situation = 'progress';
+		    }
+  	  // Otherwise, it hasn't been started  
+		  }else {
+  	    $situation = 'unstarted';
+  	  }
+  	}
+	}
+	// Are we on the extend form?
+	if(arg(2) == 'extend') $situation = 'extend';
+  
   if($delta == 'paper_survey_instructions') {
     $block['subject'] = t('Paper Survey Instructions');
-    $block['content'] = 'hey dude';
+    switch($situation) {
+      case 'incomplete': 
+        $block['content'] = variable_get('data_entry_incomplete_forms');
+        break;
+      case 'unselected': 
+        $block['content'] = variable_get('data_entry_not_selected');
+        break;
+      case 'unstarted': 
+        $block['content'] = variable_get('data_entry_before_start');
+        break;
+      case 'progress': 
+        $block['content'] = variable_get('data_entry_in_progress');
+        break;
+      case 'extend': 
+        $block['content'] = variable_get('data_entry_extend_dates');
+        break;
+      case 'ended': 
+        $block['content'] = variable_get('data_entry_after_ended');
+        break;
+    }
   }
   return $block;
 }
