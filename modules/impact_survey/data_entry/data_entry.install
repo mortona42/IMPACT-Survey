@@ -2,11 +2,11 @@
 /**
  * Implements hook_install().
  */
-function module_name_install() {
-    variable_set('data_entry_incomplete_forms', 'This is text for incomplete IMLS/Intake forms');
-    variable_set('data_entry_not_selected', 'This is text for before entering fielding dates');
-    variable_set('data_entry_before_start', 'This is text for before the selected dates have started');
-    variable_set('data_entry_in_progress', 'This is text for a survey in progress');
-    variable_set('data_entry_extend_dates', 'This is text for the extend survey form');
-    variable_set('data_entry_after_ended', 'This is text for after the survey has ended');
+function data_entry_install() {
+  variable_set('data_entry_incomplete_forms', 'This is text for incomplete IMLS/Intake forms');
+  variable_set('data_entry_not_selected', 'This is text for before entering fielding dates');
+  variable_set('data_entry_before_start', 'This is text for before the selected dates have started');
+  variable_set('data_entry_in_progress', 'This is text for a survey in progress');
+  variable_set('data_entry_extend_dates', 'This is text for the extend survey form');
+  variable_set('data_entry_after_ended', 'This is text for after the survey has ended');
 }

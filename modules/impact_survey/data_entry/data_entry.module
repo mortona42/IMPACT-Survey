@@ -1,39 +1,5 @@
 <?php
 /**
- * Implements hook_menu().
- */
-function data_entry_menu() {
-  $items = array();
-
-  $items['data_entry'] = array(
-    'title' => 'Paper Survey Data Entry',
-    'description' => 'Paper Survey Data Entry',
-    'page callback' => 'data_entry_index',
-    'page arguments' => array(),
-    'access callback' => TRUE
-  );
-
-  return $items;
-}
-
-/**
- * Implements hook_theme().
- */
-function data_entry_theme() {
-  return array(
-    'data_entry' => array(
-      'template' => 'data_entry',
-    ),
-  );
-}
-
-function data_entry_index() {
-  $paper = FALSE;
-  
-  return theme('data_entry', array('paper' => $paper));
-}
-
-/**
  * Implements hook_block_info().
  */
 function data_entry_block_info() {
@@ -43,7 +9,7 @@ function data_entry_block_info() {
     'status' => TRUE,
     'region' => 'content',
     'visibility' => BLOCK_VISIBILITY_LISTED,
-    'pages' => 'profile-survey_fielding profile-survey_fielding/*'
+    'pages' => "profile-survey_fielding\nprofile-survey_fielding/*"
   );
 
   return $blocks;
@@ -58,38 +24,32 @@ function data_entry_block_configure($delta = '') {
     $form['incomplete_forms'] = array(
       '#type' => 'textarea', 
       '#title' => t('Incomplete Forms'), 
-      '#default_value' => variable_get('data_entry_incomplete_forms', 'This is text for incomplete IMLS/Intake forms'), 
-      //'#options' =>,
+      '#default_value' => variable_get('data_entry_incomplete_forms', 'This is text for incomplete IMLS/Intake forms'),
      );
     $form['not_selected'] = array(
       '#type' => 'textarea', 
       '#title' => t('Not Selected'), 
-      '#default_value' => variable_get('data_entry_not_selected', 'This is text for before entering fielding dates'), 
-      //'#options' =>,
+      '#default_value' => variable_get('data_entry_not_selected', 'This is text for before entering fielding dates'),
     );
     $form['before_start'] = array(
       '#type' => 'textarea', 
       '#title' => t('Before Start'), 
-      '#default_value' => variable_get('data_entry_before_start', 'This is text for before the selected dates have started'), 
-      //'#options' =>,
+      '#default_value' => variable_get('data_entry_before_start', 'This is text for before the selected dates have started'),
     );
     $form['in_progress'] = array(
       '#type' => 'textarea', 
       '#title' => t('In Progress'), 
-      '#default_value' => variable_get('data_entry_in_progress', 'This is text for a survey in progress'), 
-      //'#options' =>,
+      '#default_value' => variable_get('data_entry_in_progress', 'This is text for a survey in progress'),
     );
     $form['extend_dates'] = array(
       '#type' => 'textarea', 
       '#title' => t('Extend Dates'), 
-      '#default_value' => variable_get('data_entry_extend_dates', 'This is text for the extend survey form'), 
-      //'#options' =>,
+      '#default_value' => variable_get('data_entry_extend_dates', 'This is text for the extend survey form'),
     );
     $form['after_ended'] = array(
       '#type' => 'textarea', 
       '#title' => t('After ended'), 
-      '#default_value' => variable_get('data_entry_after_ended', 'This is text for after the survey has ended'), 
-      //'#options' =>,
+      '#default_value' => variable_get('data_entry_after_ended', 'This is text for after the survey has ended'),
     );
   }
   return $form;
@@ -114,6 +74,55 @@ function data_entry_block_save($delta = '', $edit = array()) {
  */
 function data_entry_block_view($delta = '') {
   $block = array();
+  
+  if($delta == 'paper_survey_instructions') {
+    $block['subject'] = t('Paper Survey Instructions');
+    switch(data_entry_situation()) {
+      case 'incomplete': 
+        $block['content'] = variable_get('data_entry_incomplete_forms');
+        break;
+      case 'unselected': 
+        $block['content'] = variable_get('data_entry_not_selected');
+        break;
+      case 'unstarted': 
+        $block['content'] = variable_get('data_entry_before_start');
+        break;
+      case 'progress': 
+        $block['content'] = variable_get('data_entry_in_progress');
+        break;
+      case 'extend': 
+        $block['content'] = variable_get('data_entry_extend_dates');
+        break;
+      case 'ended': 
+        $block['content'] = variable_get('data_entry_after_ended');
+        break;
+    }
+  }
+  return $block;
+}
+// Hide the paper survey instructions if they are not using them
+function data_entry_block_view_data_entry_paper_survey_instructions_alter(&$data, $block) {
+  // Are they doing paper surveys?
+  global $user;
+  $sql = "SELECT field_paper_survey_value FROM {field_data_field_paper_survey} WHERE entity_id = (SELECT pid FROM {profile} WHERE type = 'survey_fielding' AND uid = $user->uid)";
+  $paper = db_query($sql)->fetchField();
+  
+  switch(data_entry_situation()) {
+      case 'incomplete':
+      case 'unselected':
+        break;
+      case 'unstarted':
+      case 'progress':
+      case 'extend':
+      case 'ended': 
+        if($paper == 0) {
+          unset($data['subject']);
+          unset($data['content']);
+        }
+        break;
+  }
+}
+function data_entry_situation() {
   
   global $user;
   
@@ -155,29 +164,6 @@ function data_entry_block_view($delta = '') {
 	}
 	// Are we on the extend form?
 	if(arg(2) == 'extend') $situation = 'extend';
-  
-  if($delta == 'paper_survey_instructions') {
-    $block['subject'] = t('Paper Survey Instructions');
-    switch($situation) {
-      case 'incomplete': 
-        $block['content'] = variable_get('data_entry_incomplete_forms');
-        break;
-      case 'unselected': 
-        $block['content'] = variable_get('data_entry_not_selected');
-        break;
-      case 'unstarted': 
-        $block['content'] = variable_get('data_entry_before_start');
-        break;
-      case 'progress': 
-        $block['content'] = variable_get('data_entry_in_progress');
-        break;
-      case 'extend': 
-        $block['content'] = variable_get('data_entry_extend_dates');
-        break;
-      case 'ended': 
-        $block['content'] = variable_get('data_entry_after_ended');
-        break;
-    }
-  }
-  return $block;
+	
+	return $situation;
 }
