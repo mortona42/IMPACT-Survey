@@ -41,7 +41,7 @@ function data_entry_block_info() {
     'info' => t('Paper Survey Instructions'), 
     'cache' => DRUPAL_NO_CACHE,
     'status' => TRUE,
-    'region' => 'content bottom',
+    'region' => 'content',
     'visibility' => BLOCK_VISIBILITY_LISTED,
     'pages' => 'profile-survey_fielding profile-survey_fielding/*'
   );
