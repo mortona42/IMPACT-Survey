@@ -258,7 +258,7 @@ function square_feet_verify_form_submit($form, &$form_state) {
   if(isset($form_state['values']['missing'])) {
     foreach($form_state['values']['missing'] as $branch_id => $sq_feet) {
       // check for bookmobiles/missing data
-      if($sq_feet >= 0) {
+      if($sq_feet >= 999999) {
         db_merge('library_branch')
           ->key(array('branch_id' => $branch_id))
           ->fields(array(
@@ -266,7 +266,7 @@ function square_feet_verify_form_submit($form, &$form_state) {
             ))
           ->execute();
       }else {
-        drupal_set_message('invalid data in invalid branch', 'warning');
+        drupal_set_message('Values must be between 0 and 999,999.', 'warning');
       }
     }
   }
@@ -274,7 +274,7 @@ function square_feet_verify_form_submit($form, &$form_state) {
   if(isset($form_state['values']['valid'])) {
     foreach($form_state['values']['valid'] as $branch_id => $sq_feet) {
       // check for bookmobiles/missing data
-      if($sq_feet >= 0) {
+      if($sq_feet >= 0 && $sq_feet < 999999) {
         db_merge('library_branch')
           ->key(array('branch_id' => $branch_id))
           ->fields(array(
@@ -282,7 +282,7 @@ function square_feet_verify_form_submit($form, &$form_state) {
             ))
           ->execute();
       }else {
-        drupal_set_message('invalid data in valid branch', 'warning');
+        drupal_set_message('Values must be between 0 and 999,999.', 'warning');
       }
     }
   }
