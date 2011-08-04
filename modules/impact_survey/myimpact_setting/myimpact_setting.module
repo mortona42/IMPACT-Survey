@@ -556,7 +556,7 @@ function myimpact_setting_myimpact_page(){
   }
 		
 	//Photo and Logo
-  $tag="Change";
+  $tag="Change Images";
 			
   $publicPath=variable_get('file_public_path', conf_path() . '/files');
   //get the path of logo
@@ -573,8 +573,8 @@ function myimpact_setting_myimpact_page(){
   $pic_output = $tip;
   			  
   //default pictures
-  if(empty($logo)) {$logo="public://default_images/default_logo.jpg";$tag="Upload";}
-  if(empty($libPic)) {$libPic="public://default_images/default_library_pic.jpg";$tag="Upload";}
+  if(empty($logo)) {$logo="public://default_images/default_logo.jpg";$tag="Upload Your Images";}
+  if(empty($libPic)) {$libPic="public://default_images/default_library_pic.jpg";$tag="Upload Your Images";}
   
 	$pic_output.="<img width=100px height=100px src='".myimpact_setting_convUri($logo, $publicPath)."' alt='library logo'/>"."<br>";
   $pic_output.="<img width=100px height=100px src='".myimpact_setting_convUri($libPic, $publicPath)."' alt='library photo' align=center />";
