@@ -1,6 +1,8 @@
 <?php
 /**
  * Implements hook_menu().
+ * 
+ * TODO:  correct permissions
  */
 function square_feet_menu() {
   $items = array();
@@ -147,7 +149,7 @@ function square_feet_verify_form($form, &$form_state, $missing_branches, $valid_
 }
 
 function square_feet_verify_branches_user() {
-  $fscs = 'HI0001';//token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
   return square_feet_verify_branches($fscs);
 }
 function square_feet_verify_branches($fscs) {
@@ -166,7 +168,7 @@ function square_feet_verify_branches($fscs) {
 }
 
 function square_feet_user() {
-  $fscs = 'HI0001';//token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
   $records = square_feet_form_get_records($fscs);
   drupal_set_title('Edit All Square Feet Values');
   return drupal_get_form('square_feet_form', $records, NULL);
@@ -179,7 +181,8 @@ function square_feet_test($fscs) {
 // Display a form for missing sq ft values, followed by a table with good values
 function square_feet_missing() {
   drupal_set_title('Enter Missing SQ FT Values');
-  $records = square_feet_form_get_records('HI0001');
+  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  $records = square_feet_form_get_records($fscs);
   $valid_branches = array();
   $missing_branches = array();
   
@@ -218,9 +221,7 @@ function square_feet_fetch_branches($fscs) {
 /**
  * Implements hook_form().
  */
-function square_feet_form($form, &$form_state, $branches, $table = NULL) {
-  // might as well fix this!
-  $records = $branches;
+function square_feet_form($form, &$form_state, $records, $table = NULL) {
   
   $form['square_feet'] = array(
     '#type' => 'container',
@@ -285,14 +286,12 @@ function square_feet_verify_form_submit($form, &$form_state) {
       }
     }
   }
-  //return 'asdf';
 }
 // returns an array of branches for a given fscs key
 function square_feet_form_get_records($fscs) {
   $imls_query = "SELECT s.id, s.lib_name, s.sq_feet AS 'old_sq_feet', l.sq_feet AS 'new_sq_feet' FROM {square_feet} s LEFT JOIN {library_branch} l ON s.id = l.branch_id WHERE fscs_key = :fscs ORDER BY s.lib_name";
   $imls_records = db_query($imls_query, array(':fscs' => $fscs));
   $imls_branches = $imls_records->fetchAll();
-  //dpm($imls_branches);
   return $imls_branches;
 }
 
