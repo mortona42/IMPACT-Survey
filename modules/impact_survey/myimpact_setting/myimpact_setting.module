@@ -536,23 +536,35 @@ function myimpact_setting_myimpact_page(){
 	  if(empty($date)) $flag=2;
 	  elseif($date<time()) $flag=4;
 	}
-		
-  switch($flag){
-    case 0:
-      $step="1. Confirm your library's <a href=./profile-imls_data>IMLS Data</a>";
-      break;
-    case 1:
-      $step='2. Complete the <a href=./profile-intake_form>Intake Form</a>';
-      break;
-    case 2:
-      $step='3. Select your <a href=./profile-survey_fielding>survey fielding</a> dates';
-      break;
-    case 3:
-      $step='4. <a href=./codebox>Get your survey links, and let your survey run.</a>';
-      break;
-    case 4:
-      $step='Your report is done, view it <a href=./reports>here</a>';
-      break;
+		  
+  // These are all the steps that a user should go through - this should be in the DB
+  $stepsArray = array(0 => "Confirm your library's <a href='./profile-imls_data'>IMLS Data</a>",
+  					  1 => "Complete the <a href='./profile-intake_form'>Intake Form</a>",
+  					  2 => "Select your <a href='./profile-survey_fielding'>survey fielding</a> dates",
+  					  3 => "<a href='./codebox'>Get your survey links, and let your survey run.</a>",
+  					  4 => "Your report is done, view it <a href='./reports'>here</a>");
+  $step = "";
+  // Iterate through all the steps
+  for($i = 0; $i < count($stepsArray); $i++) {
+  	
+  	// remove links if it's not the flag
+  	if ($i != $flag) {
+	  	$stepsArray[$i] = str_replace("<a", "<span", $stepsArray[$i]);
+	  	$stepsArray[$i] = str_replace("</a>", "</span>", $stepsArray[$i]);
+  	}
+  	if ($i == $flag) {
+  		$step .= "<span style='font-weight:bold; font-size: +1.5em'>";
+  	}
+    $step .= (string) $i+1 . '. ';
+  	if ($i < $flag) {
+  		$step .= '<span style="text-decoration: line-through; color:gray">';
+  		$step .= $stepsArray[$i];
+  		$step .= '</span> <br />';
+  	} else if ($i == $flag) {
+  		$step .= '' . $stepsArray[$i] . '</span> <br />';
+  	} else {
+  		$step .= '<span style="color:gray">' . $stepsArray[$i] . '</span><br />';
+  	}
   }
 		
 	//Photo and Logo

@@ -13,7 +13,7 @@
 	
 	<?php print $user->mail;?>
 	
-	<h3>Completed Surveys:  <span style='color:#333333'><?php if(isset($surveyCount)) print $surveyCount;?>*</span></h3><p>*Updated every 24 hours.</p>
+	<h3>Completed Surveys:  <span style='color:#333333'><?php if(isset($surveyCount)) print $surveyCount; else print "0" ?>*</span></h3><p>*Updated every 24 hours.</p>
 	
 	<input type="button" value="Edit" class="form-submit" onClick="window.location.href='myimpact/edit'" /> <br><br>
 		
@@ -24,7 +24,7 @@
 </div><!-- left_content -->
 
 <div id='photo_logo'>
-<h4 style="text-align:center">Report Cover Sample</h4>
+	<h4 style="text-align:center">Report Cover Sample</h4>
 	<?php print $pic_output;?>
 
 	<div align='center'><input type='button' class="form-submit" value="<?php if(isset($tag)) print $tag;?>" onClick="window.location.href = '<?php print "./profile-photo_logo/$user->uid/edit";?>'" /></div>

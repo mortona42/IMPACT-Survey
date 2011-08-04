@@ -254,7 +254,7 @@ function library_registration_proof_validate($element, $form_state) {
   } 
   else {
     if ($element['#value'] != 'ILS') {
-        form_error($element, t('Do you really work at a library?'));
+        form_error($element, t('You answered the challenge question incorrectly.'));
     }
   }
 }
