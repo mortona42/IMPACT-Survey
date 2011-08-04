@@ -110,10 +110,10 @@ function data_entry_block_view_data_entry_paper_survey_instructions_alter(&$data
   switch(data_entry_situation()) {
       case 'incomplete':
       case 'unselected':
+      case 'extend':
         break;
       case 'unstarted':
       case 'progress':
-      case 'extend':
       case 'ended': 
         if($paper == 0) {
           unset($data['subject']);
