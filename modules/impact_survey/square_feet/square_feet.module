@@ -39,8 +39,8 @@ function square_feet_menu() {
   );
   
   $items['profile-imls_data/%profile2_by_uid/verify'] = array(
-    'title' => 'Verify Branches & sq ft',
-    'description' => 'Verify branches and square feet',
+    'title' => 'Verify sq ft',
+    'description' => 'Verify square feet',
     'page callback' => 'square_feet_verify',
     'page arguments' => array(1),
     'access callback' => TRUE,
@@ -80,7 +80,8 @@ function square_feet_verify($imls_profile) {
       $valid_branches[] = $branch;
     }
   }
-  
+  //dpm($missing_branches);
+  //dpm($valid_branches);
   
   return drupal_get_form('square_feet_verify_form', $missing_branches, $valid_branches);
 }
@@ -247,19 +248,42 @@ function square_feet_form($form, &$form_state, $branches, $table = NULL) {
   
   return $form;
 }
-
-function square_feet_form_submit($form, &$form_state) {
-  //dpm($form_state['values']);
-  foreach($form_state['values']['square_feet'] as $branch_id => $sq_feet) {
-    // check for bookmobiles/missing data
-    //if($sq_feet > 0) {
-      db_merge('library_branch')
-        ->key(array('branch_id' => $branch_id))
-        ->fields(array(
-        		'sq_feet' => $sq_feet,
-          ))
-        ->execute();
-    //}
+// Submit function for the square feet verify form
+// Creates records for every branch in the library system
+// If these values exist in the database, reference them before using older values
+function square_feet_verify_form_submit($form, &$form_state) {
+  // Would be good to combine these two loops, might be a matter of not making the form values a tree
+  // Submit missing values (check is needed to avoid error when none are missing)
+  if(isset($form_state['values']['missing'])) {
+    foreach($form_state['values']['missing'] as $branch_id => $sq_feet) {
+      // check for bookmobiles/missing data
+      if($sq_feet >= 0) {
+        db_merge('library_branch')
+          ->key(array('branch_id' => $branch_id))
+          ->fields(array(
+          		'sq_feet' => $sq_feet,
+            ))
+          ->execute();
+      }else {
+        drupal_set_message('invalid data in invalid branch', 'warning');
+      }
+    }
+  }
+  // Submit valid values (check is needed to avoid error when none are valid)
+  if(isset($form_state['values']['valid'])) {
+    foreach($form_state['values']['valid'] as $branch_id => $sq_feet) {
+      // check for bookmobiles/missing data
+      if($sq_feet >= 0) {
+        db_merge('library_branch')
+          ->key(array('branch_id' => $branch_id))
+          ->fields(array(
+          		'sq_feet' => $sq_feet,
+            ))
+          ->execute();
+      }else {
+        drupal_set_message('invalid data in valid branch', 'warning');
+      }
+    }
   }
   //return 'asdf';
 }
@@ -268,6 +292,7 @@ function square_feet_form_get_records($fscs) {
   $imls_query = "SELECT s.id, s.lib_name, s.sq_feet AS 'old_sq_feet', l.sq_feet AS 'new_sq_feet' FROM {square_feet} s LEFT JOIN {library_branch} l ON s.id = l.branch_id WHERE fscs_key = :fscs ORDER BY s.lib_name";
   $imls_records = db_query($imls_query, array(':fscs' => $fscs));
   $imls_branches = $imls_records->fetchAll();
+  //dpm($imls_branches);
   return $imls_branches;
 }
 
