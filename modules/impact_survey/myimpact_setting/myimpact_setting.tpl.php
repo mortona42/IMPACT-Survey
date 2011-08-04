@@ -13,7 +13,7 @@
 	
 	<?php print $user->mail;?>
 	
-	<h3>Completed Surveys:  <span style='color:#333333'><?php if(isset($surveyCount)) print $surveyCount;?></span></h3><p>*Updated every 24 hours.</p>
+	<h3>Completed Surveys:  <span style='color:#333333'><?php if(isset($surveyCount)) print $surveyCount;?>*</span></h3><p>*Updated every 24 hours.</p>
 	
 	<input type="button" value="Edit" class="form-submit" onClick="window.location.href='myimpact/edit'" /> <br><br>
 		
