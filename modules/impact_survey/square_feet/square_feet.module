@@ -64,7 +64,7 @@ function square_feet_verify($imls_profile) {
   //$fscs = db_query($query, array(':pid' => $uid->pid))->fetchAll();
   //dpm($fscs);
   
-  //$fscs = 'HI0001';//token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
   $branches = square_feet_form_get_records($fscs);
   
   $valid_branches = array();
@@ -249,7 +249,7 @@ function square_feet_form($form, &$form_state, $branches, $table = NULL) {
 }
 
 function square_feet_form_submit($form, &$form_state) {
-  dpm($form_state['values']);
+  //dpm($form_state['values']);
   foreach($form_state['values']['square_feet'] as $branch_id => $sq_feet) {
     // check for bookmobiles/missing data
     //if($sq_feet > 0) {
