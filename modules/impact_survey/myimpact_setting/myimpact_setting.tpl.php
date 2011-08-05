@@ -24,8 +24,8 @@
 </div><!-- left_content -->
 
 <div id='photo_logo'>
-	<h4 style="text-align:center">Report Cover Sample</h4>
-	<?php print $pic_output;?>
+	<h4 style="text-align:center;margin:0 0 5px 0;">Report Cover Sample</h4>
+	<div style="border:1px solid black;padding-left:10px;"><?php print $pic_output;?></div>
 
 	<div align='center'><input type='button' class="form-submit" value="<?php if(isset($tag)) print $tag;?>" onClick="window.location.href = '<?php print "./profile-photo_logo/$user->uid/edit";?>'" /></div>
 
