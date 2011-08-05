@@ -6,6 +6,7 @@
  *
  */
 function library_registration_form_profile2_edit_library_registration_form_alter(&$form, &$form_state) {
+  drupal_set_title('Library Registration');
   // This field from the default registration form breaks ajax in IE.
   unset($form['picture']);
   // Change email description.
@@ -254,7 +255,7 @@ function library_registration_proof_validate($element, $form_state) {
   } 
   else {
     if ($element['#value'] != 'ILS') {
-        form_error($element, t('Do you really work at a library?'));
+        form_error($element, t('You answered the challenge question incorrectly.'));
     }
   }
 }
