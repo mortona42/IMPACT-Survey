@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-utf-8">
+		<title>Some test chart</title>
+		<script type="text/javascript" src="js/jquery-1.6.js"></script> 
+		<script type="text/javascript" src="js/highcharts.js"></script> 
+	      <script>
+	      var chart;
+	      $(document).ready(function() {
+		 chart = new Highcharts.Chart({
+		    chart: {
+		       renderTo: 'container',
+		       defaultSeriesType: 'bar',
+		       'stroke-width': 0
+		    },
+
+		    title: {
+		       text: 'Percentage by income'
+		    },
+		   
+   		    legend: {
+			enabled: false,
+		    },
+
+		    xAxis: {
+		       categories: ['Some', 'Not some', 'Third Category'],
+		       title: {
+		          text: null
+		       }
+		    },
+
+		    yAxis: {
+		       min: 0,
+		       title: {
+		          text: 'Percent',
+		          align: 'high'
+		       }
+		    },
+
+		    colors: ["#623874"], 
+
+		    tooltip: {
+		       formatter: function() {
+		          return ''+
+		              this.series.name +': '+ this.y +' percent';
+		       }
+		    },
+
+		    plotOptions: {
+		       bar: {
+		          dataLabels: {
+		             enabled: true,
+		             formatter: function() {
+		                return this.y + '%';
+		             }
+		          }
+		       }
+		    },
+
+		    
+		    credits: {
+		       enabled: false
+		    },
+
+	            series: [{
+		       name: '',
+		       data: [45, 29, 10, 20, 30]
+		        },],
+		    });
+	      });
+	      </script>
+	</head>
+	<body>
+		<div id="container" style="width: 800px; height: 400px"></div> 
+	</body>
+</html>
