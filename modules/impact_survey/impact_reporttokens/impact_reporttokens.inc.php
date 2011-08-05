@@ -1,12 +1,23 @@
 <?php
-global $better_array;
+// Get the FSCS key from the DB, and not from the token
+global $_fscs, $user;
+$query = "SELECT f.field_library_reg_system_value AS fscs " .
+		 "FROM {field_data_field_library_reg_system} f " .
+		 "JOIN {profile} p ON p.pid = f.entity_id " .
+	     "WHERE p.uid = $user->uid";
+$result = db_query($query);
+foreach($result as $record) {
+	$_fscs = $record->fscs;
+	//die($record->fscs);
+}
 
 /**
  * Implements hook_tokens().
  */
 function impact_reporttokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
-  #$fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]'); 
-  $fscs = "WA0064";
+  // We need the $fscs variable to pass onto db_caching.php
+  global $_fscs;
+  $fscs = $_fscs;
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
   $better_array = array();
@@ -23,8 +34,8 @@ function impact_reporttokens_tokens($type, $tokens, array $data = array(), array
  * Implements hook_token_info().
  */
 function impact_reporttokens_token_info() {
-  #$fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
-  $fscs = "WA0064";
+  global $_fscs;
+  $fscs = $_fscs;
   require_once("db_caching.php");
   
   $types = array(
