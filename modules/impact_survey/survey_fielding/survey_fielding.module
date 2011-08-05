@@ -400,7 +400,7 @@ function survey_fielding_extend(){
 
   $output="
 <h3>Your survey is running:</h3>
-<b>from date</b><br><h4>$date1</h4>$date2
+<b>Start date</b><br><h4>$date1</h4>$date2
 <p>Please maintain the links on your website and promotional flyers during the dates below.  Visit <a href='./codebox'>Get your links</a> for more information about survey promotion.</p>
 <p>You are no longer allowed to change information on your IMLS Data and Intake survey forms.</p>
 <p>You may extend the survey while it is running, <em>but not after it has ended.</em></p>

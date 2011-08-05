@@ -82,3 +82,48 @@ function imls_data_calculate_sq_feet($fscs) {
   }
   return $sum;
 }
+function imls_data_profile2_view_alter($build) {
+  //dpm($build);
+  
+  $happy = explode($build[0]['#markup'], '<table class="library_form">');
+  //dpm($happy);
+  //dpm($build['#entity']->)
+  
+  //dpm($build);
+}
+function imls_data_profile2_view($profile, $view_mode, $langcode) {
+  //dpm($view_mode);
+  //dpm($profile);
+  
+  $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  
+  $sql = "SELECT * FROM {library_lookup} WHERE fscs_key = :fscs";
+  $imls_data = db_query($sql, array(':fscs' => $fscs))->fetch();
+  
+  $sql = "SELECT SUM(sq_feet) AS sq_feet FROM {square_feet} WHERE fscs_key = :fscs AND sq_feet > 0";
+  $sq_feet = db_query($sql, array(':fscs' => $fscs))->fetch();
+  /*
+  $profile->content['table_header'] = array(
+    '#markup' => '<thead><tr><th>a</th><th>b</th><th>c</th></tr></thead>',
+    '#weight' => 0,
+    '#theme' => 'imls_data_render_thead'
+  );*/
+  
+  // Normally, I'd hack an extra <td> into #prefix, but whatever function renders this isn't picking that up.
+  // Since #markup is wrapped in <td>'s, this syntax adds a cell before the profile value
+  $profile->content['field_legalpop'][0]['#markup'] = number_format($imls_data->popu_lsa) . '</td><td>' . $profile->content['field_legalpop'][0]['#markup'];
+  $profile->content['field_visits'][0]['#markup'] = number_format($imls_data->visits) . '</td><td>' . $profile->content['field_visits'][0]['#markup'];
+  $profile->content['field_hours'][0]['#markup'] = number_format($imls_data->hrs_open) . '</td><td>' . $profile->content['field_hours'][0]['#markup'];
+  $profile->content['field_sq_ft'][0]['#markup'] = number_format($sq_feet->sq_feet) . ' sq ft</td><td>' . $profile->content['field_sq_ft'][0]['#markup'];
+  $profile->content['field_circ'][0]['#markup'] = number_format($imls_data->tot_cir) . '</td><td>' . $profile->content['field_circ'][0]['#markup'];
+  $profile->content['field_expend_tot'][0]['#markup'] = '$' . number_format($imls_data->tot_op_exp) . '</td><td>' . $profile->content['field_expend_tot'][0]['#markup'];
+  $profile->content['field_fte'][0]['#markup'] = number_format($imls_data->tot_staff) . '</td><td>' . $profile->content['field_fte'][0]['#markup'];
+  $profile->content['field_terminals'][0]['#markup'] = number_format($imls_data->gp_terms) . '</td><td>' . $profile->content['field_terminals'][0]['#markup'];
+  $profile->content['field_pac_uses'][0]['#markup'] = number_format($imls_data->pit_usr) . '</td><td>' . $profile->content['field_pac_uses'][0]['#markup'];
+  
+  //dpm($profile);
+}
+/*
+function imls_data_render_thead($variables) {
+  dpm($variables);
+}*/
