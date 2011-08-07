@@ -1,12 +1,5 @@
 <?php
 /*
- * hook_init()
- */
-function myimpact_setting_init(){
-	drupal_add_css(drupal_get_path('module', 'myimpact_setting') . 'myimpact_setting.css', array('group' => CSS_DEFAULT));
-}
-
-/*
  * hook_menu
  *
  */
@@ -326,10 +319,6 @@ function myimpact_setting_delete_status($pid){
  *
  */
 function myimpact_setting_profile2_view($profile, $view_mode, $langcode) {
-
-  drupal_add_css(drupal_get_path('module', 'myimpact_setting') . '/myimpact_setting.css');
-	
-	
   $table = array();
   $table['attributes'] = array('class' => array('library_form'));
 
@@ -450,9 +439,6 @@ function myimpact_setting_theme() {
  * myimpact page
  */
 function myimpact_setting_myimpact_page(){
-  //add css to myimpact
-  drupal_add_css(drupal_get_path('module', 'myimpact_setting') . '/myimpact_setting.css');
-	
 	global $user;
 	$uid = $user->uid;
 
@@ -537,8 +523,6 @@ function myimpact_setting_myimpact_page(){
   	  elseif($date<time()) $flag=4;
   	}
   }
-  
-	dpm($flag);
 	
   // These are all the steps that a user should go through - this should be in the DB
   $stepsArray = array(0 => "Confirm your library's <a href='./profile-imls_data'>IMLS Data</a>",
