@@ -39,7 +39,7 @@ function square_feet_menu() {
     'page arguments' => array(1),
     'access callback' => TRUE
   );
-  
+  /*
   $items['profile-imls_data/%profile2_by_uid/verify'] = array(
     'title' => 'Verify sq ft',
     'description' => 'Verify square feet',
@@ -48,7 +48,7 @@ function square_feet_menu() {
     'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'weight' => 1
-  );
+  );*/
   
   return $items;
 }
@@ -104,7 +104,7 @@ function square_feet_verify_form($form, &$form_state, $missing_branches, $valid_
     
     $form['missing'][$branch->id] = array(
       '#type' => 'textfield',
-      '#prefix' => '<tr><td>' . capwords($branch->lib_name) . '</td><td>0</td><td>',
+      '#prefix' => '<tr><td>' . impact_util_capwords($branch->lib_name) . '</td><td>0</td><td>',
       '#suffix' => '</td></tr>',
       '#default_value' => 0,
     );
@@ -123,7 +123,7 @@ function square_feet_verify_form($form, &$form_state, $missing_branches, $valid_
     
     $form['valid'][$branch->id] = array(
       '#type' => 'textfield',
-      '#prefix' => '<tr><td>' . capwords($branch->lib_name) . "</td><td>$branch->old_sq_feet</td><td>",
+      '#prefix' => '<tr><td>' . impact_util_capwords($branch->lib_name) . "</td><td>$branch->old_sq_feet</td><td>",
       '#suffix' => '</td></tr>',
       '#default_value' => $field_value,
     );
@@ -159,7 +159,7 @@ function square_feet_verify_branches($fscs) {
   $count = 0;
   foreach($branches as $branch) {
     $count++;
-    $output .= '<li>'.capwords($branch->lib_name).'</li>';
+    $output .= '<li>'.impact_util_capwords($branch->lib_name).'</li>';
   }
   $output .= '</ul>';
   
@@ -293,23 +293,4 @@ function square_feet_form_get_records($fscs) {
   $imls_records = db_query($imls_query, array(':fscs' => $fscs));
   $imls_branches = $imls_records->fetchAll();
   return $imls_branches;
-}
-
-// capwords should be moved to somewhere it can be reused
-
-// A better version of ucwords that capitalizes just the first word, regardless 
-// of the previous case. It also capitalizes the first word after an array of delimiters.
-// @$string - the string to be capitalized
-// @$delimiters  (optional) - an array of characters that should be followed by a capital letter
-// This function accomplishes a similar task to ucwords(strtolower("Some string"))
-function capwords($string, $delimiters = array('-','/','(', ' ')) {
-$string = strtolower($string);
-foreach ($delimiters as $delim) {
-$string = explode($delim, $string);
-foreach ($string as $index=>$capword) {
-  $string[$index] = ucfirst($capword);
-}
-$string = implode($delim, $string);
-}
-return $string;
 }
