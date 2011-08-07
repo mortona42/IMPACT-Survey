@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  *
@@ -22,8 +21,6 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
     'field_legalpop' => $result_system->popu_lsa,
     'field_visits' => $result_system->visits,
     'field_hours' => $result_system->hrs_open,
-    //'field_sq_ft' => imls_data_calculate_sq_feet($fscs),
-    //'field_circ' => $result_system->tot_cir,
     'field_expend_tot' => $result_system->tot_op_exp,
     'field_fte' => $result_system->tot_staff,
     'field_terminals' => $result_system->gp_terms,
@@ -116,10 +113,5 @@ function imls_data_profile2_view($profile, $view_mode, $langcode) {
     $profile->content['field_pac_uses'][0]['#markup'] = number_format($imls_data->pit_usr) . '</td><td>' . $profile->content['field_pac_uses'][0]['#markup'];
     $profile->content['field_num_branches'][0]['#markup'] = imls_data_num_branches($fscs) . '</td><td>' . $profile->content['field_num_branches'][0]['#markup'];
     
-    //dpm($profile);
   }
 }
-/*
-function imls_data_render_thead($variables) {
-  dpm($variables);
-}*/
