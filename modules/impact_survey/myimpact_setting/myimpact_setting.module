@@ -246,7 +246,7 @@ function myimpact_setting_profile_management_submit($form, &$form_state){
  */
 function myimpact_setting_profile2_user_submit($form, &$form_state){
   //$form_state['redirect']="myimpact";
-  drupal_set_message('Your data has been saved but not submitted. We encorage you to complete that as soon as possible!');
+  drupal_set_message('Your data has been saved.  Please submit the form when it is complete.');
 }
 
 /*
@@ -524,19 +524,22 @@ function myimpact_setting_myimpact_page(){
 		$sql="select type from {profile} where uid=:uid and type=:type";
 		$survey_fielding=db_query($sql,array('uid'=>$uid, 'type'=>"survey_fielding"))->fetchField();
 		if (!empty($survey_fielding)) $flag='3';
-	}
+	
 		
-	//get dates
-	$sql="select field_fielding_date_value2 from {profile} as p,{field_data_field_fielding_date} as f where p.uid=:uid and p.type='survey_fielding' and f.entity_id=p.pid";
-	$date=db_query($sql,array('uid'=>$uid))->fetchField();
-	$date=strtotime($date);
-		
-	//check whether the date is expired.
-	if(isset($date)){
-	  if(empty($date)) $flag=2;
-	  elseif($date<time()) $flag=4;
-	}
-		  
+  	//get dates
+  	$sql="select field_fielding_date_value2 from {profile} as p,{field_data_field_fielding_date} as f where p.uid=:uid and p.type='survey_fielding' and f.entity_id=p.pid";
+  	$date=db_query($sql,array('uid'=>$uid))->fetchField();
+  	$date=strtotime($date);
+  		
+  	//check whether the date is expired.
+  	if(isset($date)){
+  	  if(empty($date)) $flag=2;
+  	  elseif($date<time()) $flag=4;
+  	}
+  }
+  
+	dpm($flag);
+	
   // These are all the steps that a user should go through - this should be in the DB
   $stepsArray = array(0 => "Confirm your library's <a href='./profile-imls_data'>IMLS Data</a>",
   					  1 => "Complete the <a href='./profile-intake_form'>Intake Form</a>",
