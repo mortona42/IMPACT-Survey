@@ -77,7 +77,6 @@ function survey_fielding_validate($form, &$form_state){
   }
 
   if(strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value2'])<=strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']) && !empty($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']))
-  #form_set_error('user','The To date must be greater than the From date (If your To date is correct, please check your formate, i.e. May 6 2011, or use the pop-up calendar.)');
   form_set_error('user', 'The start date must be before the end date (if your end date is correct, please check that your format matches the format of May 6 2011, or use the pop-up calendar.)');
 }
 
