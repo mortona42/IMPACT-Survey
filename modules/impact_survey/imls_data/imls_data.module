@@ -22,12 +22,13 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
     'field_legalpop' => $result_system->popu_lsa,
     'field_visits' => $result_system->visits,
     'field_hours' => $result_system->hrs_open,
-    'field_sq_ft' => imls_data_calculate_sq_feet($fscs),
-    'field_circ' => $result_system->tot_cir,
+    //'field_sq_ft' => imls_data_calculate_sq_feet($fscs),
+    //'field_circ' => $result_system->tot_cir,
     'field_expend_tot' => $result_system->tot_op_exp,
     'field_fte' => $result_system->tot_staff,
     'field_terminals' => $result_system->gp_terms,
-    'field_pac_uses' => $result_system->pit_usr
+    'field_pac_uses' => $result_system->pit_usr,
+    'field_num_branches' => imls_data_num_branches($fscs)
   );
   
   // Loop through fields and set table elements in prefix/suffix
@@ -52,6 +53,10 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
   }
   $form['profile_imls_data']['#prefix'] = '<table class="library_form"><thead><tr><th class="imls-field-name">Field</th><th class="imls-prev-data">2008 IMLS Data</th><th class="imls-field-prefix"></th><th class="imls-current-value">Updated Value</th><th class="imls-field-suffix"></th></tr></thead><tbody>';
   $form['profile_imls_data']['#suffix'] = '</tbody></table>';
+}
+
+function imls_data_num_branches($fscs) {
+  return db_query("SELECT COUNT(fscs_key) AS count FROM {square_feet} WHERE fscs_key = '$fscs'")->fetch()->count;
 }
 /*
  function imls_data_form_submit($form, &$form_state) {
@@ -82,16 +87,16 @@ function imls_data_calculate_sq_feet($fscs) {
   }
   return $sum;
 }
-function imls_data_profile2_view_alter($build) {
-  if($build['#bundle'] == 'imls_data') {
-    $happy = explode($build[0]['#markup'], '<table class="library_form">');
+// Add a table header to the saved value output
+function imls_data_profile2_view_alter(&$build) {
+  if($build['#entity']->type == 'imls_data') {
+    $table_header = '<table class="library_form"><thead><tr><th>Field</th><th>2009 IMLS Data</th><th>Updated Value</th></tr></thead>';
+    $build[0]['#markup'] = str_replace('<table class="library_form">', $table_header, $build[0]['#markup']);
   }
 }
 function imls_data_profile2_view($profile, $view_mode, $langcode) {
-  if($profile->type == 'imls_data') {
-    //dpm($view_mode);
-    //dpm($profile);
-    
+  // check for imls_data and does not contain 'empty' content
+  if($profile->type == 'imls_data' && empty($profile->content['empty'])) {    
     $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
     
     $sql = "SELECT * FROM {library_lookup} WHERE fscs_key = :fscs";
@@ -99,24 +104,17 @@ function imls_data_profile2_view($profile, $view_mode, $langcode) {
     
     $sql = "SELECT SUM(sq_feet) AS sq_feet FROM {square_feet} WHERE fscs_key = :fscs AND sq_feet > 0";
     $sq_feet = db_query($sql, array(':fscs' => $fscs))->fetch();
-    /*
-    $profile->content['table_header'] = array(
-      '#markup' => '<thead><tr><th>a</th><th>b</th><th>c</th></tr></thead>',
-      '#weight' => 0,
-      '#theme' => 'imls_data_render_thead'
-    );*/
     
     // Normally, I'd hack an extra <td> into #prefix, but whatever function renders this isn't picking that up.
     // Since #markup is wrapped in <td>'s, this syntax adds a cell before the profile value
     $profile->content['field_legalpop'][0]['#markup'] = number_format($imls_data->popu_lsa) . '</td><td>' . $profile->content['field_legalpop'][0]['#markup'];
     $profile->content['field_visits'][0]['#markup'] = number_format($imls_data->visits) . '</td><td>' . $profile->content['field_visits'][0]['#markup'];
     $profile->content['field_hours'][0]['#markup'] = number_format($imls_data->hrs_open) . '</td><td>' . $profile->content['field_hours'][0]['#markup'];
-    $profile->content['field_sq_ft'][0]['#markup'] = number_format($sq_feet->sq_feet) . ' sq ft</td><td>' . $profile->content['field_sq_ft'][0]['#markup'];
-    $profile->content['field_circ'][0]['#markup'] = number_format($imls_data->tot_cir) . '</td><td>' . $profile->content['field_circ'][0]['#markup'];
     $profile->content['field_expend_tot'][0]['#markup'] = '$' . number_format($imls_data->tot_op_exp) . '</td><td>' . $profile->content['field_expend_tot'][0]['#markup'];
     $profile->content['field_fte'][0]['#markup'] = number_format($imls_data->tot_staff) . '</td><td>' . $profile->content['field_fte'][0]['#markup'];
     $profile->content['field_terminals'][0]['#markup'] = number_format($imls_data->gp_terms) . '</td><td>' . $profile->content['field_terminals'][0]['#markup'];
     $profile->content['field_pac_uses'][0]['#markup'] = number_format($imls_data->pit_usr) . '</td><td>' . $profile->content['field_pac_uses'][0]['#markup'];
+    $profile->content['field_num_branches'][0]['#markup'] = imls_data_num_branches($fscs) . '</td><td>' . $profile->content['field_num_branches'][0]['#markup'];
     
     //dpm($profile);
   }
