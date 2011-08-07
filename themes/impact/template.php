@@ -1,4 +1,4 @@
-<?php //$Id$
+<?php
 function impact_preprocess_page(&$variables){
   if(isset($variables['main_menu'])) {
     $pid = variable_get('menu_main_links_source', 'main-menu');
@@ -29,7 +29,6 @@ function impact_preprocess_page(&$variables){
       // removed labels - Andrew 4/28
 
       $variables['title'] = $label;
-      //asdf
     }
   }
   //go to the Edit Myimpact page
@@ -96,7 +95,7 @@ function impact_preprocess_page(&$variables){
         $pid=db_query($sql, array('uid'=>$uid, 'type'=>$tell2['0']))->fetchField();
 
         if(!empty($pid)){
-          drupal_set_message('You have submitted forms. You have no access to go bakc to edit that');
+          drupal_set_message('You have already submitted forms. Please contact us if you need to make a change.', 'warning');
           drupal_goto($tell[0].'-'.$tell2[0]);
         }
          
