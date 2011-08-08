@@ -242,9 +242,9 @@ function imls_data_block_view($delta = '') {
       break;
     case 'imls_data_view':
       $block['subject'] = t('');
-      // Hide block on edit, verify, confirm pages
+      // Hide block on edit, verify, confirm, delete pages
       $form_step = impact_util_form_step();
-      if ($form_step == 'edit' || $form_step == 'verify' || $form_step == 'confirm')
+      if ($form_step == 'edit' || $form_step == 'verify' || $form_step == 'confirm' || $form_step == 'delete')
         $block['content'] = '';
       else
         $block['content'] = variable_get('imls_data_view', 'You have submitted your IMLS Data form.  Please <a href="/contact">contact us</a> if you need to make a change.');
