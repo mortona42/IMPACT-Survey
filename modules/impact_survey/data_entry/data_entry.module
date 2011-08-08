@@ -34,22 +34,22 @@ function data_entry_block_configure($delta = '') {
     $form['before_start'] = array(
       '#type' => 'textarea', 
       '#title' => t('Before Start'), 
-      '#default_value' => variable_get('data_entry_before_start', '<a href="http://impactsurvey.org/dataentry/?' . impact_util_fscs() . '>Your paper survey data entry link</a>'),
+      '#default_value' => variable_get('data_entry_before_start', '<a href="http://impactsurvey.org/dataentry/?fscs=[current-user:profile-library-registration:field-library-reg-system]>Your paper survey data entry link</a>'),
     );
     $form['in_progress'] = array(
       '#type' => 'textarea', 
       '#title' => t('In Progress'), 
-      '#default_value' => variable_get('data_entry_in_progress', '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Your paper survey data entry link</a>'),
+      '#default_value' => variable_get('data_entry_in_progress', '<a href="http://impactsurvey.org/dataentry/?fscs=[current-user:profile-library-registration:field-library-reg-system]">Your paper survey data entry link</a>'),
     );
     $form['extend_dates'] = array(
       '#type' => 'textarea', 
       '#title' => t('Extend Dates'), 
-      '#default_value' => variable_get('data_entry_extend_dates', '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Your paper survey data entry link</a>'),
+      '#default_value' => variable_get('data_entry_extend_dates', '<a href="http://impactsurvey.org/dataentry/?fscs=[current-user:profile-library-registration:field-library-reg-system]">Your paper survey data entry link</a>'),
     );
     $form['after_ended'] = array(
       '#type' => 'textarea', 
       '#title' => t('After ended'), 
-      '#default_value' => variable_get('data_entry_after_ended', '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Your paper survey data entry link</a>'),
+      '#default_value' => variable_get('data_entry_after_ended', '<a href="http://impactsurvey.org/dataentry/?fscs=[current-user:profile-library-registration:field-library-reg-system]">Your paper survey data entry link</a>'),
     );
   }
   return $form;
