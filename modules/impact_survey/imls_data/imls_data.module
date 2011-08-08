@@ -287,3 +287,21 @@ function imls_data_block_configure($delta = '') {
   }
   return $form;
 }
+/**
+ * Implements hook_block_save().
+ */
+function imls_data_block_save($delta = '', $edit = array()) {
+  $form = array();
+  switch($delta) {
+    case 'verify_branches_instructions':
+      variable_set('imls_data_verify_branches_instructions', $edit['body']);
+      break;
+    case 'imls_data_instructions':
+      variable_set('imls_data_form_instructions', $edit['instructions']);
+      variable_set('imls_data_form_saved', $edit['saved']);
+      break;
+    case 'imls_data_view':
+      variable_set('imls_data_view', $edit['body']);
+      break;
+  }
+}
