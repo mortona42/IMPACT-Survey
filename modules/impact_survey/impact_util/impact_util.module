@@ -16,7 +16,19 @@ function impact_util_capwords($string, $delimiters = array('-','/','(', ' ')) {
   return $string;
 }
 
-// Will get a current user's fscs key
+// Get the current user's fscs key
 function impact_util_fscs() {
   return token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+}
+// Determine weather the current user's profile (imls or intake) is submitted or not
+function impact_util_profile_status($type) {
+  global $user;
+  $sql = "SELECT pid FROM {myimpact_profile_status} WHERE type = '$type' AND uid = '$user->uid'";
+  return db_query($sql)->fetchField();
+}
+// Determine whether the current user's profile (imls or intake) is saved or not
+function impact_util_profile_save($type) {
+  global $user;
+  $sql = "SELECT pid FROM {profile} WHERE type = '$type' AND uid = '$user->uid'";
+  return db_query($sql)->fetchField();
 }

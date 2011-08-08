@@ -228,11 +228,20 @@ function imls_data_block_view($delta = '') {
       break;
     case 'imls_data_instructions':
       $block['subject'] = t('');
-      $block['content'] = variable_get('imls_data_form_instructions', 'The following fields are pre-populated with information your library has reported to the Institute for Museum and Library Services (IMLS). Please make any necessary updates, confirm the information is correct, and click "submit."');
+      // If they have saved, inform them that they must submit, otherwise tell them that they must contact us to change
+      if(impact_util_profile_save('imls_data'))
+        $block['content'] = variable_get('imls_data_form_saved', 'Your form is saved, please submit it when you are finished.');
+      else
+        $block['content'] = variable_get('imls_data_form_instructions', 'The following fields are pre-populated with information your library has reported to the Institute for Museum and Library Services (IMLS). Please make any necessary updates, confirm the information is correct, and click "submit."');
       break;
     case 'imls_data_view':
       $block['subject'] = t('');
-      $block['content'] = variable_get('imls_data_view', 'You have submitted your IMLS Data form.  Please <a href="/contact">contact us</a> if you need to make a change.');
+      // Hide block on edit, verify, confirm pages
+      $url = explode('/', current_path());
+      if ($url[count($url)-1] == 'edit' || $url[count($url)-1] == 'verify' || $url[count($url)-1] == 'confirm')
+        $block['content'] = '';
+      else
+        $block['content'] = variable_get('imls_data_view', 'You have submitted your IMLS Data form.  Please <a href="/contact">contact us</a> if you need to make a change.');
       break;
   }
   return $block;
@@ -251,10 +260,15 @@ function imls_data_block_configure($delta = '') {
       );
       break;
     case 'imls_data_instructions':
-      $form['body'] = array(
+      $form['instructions'] = array(
         '#type' => 'textarea', 
-        '#title' => t('Body'), 
+        '#title' => t('Empty form instructions'), 
         '#default_value' => variable_get('imls_data_form_instructions', 'The following fields are pre-populated with information your library has reported to the Institute for Museum and Library Services (IMLS). Please make any necessary updates, confirm the information is correct, and click "submit."'),
+       );
+      $form['saved'] = array(
+        '#type' => 'textarea', 
+        '#title' => t('Saved form instructions'), 
+        '#default_value' => variable_get('imls_data_form_saved', 'Your form is saved, please submit it when you are finished.'),
        );
        break;
     case 'imls_data_view':
