@@ -46,6 +46,8 @@ function survey_fielding_trigger_info() {
 }
 
 function survey_fielding_form_profile2_edit_survey_fielding_form_alter(&$form, &$form_state) {
+  dpm($form);
+  dpm($form_state);
   $instruction="<h3>Select the dates that you will run the survey and click submit.</h3>
 <p>Consider the time it will take to complete promotional tasks, including editing your library website and posting flyers.  Visit <a href='/codebox'>Get your links</a> for more information.</p>
 <p>You will not be able to edit the IMLS Data and Intake forms once the survey fielding has begun.</p>
@@ -69,14 +71,23 @@ function survey_fielding_validate($form, &$form_state){
   //delete all the default error messages because the default one, say "Field value #1 is required", is not very understandable and friendly
   drupal_get_messages('error');
 
-  if(strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value'])<time() && !empty($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']))
-  form_set_error('user','The start date must be after the current date');
-  	
-  if(empty($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']))
-  form_set_error('datecheck',"Please use the <font color='green' size='3px'>pop-up calendar</font> (recommended), or input in the correct format, i.e. May 16 2011");
+  $start = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']);
+  $end = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value2']);
   
-  if(strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value2'])<=strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']) && !empty($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']))
-  form_set_error('user', 'The start date must be before the end date (if your end date is correct, please check that your format matches the format of May 6 2011, or use the pop-up calendar.)');
+  if($start < time () && !empty($start))
+    form_set_error('profile_survey_fielding','The start date must be after the current date');
+  	
+  if(empty($start))
+    form_set_error('profile_survey_fielding',"Please use the <font color='green' size='3px'>pop-up calendar</font> (recommended), or input in the correct format, i.e. May 16 2011");
+  
+  if($end <= $start && !empty($start))
+    form_set_error('profile_survey_fielding', 'The start date must be before the end date (if your end date is correct, please check that your format matches the format of May 6 2011, or use the pop-up calendar.)');
+
+  if($start > strtotime('9/12/2011'))
+    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to start no later than September 12th.');
+    
+  if($end > strtotime('10/3/2011'))
+    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 4th.');
 }
 
 /**
