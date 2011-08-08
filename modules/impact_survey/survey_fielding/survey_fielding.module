@@ -85,7 +85,7 @@ function survey_fielding_validate($form, &$form_state){
     form_set_error('profile_survey_fielding', 'For our pilot test, we require you to start no later than September 12th.');
     
   if($end > strtotime('10/3/2011'))
-    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 4th.');
+    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 3rd.');
 }
 
 /**
@@ -128,7 +128,6 @@ function survey_fielding_send_action($object, $context){
  * Define a form.
  */
 function survey_fielding_nameform($date1,$date2) {
-  //dpm($date2);
   $date=$date2['build_info']['args']['1'];
   // Provide a default date in the format YYYY-MM-DD HH:MM:SS.
   //$date = '2008-12-31 00:00:00';
@@ -211,8 +210,8 @@ function survey_fielding_new_page() {
 
   //Not Ready
   //get the forms filled out
-  $sql="select type from {profile} where uid=:uid";
-  $results=db_query($sql,array('uid'=>$uid));
+  $sql="SELECT type FROM {myimpact_profile_status} WHERE uid = :uid";
+  $results=db_query($sql, array(':uid' => $uid));
 
   $i=0;
   foreach($results as $type){
@@ -232,7 +231,6 @@ function survey_fielding_new_page() {
       if ($r=='pilot_intake') $flag=2;
     }
   }
-
   if($flag<2){
     $not_ready="<h3>You must complete the <a href='./profile-imls_data'>IMLS Data</a> and <a href='./profile-pilot_intake'>Intake</a> forms before selecting your fielding dates.</h3>
 <p>Consider the time it will take to complete promotional tasks, including editing your library website and posting flyers.  Visit <a href='./codebox'>Get your links</a> for more information.</p>
