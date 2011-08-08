@@ -157,6 +157,8 @@ function imls_data_profile2_view_alter(&$build) {
   }
 }
 function imls_data_profile2_view($profile, $view_mode, $langcode) {
+  if(!impact_util_profile_status('imls_data'))
+    drupal_goto($_GET['q'] . '/edit');
   // check for imls_data and does not contain 'empty' content
   if($profile->type == 'imls_data' && empty($profile->content['empty'])) {    
     $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');

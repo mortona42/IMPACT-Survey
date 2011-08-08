@@ -9,7 +9,8 @@ function intake_form_profile2_view_alter(&$build) {
   */
 }
 function intake_form_profile2_view($profile, $view_mode, $langcode) {
-  
+  if(!impact_util_profile_status('pilot_intake'))
+    drupal_goto($_GET['q'] . '/edit');
   if($profile->type == 'pilot_intake'){
     drupal_set_title('Intake Form');
     // Get all the field info for the pilot_intake profile
