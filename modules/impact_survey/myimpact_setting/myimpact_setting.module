@@ -481,7 +481,7 @@ function myimpact_setting_myimpact_page(){
     //check Information Form
     if($flag=='1') {
       foreach($user_filled as $r) {
-        if ($r=="intake_form") $flag='2';
+        if ($r=="pilot_intake") $flag='2';
       }
     }
 	}
@@ -509,7 +509,7 @@ function myimpact_setting_myimpact_page(){
 	
   // These are all the steps that a user should go through - this should be in the DB
   $stepsArray = array(0 => "Confirm your library's <a href='./profile-imls_data'>IMLS Data</a>",
-  					  1 => "Complete the <a href='./profile-intake_form'>Intake Form</a>",
+  					  1 => "Complete the <a href='./profile-pilot_intake'>Intake Form</a>",
   					  2 => "Select your <a href='./profile-survey_fielding'>survey fielding</a> dates",
   					  3 => "<a href='./codebox'>Get your survey links, and let your survey run.</a>",
   					  4 => "Your report is done, view it <a href='./reports'>here</a>");
