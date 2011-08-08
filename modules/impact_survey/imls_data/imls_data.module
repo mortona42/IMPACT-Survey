@@ -27,7 +27,6 @@ function imls_data_verify_branches_access($uid) {
 }
 function imls_data_verify_branches() {
   $branches = db_query("SELECT * FROM {square_feet} WHERE fscs_key = :fscs ORDER BY lib_name", array(':fscs' => impact_util_fscs()));
-  //dpm($branches->fetchAll());
   $header = array('Branch Name', 'Address', 'City', 'Zip', 'Square Feet');
   $rows = array();
   
@@ -53,7 +52,9 @@ function imls_data_verify_branches() {
   );
   
   drupal_set_title('Verify Library Branches');
-  return theme('table', $variables);
+  $output = '<h3>' . imls_data_num_branches(impact_util_fscs()) . ' Total Branches</h3>';
+  $output .= theme('table', $variables);
+  return $output;
 }
 /**
  * @file
@@ -85,6 +86,7 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
   );
   
   // Loop through fields and set table elements in prefix/suffix
+  // Also set default values
   $zebra = 'even';
   foreach($form['profile_imls_data'] as $field => $values) {
     $field_splode = explode('_', $field);
@@ -104,10 +106,17 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
       unset($form['profile_imls_data'][$field]['und'][0]['value']['#field_suffix']);
     }
   }
-  $form['profile_imls_data']['#prefix'] = '<table class="library_form"><thead><tr><th class="imls-field-name">Field</th><th class="imls-prev-data">2008 IMLS Data</th><th class="imls-field-prefix"></th><th class="imls-current-value">Updated Value</th><th class="imls-field-suffix"></th></tr></thead><tbody>';
+  // Add verification to number of branches
+  $form['profile_imls_data']['field_num_branches']['und'][0]['value']['#element_validate'][] = 'imls_data_validate_num_branches';
+  
+  $form['profile_imls_data']['#prefix'] = '<table class="library_form"><thead><tr><th class="imls-field-name">Field</th><th class="imls-prev-data">2009 IMLS Data</th><th class="imls-field-prefix"></th><th class="imls-current-value">Updated Value</th><th class="imls-field-suffix"></th></tr></thead><tbody>';
   $form['profile_imls_data']['#suffix'] = '</tbody></table>';
 }
-
+function imls_data_validate_num_branches($element, &$form_state, $form) {
+  if($element['#value'] < 1) {
+    form_error($element, t('You need at least one branch.'));
+  }
+}
 function imls_data_num_branches($fscs) {
   return db_query("SELECT COUNT(fscs_key) AS count FROM {square_feet} WHERE fscs_key = '$fscs'")->fetch()->count;
 }
@@ -179,11 +188,29 @@ function imls_data_block_info() {
   $blocks['verify_branches_instructions'] = array(
     'info' => t('Verify Branches Instructions'), 
     'cache' => DRUPAL_NO_CACHE,
-    'weight' => 0,
+    'weight' => -1,
     'status' => TRUE,
-    'region' => 'content_top',
+    'region' => 'content',
     'visibility' => BLOCK_VISIBILITY_LISTED,
     'pages' => 'profile-imls_data/*/verify'
+  );
+  $blocks['imls_data_instructions'] = array(
+    'info' => t('IMLS Data Instructions'), 
+    'cache' => DRUPAL_NO_CACHE,
+    'weight' => -1,
+    'status' => TRUE,
+    'region' => 'content',
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'profile-imls_data/*/edit'
+  );
+  $blocks['imls_data_view'] = array(
+    'info' => t('IMLS Data View Profile'), 
+    'cache' => DRUPAL_NO_CACHE,
+    'weight' => -1,
+    'status' => TRUE,
+    'region' => 'content',
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'profile-imls_data/*'
   );
 
   return $blocks;
@@ -194,9 +221,19 @@ function imls_data_block_info() {
  */
 function imls_data_block_view($delta = '') {
   $block = array();
-  if($delta == 'verify_branches_instructions') {
-    $block['subject'] = t('');
-    $block['content'] = 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.';//variable_get('imls_data_verify_branches_instructions', 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.');
+  switch($delta) {
+    case 'verify_branches_instructions':
+      $block['subject'] = t('');
+      $block['content'] = variable_get('imls_data_verify_branches_instructions', 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.');
+      break;
+    case 'imls_data_instructions':
+      $block['subject'] = t('');
+      $block['content'] = variable_get('imls_data_form_instructions', 'The following fields are pre-populated with information your library has reported to the Institute for Museum and Library Services (IMLS). Please make any necessary updates, confirm the information is correct, and click "submit."');
+      break;
+    case 'imls_data_view':
+      $block['subject'] = t('');
+      $block['content'] = variable_get('imls_data_view', 'You have submitted your IMLS Data form.  Please <a href="/contact">contact us</a> if you need to make a change.');
+      break;
   }
   return $block;
 }
@@ -205,12 +242,28 @@ function imls_data_block_view($delta = '') {
  */
 function imls_data_block_configure($delta = '') {
   $form = array();
-  if($delta = 'verify_branches_instructions') {
-    $form['body'] = array(
-      '#type' => 'textarea', 
-      '#title' => t('Body'), 
-      '#default_value' => variable_get('imls_data_verify_branches_instructions', 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.'),
-     );
+  switch($delta) {
+    case 'verify_branches_instructions':
+      $form['body'] = array(
+        '#type' => 'textarea', 
+        '#title' => t('Body'), 
+        '#default_value' => variable_get('imls_data_verify_branches_instructions', 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.'),
+      );
+      break;
+    case 'imls_data_instructions':
+      $form['body'] = array(
+        '#type' => 'textarea', 
+        '#title' => t('Body'), 
+        '#default_value' => variable_get('imls_data_form_instructions', 'The following fields are pre-populated with information your library has reported to the Institute for Museum and Library Services (IMLS). Please make any necessary updates, confirm the information is correct, and click "submit."'),
+       );
+       break;
+    case 'imls_data_view':
+      $form['body'] = array(
+        '#type' => 'textarea', 
+        '#title' => t('Body'), 
+        '#default_value' => variable_get('imls_data_view', 'You have submitted your IMLS Data form.  Please <a href="/contact">contact us</a> if you need to make a change.'),
+       );
+       break;
   }
   return $form;
 }

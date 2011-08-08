@@ -1,0 +1,146 @@
+<?php
+// Add a table header to the saved value output
+function intake_form_profile2_view_alter(&$build) {
+  /*
+  if($build['#entity']->type == 'imls_data') {
+    $table_header = '<table class="library_form"><thead><tr><th>Field</th><th>2009 IMLS Data</th><th>Updated Value</th></tr></thead>';
+    $build[0]['#markup'] = str_replace('<table class="library_form">', $table_header, $build[0]['#markup']);
+  }
+  */
+}
+function intake_form_profile2_view($profile, $view_mode, $langcode) {
+  
+  if($profile->type == 'pilot_intake'){
+    drupal_set_title('Intake Form');
+    // Get all the field info for the pilot_intake profile
+    $query = "SELECT field_name, data FROM {field_config_instance} WHERE bundle = 'pilot_intake'";
+    $results = db_query($query);
+    $fields = array();
+    foreach($results as $v){
+        $field = unserialize($v->data);
+        $fields[$v->field_name] = array('label' => $field['label']);
+    }
+    $header = array('Field', 'Data');
+    
+    $rows = array();
+    if(!isset($profile->content['empty'])) {
+      foreach($profile as $field => $value) {
+        $field_splode = explode('_', $field);
+        if($field_splode[0] == 'field') {
+          $data = $profile->$field;
+          if(isset($data['und'])) {
+            $fields[$field]['value'] = $profile->content[$field][0]['#markup'];
+          } else {
+            $fields[$field]['value'] = 'N/A';
+          }
+        }
+      }
+    } else {
+      foreach($fields as &$field) 
+        $field['value'] = 'N/A';
+    }
+    $profile->content = array(0 => array('#markup' => theme('table', array('header' => $header, 'rows' => $fields))));
+  
+    
+    /*
+
+    if(isset($profile->content['empty'])) drupal_goto("profile-intake_form/$profile->uid/edit");
+     
+
+    
+
+    foreach($field as $key => $value){
+      $new[$key] = $value['widget']['weight'];
+    }
+
+    //sort the weight
+    asort($new);
+
+    $i=1;
+    foreach($new as $key=>$value){
+      if(isset($go_through[$value])) {$value=$value+$i; $i++;}
+      $go_through[$value]=$key;
+    }
+
+    foreach($go_through as $value){
+      $rows[]=array(
+			'data' => array(array('data' => isset($field[$value]['label'])?$field[$value]['label']:'', 'class'=>'library_questions'), array('data' => isset($profile->content[$value]['0']['#markup'])?myimpact_setting_markup_display($profile->content[$value]):'','class'=>'library_answers')),
+			'height' => '30px',
+      );
+    }
+
+    unset($profile->content);
+
+    $table['rows'] = $rows;
+
+    $profile->content[]=array(
+ 	 		'#markup'=>theme('table', $table),
+    );
+    */
+  }
+
+  if($profile->type == 'intake_form'){
+
+    if(isset($profile->content['empty'])) drupal_goto("profile-intake_form/$profile->uid/edit");
+     
+    $query = "SELECT field_name, data FROM {field_config_instance} WHERE bundle = 'intake_form'";
+    $results = db_query($query);
+
+    foreach($results as $v){
+      $field[$v->field_name]=unserialize($v->data);
+    }
+
+    foreach($field as $key => $value){
+      $new[$key] = $value['widget']['weight'];
+    }
+
+    //sort the weight
+    asort($new);
+
+    $i=1;
+    foreach($new as $key=>$value){
+      if(isset($go_through[$value])) {$value=$value+$i; $i++;}
+      $go_through[$value]=$key;
+    }
+
+    foreach($go_through as $value){
+      $rows[]=array(
+			'data' => array(array('data' => isset($field[$value]['label'])?$field[$value]['label']:'', 'class'=>'library_questions'), array('data' => isset($profile->content[$value]['0']['#markup'])?myimpact_setting_markup_display($profile->content[$value]):'','class'=>'library_answers')),
+			'height' => '30px',
+      );
+    }
+
+    unset($profile->content);
+
+    $table['rows'] = $rows;
+
+    $profile->content[]=array(
+ 	 		'#markup'=>theme('table', $table),
+    );
+  }
+  //$profile->content = 'asdf';
+  /*
+  // check for imls_data and does not contain 'empty' content
+  if($profile->type == 'imls_data' && empty($profile->content['empty'])) {    
+    $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+    
+    $sql = "SELECT * FROM {library_lookup} WHERE fscs_key = :fscs";
+    $imls_data = db_query($sql, array(':fscs' => $fscs))->fetch();
+    
+    $sql = "SELECT SUM(sq_feet) AS sq_feet FROM {square_feet} WHERE fscs_key = :fscs AND sq_feet > 0";
+    $sq_feet = db_query($sql, array(':fscs' => $fscs))->fetch();
+    
+    // Normally, I'd hack an extra <td> into #prefix, but whatever function renders this isn't picking that up.
+    // Since #markup is wrapped in <td>'s, this syntax adds a cell before the profile value
+    $profile->content['field_legalpop'][0]['#markup'] = number_format($imls_data->popu_lsa) . '</td><td>' . $profile->content['field_legalpop'][0]['#markup'];
+    $profile->content['field_visits'][0]['#markup'] = number_format($imls_data->visits) . '</td><td>' . $profile->content['field_visits'][0]['#markup'];
+    $profile->content['field_hours'][0]['#markup'] = number_format($imls_data->hrs_open) . '</td><td>' . $profile->content['field_hours'][0]['#markup'];
+    $profile->content['field_expend_tot'][0]['#markup'] = '$' . number_format($imls_data->tot_op_exp) . '</td><td>' . $profile->content['field_expend_tot'][0]['#markup'];
+    $profile->content['field_fte'][0]['#markup'] = number_format($imls_data->tot_staff) . '</td><td>' . $profile->content['field_fte'][0]['#markup'];
+    $profile->content['field_terminals'][0]['#markup'] = number_format($imls_data->gp_terms) . '</td><td>' . $profile->content['field_terminals'][0]['#markup'];
+    $profile->content['field_pac_uses'][0]['#markup'] = number_format($imls_data->pit_usr) . '</td><td>' . $profile->content['field_pac_uses'][0]['#markup'];
+    $profile->content['field_num_branches'][0]['#markup'] = imls_data_num_branches($fscs) . '</td><td>' . $profile->content['field_num_branches'][0]['#markup'];
+    
+  }
+  */
+}

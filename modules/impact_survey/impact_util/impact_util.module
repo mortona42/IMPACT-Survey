@@ -15,3 +15,8 @@ function impact_util_capwords($string, $delimiters = array('-','/','(', ' ')) {
   }
   return $string;
 }
+
+// Will get a current user's fscs key
+function impact_util_fscs() {
+  return token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+}
