@@ -1,5 +1,61 @@
 <?php
 /**
+ * Implements hook_menu().
+ */
+function imls_data_menu() {
+  $items = array();
+
+  $items['profile-imls_data/%profile2_by_uid/verify'] = array(
+    'title' => 'Verify Branches',
+    'description' => 'Verify Branches',
+    'page callback' => 'imls_data_verify_branches',
+    'page arguments' => array(1),
+    'access callback' => 'imls_data_verify_branches_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1
+  );
+
+  return $items;
+}
+// Allow access if the user is accessing their own profile or they are an admin with view any rights
+function imls_data_verify_branches_access($uid) {
+  if(user_is_logged_in() == $uid || user_access('view any imls_data profile'))
+    return TRUE;
+  else
+    return FALSE;
+}
+function imls_data_verify_branches() {
+  $branches = db_query("SELECT * FROM {square_feet} WHERE fscs_key = :fscs ORDER BY lib_name", array(':fscs' => impact_util_fscs()));
+  //dpm($branches->fetchAll());
+  $header = array('Branch Name', 'Address', 'City', 'Zip', 'Square Feet');
+  $rows = array();
+  
+  foreach($branches->fetchAll() as $branch) {
+    $sq_feet = ($branch->sq_feet > 0) ? $branch->sq_feet : 'N/A';
+    $rows[] = array(
+      impact_util_capwords($branch->lib_name),
+      impact_util_capwords($branch->address),
+      impact_util_capwords($branch->city),
+      $branch->zip,
+      $sq_feet
+    );
+  }
+  
+  $variables = array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('class' => 'library_form'),
+    'caption' => '',
+    'colgroups' => array(),
+    'sticky' => '',
+    'empty' => ''
+  );
+  
+  drupal_set_title('Verify Library Branches');
+  return theme('table', $variables);
+}
+/**
  * @file
  *
  * Creates the registration form that libraries must complete in order to complete registration for the survey.
@@ -114,4 +170,47 @@ function imls_data_profile2_view($profile, $view_mode, $langcode) {
     $profile->content['field_num_branches'][0]['#markup'] = imls_data_num_branches($fscs) . '</td><td>' . $profile->content['field_num_branches'][0]['#markup'];
     
   }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function imls_data_block_info() {
+  $blocks['verify_branches_instructions'] = array(
+    'info' => t('Verify Branches Instructions'), 
+    'cache' => DRUPAL_NO_CACHE,
+    'weight' => 0,
+    'status' => TRUE,
+    'region' => 'content_top',
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'profile-imls_data/*/verify'
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function imls_data_block_view($delta = '') {
+  $block = array();
+  if($delta == 'verify_branches_instructions') {
+    $block['subject'] = t('');
+    $block['content'] = 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.';//variable_get('imls_data_verify_branches_instructions', 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.');
+  }
+  return $block;
+}
+/**
+ * Implements hook_block_configure().
+ */
+function imls_data_block_configure($delta = '') {
+  $form = array();
+  if($delta = 'verify_branches_instructions') {
+    $form['body'] = array(
+      '#type' => 'textarea', 
+      '#title' => t('Body'), 
+      '#default_value' => variable_get('imls_data_verify_branches_instructions', 'These are the branches we have on file from the 2009 IMLS Dataset.  Please <a href="/contact">contact us</a> if there are any inaccuracies.'),
+     );
+  }
+  return $form;
 }
