@@ -1,4 +1,10 @@
 <?php
+function imls_data_form_profile2_edit_pilot_intake_form_alter(&$form, &$form_state) {
+  if(impact_util_profile_status('pilot_intake')) {
+    drupal_set_message('You have already submitted this form. Please contact us if you need to make a change.', 'warning');
+    drupal_goto(impact_util_profile_view_url());
+  }
+}
 // Add a table header to the saved value output
 function intake_form_profile2_view_alter(&$build) {
   /*

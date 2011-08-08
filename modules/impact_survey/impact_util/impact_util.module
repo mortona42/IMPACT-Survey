@@ -37,3 +37,9 @@ function impact_util_form_step() {
   $url = explode('/', current_path());
   return $url[count($url)-1];
 }
+// Url to return a user to view page
+function impact_util_profile_view_url() {
+  global $base_url;
+  $url = explode('/', current_path());
+  return $base_url . '/' . $url[count($url)-3] . '/' . $url[count($url)-2];
+}

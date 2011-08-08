@@ -211,7 +211,7 @@ function library_registration_system_change_callback(&$form, &$form_state) {
   $fscs = $form_state['values']['profile_library_registration']['field_library_reg_system']['und'][0]['value'];
   $query = "SELECT library_name, web_address FROM {library_lookup} WHERE fscs_key = '$fscs'";
   $library_system = db_query($query)->fetchField();
-  $preferred_name = ucwords(strtolower(trim($library_system)));
+  $preferred_name = impact_util_capwords(trim($library_system));
   $system_website = db_query($query)->fetchField(1);
   $system_website = strtolower(trim($system_website));
   if($system_website == -3) $system_website = '';
