@@ -9,9 +9,15 @@ function intake_form_profile2_view_alter(&$build) {
   */
 }
 function intake_form_profile2_view($profile, $view_mode, $langcode) {
-  if(!impact_util_profile_status('pilot_intake'))
-    drupal_goto($_GET['q'] . '/edit');
+  //if(!impact_util_profile_status('pilot_intake'))
+    //drupal_goto($_GET['q'] . '/edit');
   if($profile->type == 'pilot_intake'){
+    // If the profile is unsubmitted (and not on confirm), go to edit
+    if(isset($profile->content['empty'])
+    || !impact_util_profile_status('pilot_intake')
+    && impact_util_form_step() != 'confirm') 
+      drupal_goto(current_path() . '/edit');
+      
     drupal_set_title('Intake Form');
     // Get all the field info for the pilot_intake profile
     $query = "SELECT field_name, data FROM {field_config_instance} WHERE bundle = 'pilot_intake'";

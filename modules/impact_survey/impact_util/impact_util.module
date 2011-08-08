@@ -32,3 +32,8 @@ function impact_util_profile_save($type) {
   $sql = "SELECT pid FROM {profile} WHERE type = '$type' AND uid = '$user->uid'";
   return db_query($sql)->fetchField();
 }
+// Determine which step in a form the user is on
+function impact_util_form_step() {
+  $url = explode('/', current_path());
+  return $url[count($url)-1];
+}

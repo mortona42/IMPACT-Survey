@@ -347,7 +347,6 @@ function myimpact_setting_profile2_view($profile, $view_mode, $langcode) {
 
   if($profile->type=="imls_data"){
 
-    if(isset($profile->content['empty'])) drupal_goto("profile-imls_data/$profile->uid/edit");
      
     $query = "SELECT field_name, data FROM {field_config_instance} WHERE bundle = 'imls_data'";
     $results = db_query($query);

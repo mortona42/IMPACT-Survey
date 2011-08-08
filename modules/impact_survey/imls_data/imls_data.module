@@ -157,11 +157,15 @@ function imls_data_profile2_view_alter(&$build) {
   }
 }
 function imls_data_profile2_view($profile, $view_mode, $langcode) {
-  if(!impact_util_profile_status('imls_data'))
-    drupal_goto($_GET['q'] . '/edit');
   // check for imls_data and does not contain 'empty' content
-  if($profile->type == 'imls_data' && empty($profile->content['empty'])) {    
-    $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  if($profile->type == 'imls_data') {
+    // If the profile is unsubmitted (and not on confirm), go to edit
+    if(isset($profile->content['empty'])
+    || !impact_util_profile_status('imls_data')
+    && impact_util_form_step() != 'confirm') 
+      drupal_goto(current_path() . '/edit');
+      
+    $fscs = impact_util_fscs();
     
     $sql = "SELECT * FROM {library_lookup} WHERE fscs_key = :fscs";
     $imls_data = db_query($sql, array(':fscs' => $fscs))->fetch();
@@ -239,8 +243,8 @@ function imls_data_block_view($delta = '') {
     case 'imls_data_view':
       $block['subject'] = t('');
       // Hide block on edit, verify, confirm pages
-      $url = explode('/', current_path());
-      if ($url[count($url)-1] == 'edit' || $url[count($url)-1] == 'verify' || $url[count($url)-1] == 'confirm')
+      $form_step = impact_util_form_step();
+      if ($form_step == 'edit' || $form_step == 'verify' || $form_step == 'confirm')
         $block['content'] = '';
       else
         $block['content'] = variable_get('imls_data_view', 'You have submitted your IMLS Data form.  Please <a href="/contact">contact us</a> if you need to make a change.');
