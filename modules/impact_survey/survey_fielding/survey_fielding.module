@@ -73,9 +73,8 @@ function survey_fielding_validate($form, &$form_state){
   form_set_error('user','The start date must be after the current date');
   	
   if(empty($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']))
-  {form_set_error('datecheck',"Please use the <font color='green' size='3px'>pop-up calendar</font> (recommended), or input in the correct format, i.e. May 16 2011");
-  }
-
+  form_set_error('datecheck',"Please use the <font color='green' size='3px'>pop-up calendar</font> (recommended), or input in the correct format, i.e. May 16 2011");
+  
   if(strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value2'])<=strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']) && !empty($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']))
   form_set_error('user', 'The start date must be before the end date (if your end date is correct, please check that your format matches the format of May 6 2011, or use the pop-up calendar.)');
 }
@@ -221,12 +220,12 @@ function survey_fielding_new_page() {
   //check Information Form
   if($flag==1){
     foreach($user_filled as $r){
-      if ($r=="intake_form") $flag=2;
+      if ($r=='pilot_intake') $flag=2;
     }
   }
 
   if($flag<2){
-    $not_ready="<h3>You must complete the <a href='./profile-imls_data'>IMLS Data</a> and <a href='./profile-intake_form'>Intake</a> forms before selecting your fielding dates.</h3>
+    $not_ready="<h3>You must complete the <a href='./profile-imls_data'>IMLS Data</a> and <a href='./profile-pilot_intake'>Intake</a> forms before selecting your fielding dates.</h3>
 <p>Consider the time it will take to complete promotional tasks, including editing your library website and posting flyers.  Visit <a href='./codebox'>Get your links</a> for more information.</p>
 <p>You will not be able to edit the IMLS Data and Intake forms once the survey fielding has begun.</p>
 <p>As the survey runs, you will be informed of the number of responses, and will have the option to extend the survey.  You may extend the survey while it is running, <em>but not after it has ended.<em></p>
