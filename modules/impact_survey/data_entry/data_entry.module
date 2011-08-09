@@ -73,7 +73,6 @@ function data_entry_block_save($delta = '', $edit = array()) {
  * Implements hook_block_view()
  */
 function data_entry_block_view($delta = '') {
-  dpm(data_entry_situation());
   $block = array();
   if($delta == 'paper_survey_instructions') {
     $block['subject'] = '';
