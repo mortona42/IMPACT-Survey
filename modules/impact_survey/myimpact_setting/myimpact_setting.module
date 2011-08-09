@@ -168,14 +168,13 @@ function myimpact_setting_submit_confirm_form($form, &$form_state, $type){
   $form_state['value']['type'] = $get_type;
   return $output;
 }
-
+// Confirm form for IMLS and intake form
 function myimpact_setting_submit_confirm_form_submit($form, &$form_state){
   global $user;
-
   $type = $form_state['value']['type'];
-  
-  $insert = (myimpact_setting_insert_status($user->uid, $type)) ? 'Thank you! You have submitted successfully.' : 'You have already submitted this form.  Please contact us for assistance.';
-
+  $insert = (myimpact_setting_insert_status($user->uid, $type)) 
+    ? "You have successfully submitted your data."
+    : 'You have already submitted this form.  Please contact us for assistance.';
   drupal_set_message($insert);
   $form_state['redirect'] = 'myimpact';
 }

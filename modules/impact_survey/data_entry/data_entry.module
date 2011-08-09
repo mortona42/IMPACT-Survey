@@ -70,21 +70,25 @@ function data_entry_block_save($delta = '', $edit = array()) {
 }
 
 /**
- * Implements hook_block_view().
+ * Implements hook_block_view()
  */
 function data_entry_block_view($delta = '') {
+  dpm(data_entry_situation());
   $block = array();
   if($delta == 'paper_survey_instructions') {
-    $block['subject'] = t('Paper Survey Instructions');
+    $block['subject'] = '';
     switch(data_entry_situation()) {
       case 'incomplete': 
-        $block['content'] = variable_get('data_entry_incomplete_forms', "If you choose to administer paper surveys, you will have to manually enter the data. You'll get a link to a data entry form, which you can forward to your individual branches.");
+        $block['content'] = variable_get('data_entry_incomplete_forms', 'If you choose to administer paper surveys, you will have to manually enter the data. You\'ll get a link to a data entry form, which you can forward to your individual branches.');
         break;
       case 'unselected': 
-        $block['content'] = variable_get('data_entry_not_selected', "If you choose to administer paper surveys, you will have to manually enter the data. You'll get a link to a data entry form, which you can forward to your individual branches.");
+        $block['content'] = variable_get('data_entry_not_selected', 'If you choose to administer paper surveys, you will have to manually enter the data. You\'ll get a link to a data entry form, which you can forward to your individual branches.');
         break;
       case 'unstarted': 
-        $block['content'] = variable_get('data_entry_before_start', '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Your paper survey data entry link</a>');
+        $dates = survey_fielding_get_dates();
+        $block['content'] = (impact_util_form_step() == 'edit')
+          ? variable_get('data_entry_not_selected', 'If you choose to administer paper surveys, you will have to manually enter the data. You\'ll get a link to a data entry form, which you can forward to your individual branches.')
+          : variable_get('data_entry_before_start', '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Your paper survey data entry link</a>');
         break;
       case 'progress': 
         $block['content'] = variable_get('data_entry_in_progress', '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Your paper survey data entry link</a>');
@@ -95,12 +99,15 @@ function data_entry_block_view($delta = '') {
       case 'ended': 
         $block['content'] = variable_get('data_entry_after_ended', '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Your paper survey data entry link</a>');
         break;
+      case 'delete': 
+        $block['content'] = '';
+        break;
     }
   }
   return $block;
 }
 // Hide the paper survey instructions if they are not using them
-function data_entry_block_view_data_entry_paper_survey_instructions_alter(&$data, $block) {
+/*function data_entry_block_view_data_entry_paper_survey_instructions_alter(&$data, $block) {
   // Are they doing paper surveys?
   global $user;
   $sql = "SELECT field_paper_survey_value FROM {field_data_field_paper_survey} WHERE entity_id = (SELECT pid FROM {profile} WHERE type = 'survey_fielding' AND uid = $user->uid)";
@@ -120,7 +127,7 @@ function data_entry_block_view_data_entry_paper_survey_instructions_alter(&$data
         }
         break;
   }
-}
+}*/
 function data_entry_situation() {
   
   global $user;
@@ -161,8 +168,9 @@ function data_entry_situation() {
   	  }
   	}
 	}
-	// Are we on the extend form?
+	// Are we on the extend/delete form?
 	if(arg(2) == 'extend') $situation = 'extend';
+	if(arg(2) == 'delete') $situation = 'delete';
 	
 	return $situation;
 }

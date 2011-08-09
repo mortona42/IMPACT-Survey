@@ -37,6 +37,11 @@ function impact_util_form_step() {
   $url = explode('/', current_path());
   return $url[count($url)-1];
 }
+// Determine which user a form is for based on the url
+function impact_util_user_url() {
+  $url = explode('/', current_path());
+  return $url[count($url)-2];
+}
 // Url to return a user to view page
 function impact_util_profile_view_url() {
   global $base_url;
