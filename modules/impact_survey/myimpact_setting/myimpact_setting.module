@@ -337,55 +337,6 @@ function myimpact_setting_delete_status($pid){
   return $delete;
 }
 
-/*
- * hook_profile2_view
- *
- */
-function myimpact_setting_profile2_view($profile, $view_mode, $langcode) {
-  $table = array();
-  $table['attributes'] = array('class' => array('library_form'));
-
-  if($profile->type=="imls_data"){
-
-     
-    $query = "SELECT field_name, data FROM {field_config_instance} WHERE bundle = 'imls_data'";
-    $results = db_query($query);
-
-    foreach($results as $v){
-      $field[$v->field_name]=unserialize($v->data);
-    }
-
-    foreach($field as $key => $value){
-      $new[$key] = $value['widget']['weight'];
-    }
-
-    //sort the weight
-    asort($new);
-
-    $i=1;
-    foreach($new as $key=>$value){
-      if(isset($go_through[$value])) {$value=$value+$i; $i++;}
-      $go_through[$value]=$key;
-    }
-
-
-    foreach($go_through as $value){
-      $rows[]=array(
-			'data' => array(array('data' => isset($field[$value]['label'])?$field[$value]['label']:'', 'class'=>'library_questions'), array('data' => isset($profile->content[$value]['0']['#markup'])?$profile->content[$value]['0']['#markup']:'', 'class'=>'library_answers')),
-			'height' => '30px',
-      );
-    }
-
-    unset($profile->content);
-
-    $table['rows'] = $rows;
-    
-    $profile->content[]=array(
- 	 		'#markup'=>theme('table', $table),
-    );
-  }
-}
-
 function myimpact_setting_markup_display($content){
 	
 	$output='';

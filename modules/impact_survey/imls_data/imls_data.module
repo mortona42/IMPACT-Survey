@@ -155,10 +155,10 @@ function imls_data_calculate_sq_feet($fscs) {
 }
 // Add a table header to the saved value output
 function imls_data_profile2_view_alter(&$build) {
-  if($build['#entity']->type == 'imls_data') {
-    $table_header = '<table class="library_form"><thead><tr><th>Field</th><th>2009 IMLS Data</th><th>Updated Value</th></tr></thead>';
-    $build[0]['#markup'] = str_replace('<table class="library_form">', $table_header, $build[0]['#markup']);
-  }
+  //if($build['#entity']->type == 'imls_data') {
+  //  $table_header = '<table class="library_form"><thead><tr><th>Field</th><th>2009 IMLS Data</th><th>Updated Value</th></tr></thead>';
+  //  $build[0]['#markup'] = str_replace('<table class="library_form">', $table_header, $build[0]['#markup']);
+  //}
 }
 function imls_data_profile2_view($profile, $view_mode, $langcode) {
   // check for imls_data and does not contain 'empty' content
@@ -169,25 +169,41 @@ function imls_data_profile2_view($profile, $view_mode, $langcode) {
     && impact_util_form_step() != 'confirm') 
       drupal_goto(current_path() . '/edit');
       
-    $fscs = impact_util_fscs();
+    // Get all the fields for imls_data
+    $sql = "SELECT field_name, data FROM {field_config_instance} WHERE bundle = 'imls_data'";
+    $fields = db_query($sql)->fetchAllKeyed();
     
+    // Get the IMLS data for this library
+    $fscs = impact_util_fscs();
     $sql = "SELECT * FROM {library_lookup} WHERE fscs_key = :fscs";
     $imls_data = db_query($sql, array(':fscs' => $fscs))->fetch();
+    // Format the data in an array we can reference
+    $imls_data_fields = array(
+      'field_hours' => number_format($imls_data->hrs_open),
+      'field_expend_tot' => '$' . number_format($imls_data->tot_op_exp),
+      'field_fte' => number_format($imls_data->tot_staff),
+      'field_terminals' => number_format($imls_data->gp_terms),
+      'field_pac_uses' => number_format($imls_data->pit_usr),
+      'field_legalpop' => number_format($imls_data->popu_lsa),
+      'field_visits' => number_format($imls_data->visits),
+      'field_num_branches' => number_format(imls_data_num_branches($fscs))
+    );
+    // Create the arrays for the table
+    $header = array('Field', '2009 IMLS Data', 'Updated Value');
+    $attributes = array('class' => array('library_form'));
+    $rows = array();
+    foreach($profile->content as $field => $value) {
+      $splode = explode('_', $field);
+      if($splode[0] == 'field') {
+        $weight = unserialize($fields[$field]);
+        $rows[$weight['widget']['weight']] = array($value['#title'], $imls_data_fields[$field], $value[0]['#markup']);
+      }
+    }
+    // Sort the rows by key (the field's weight)
+    ksort($rows, SORT_NUMERIC);
     
-    $sql = "SELECT SUM(sq_feet) AS sq_feet FROM {square_feet} WHERE fscs_key = :fscs AND sq_feet > 0";
-    $sq_feet = db_query($sql, array(':fscs' => $fscs))->fetch();
-    
-    // Normally, I'd hack an extra <td> into #prefix, but whatever function renders this isn't picking that up.
-    // Since #markup is wrapped in <td>'s, this syntax adds a cell before the profile value
-    $profile->content['field_legalpop'][0]['#markup'] = number_format($imls_data->popu_lsa) . '</td><td>' . $profile->content['field_legalpop'][0]['#markup'];
-    $profile->content['field_visits'][0]['#markup'] = number_format($imls_data->visits) . '</td><td>' . $profile->content['field_visits'][0]['#markup'];
-    $profile->content['field_hours'][0]['#markup'] = number_format($imls_data->hrs_open) . '</td><td>' . $profile->content['field_hours'][0]['#markup'];
-    $profile->content['field_expend_tot'][0]['#markup'] = '$' . number_format($imls_data->tot_op_exp) . '</td><td>' . $profile->content['field_expend_tot'][0]['#markup'];
-    $profile->content['field_fte'][0]['#markup'] = number_format($imls_data->tot_staff) . '</td><td>' . $profile->content['field_fte'][0]['#markup'];
-    $profile->content['field_terminals'][0]['#markup'] = number_format($imls_data->gp_terms) . '</td><td>' . $profile->content['field_terminals'][0]['#markup'];
-    $profile->content['field_pac_uses'][0]['#markup'] = number_format($imls_data->pit_usr) . '</td><td>' . $profile->content['field_pac_uses'][0]['#markup'];
-    $profile->content['field_num_branches'][0]['#markup'] = imls_data_num_branches($fscs) . '</td><td>' . $profile->content['field_num_branches'][0]['#markup'];
-    
+    // The 0 is required for some reason
+    $profile->content = array(0 => array('#markup' => theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => $attributes))));
   }
 }
 

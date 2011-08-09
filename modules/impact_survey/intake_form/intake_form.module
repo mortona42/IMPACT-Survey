@@ -34,6 +34,7 @@ function intake_form_profile2_view($profile, $view_mode, $langcode) {
         $fields[$v->field_name] = array('label' => $field['label']);
     }
     $header = array('Field', 'Data');
+    $attributes = array('class' => array('library_form'));
     
     $rows = array();
     if(!isset($profile->content['empty'])) {
@@ -52,7 +53,7 @@ function intake_form_profile2_view($profile, $view_mode, $langcode) {
       foreach($fields as &$field) 
         $field['value'] = 'N/A';
     }
-    $profile->content = array(0 => array('#markup' => theme('table', array('header' => $header, 'rows' => $fields))));
+    $profile->content = array(0 => array('#markup' => theme('table', array('header' => $header, 'rows' => $fields, 'attributes' => $attributes))));
   
     
     /*
