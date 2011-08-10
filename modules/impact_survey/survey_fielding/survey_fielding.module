@@ -246,53 +246,43 @@ function survey_fielding_edit_title(){
 function survey_fielding_token_info() {
   $info['types']['survey-fielding'] = array(
     'name' => t('Survey Fielding'),
-    'description' => t('Tokens that retrieve data from survey fielding'),
-    //'needs-data' => 'format',
+    'description' => t('Tokens that retrieve data from survey fielding')
   );
   $info['tokens']['survey-fielding']['date-range'] = array(
     'name' => t('User Survey Field'),
-    'description' => t('Get the survey field date.'),
-    //'needs-data' => 'current-user',
+    'description' => t('Get the survey field date.')
   );
   $info['tokens']['survey-fielding']['survey-count'] = array(
     'name' => t('Survey Count'),
-    'description' => t('Number of survey responses'),
-    //'needs-data' => 'current-user',
+    'description' => t('Number of survey responses')
   );
   $info['tokens']['survey-fielding']['response/s'] = array(
     'name' => t('response(s)'),
-    'description' => t('Text for 1 or more response'),
-    //'needs-data' => 'current-user',
+    'description' => t('Text for 1 or more response')
   );
   $info['tokens']['survey-fielding']['start-date'] = array(
     'name' => t('response(s)'),
-    'description' => t('Text for 1 or more response'),
-    //'needs-data' => 'current-user',
+    'description' => t('Text for 1 or more response')
   );
   $info['tokens']['survey-fielding']['end-date'] = array(
     'name' => t('response(s)'),
-    'description' => t('Text for 1 or more response'),
-    //'needs-data' => 'current-user',
+    'description' => t('Text for 1 or more response')
   );
   $info['tokens']['survey-fielding']['onclick-change'] = array(
     'name' => t('response(s)'),
-    'description' => t('Text for 1 or more response'),
-    //'needs-data' => 'current-user',
+    'description' => t('Text for 1 or more response')
   );
   $info['tokens']['survey-fielding']['onclick-extend'] = array(
     'name' => t('response(s)'),
-    'description' => t('Text for 1 or more response'),
-    //'needs-data' => 'current-user',
+    'description' => t('Text for 1 or more response')
   );
   $info['tokens']['survey-fielding']['paper-survey'] = array(
     'name' => t('response(s)'),
-    'description' => t('Text for 1 or more response'),
-    //'needs-data' => 'current-user',
+    'description' => t('Text for 1 or more response')
   );
   $info['tokens']['survey-fielding']['data-entry-url'] = array(
     'name' => t('Data Entry URL'),
-    'description' => t('Text for 1 or more response'),
-    //'needs-data' => 'current-user',
+    'description' => t('Text for 1 or more response')
   );
   $info['tokens']['survey-fielding']['paper-survey-url'] = array(
     'name' => t('Paper Survey URL'),
