@@ -148,7 +148,7 @@ function age_crosstab($variable) {
 		"35_44" => "BETWEEN 1967 AND 1976",
 		"45_54" => "BETWEEN 1957 AND 1966",
 		"55_64" => "BETWEEN 1947 AND 1956",
-		"65" => "BETWEEN 1880 AND 1946"
+		"65"    => "BETWEEN 1880 AND 1946"
 	);
 	
 	$var_array = array();

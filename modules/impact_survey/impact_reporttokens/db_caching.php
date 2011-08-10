@@ -101,7 +101,8 @@ if ( $responses['actual'] != $responses['cached'] ) {
 	         "ON DUPLICATE KEY UPDATE responses = '" . $responses['actual'] . "'";
 	$result = mysql_query($query);
 	if (!$result) die($query . " " . mysql_error());
-} else { // Responses == cached_responses
+} else { 
+	// Responses == cached_responses
 	$better_array = dump_cache($fscs);
 }
 

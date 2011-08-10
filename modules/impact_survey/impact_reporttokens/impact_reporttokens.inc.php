@@ -21,10 +21,17 @@ function impact_reporttokens_tokens($type, $tokens, array $data = array(), array
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
   $better_array = array();
-  if ($type = 's') {
+  if ($type == 's') {
   	require_once ('db_caching.php');
     foreach($tokens as $name => $original) {
-        $replacements[$original] = $better_array[$name];
+    	if (isset($better_array[$name])) {
+       		$replacements[$original] = $better_array[$name];
+    	} else if ($name == "fscs") {
+    		$replacements[$original] = $fscs;
+    	}
+    	#else {
+    	#	$replacements[$original] = "MISSING VALUE";
+    	#}
     }
   }
   return $replacements;

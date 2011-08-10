@@ -89,6 +89,7 @@ function entity_token_tokens($type, $tokens, array $data = array(), array $optio
           $replacements[$original] = _entity_token_get_token($wrapper->$property_name, $options);
         }
         catch (EntityMetadataWrapperException $e) {
+           $replacements[$original] = "MISSING";
           // In case tokens for not existing values are requested, just do nothing.
         }
       }
