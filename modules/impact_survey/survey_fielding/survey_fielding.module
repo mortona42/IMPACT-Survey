@@ -65,6 +65,9 @@ function survey_fielding_validate($form, &$form_state){
     
   if($end > strtotime('10/3/2011'))
     form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 3rd.');
+  
+  if(($end - $start)/60/60/24 > 27)
+    form_set_error('profile_survey_fielding', 'You may not run the survey for more than 4 weeks.');
 }
 
 /**
@@ -241,24 +244,65 @@ function survey_fielding_edit_title(){
  * Implements hook_token_info().
  */
 function survey_fielding_token_info() {
-  $user['survey-fielding'] = array(
+  $info['types']['survey-fielding'] = array(
+    'name' => t('Survey Fielding'),
+    'description' => t('Tokens that retrieve data from survey fielding'),
+    //'needs-data' => 'format',
+  );
+  $info['tokens']['survey-fielding']['date-range'] = array(
     'name' => t('User Survey Field'),
     'description' => t('Get the survey field date.'),
-    'needs-data' => 'current-user',
+    //'needs-data' => 'current-user',
   );
-  $user['survey-count'] = array(
+  $info['tokens']['survey-fielding']['survey-count'] = array(
     'name' => t('Survey Count'),
     'description' => t('Number of survey responses'),
-    'needs-data' => 'current-user',
+    //'needs-data' => 'current-user',
   );
-  $user['response/s'] = array(
+  $info['tokens']['survey-fielding']['response/s'] = array(
     'name' => t('response(s)'),
     'description' => t('Text for 1 or more response'),
-    'needs-data' => 'current-user',
+    //'needs-data' => 'current-user',
   );
-  return array(
-    'tokens' => array('current-user' => $user),
+  $info['tokens']['survey-fielding']['start-date'] = array(
+    'name' => t('response(s)'),
+    'description' => t('Text for 1 or more response'),
+    //'needs-data' => 'current-user',
   );
+  $info['tokens']['survey-fielding']['end-date'] = array(
+    'name' => t('response(s)'),
+    'description' => t('Text for 1 or more response'),
+    //'needs-data' => 'current-user',
+  );
+  $info['tokens']['survey-fielding']['onclick-change'] = array(
+    'name' => t('response(s)'),
+    'description' => t('Text for 1 or more response'),
+    //'needs-data' => 'current-user',
+  );
+  $info['tokens']['survey-fielding']['onclick-extend'] = array(
+    'name' => t('response(s)'),
+    'description' => t('Text for 1 or more response'),
+    //'needs-data' => 'current-user',
+  );
+  $info['tokens']['survey-fielding']['paper-survey'] = array(
+    'name' => t('response(s)'),
+    'description' => t('Text for 1 or more response'),
+    //'needs-data' => 'current-user',
+  );
+  $info['tokens']['survey-fielding']['data-entry-url'] = array(
+    'name' => t('Data Entry URL'),
+    'description' => t('Text for 1 or more response'),
+    //'needs-data' => 'current-user',
+  );
+  $info['tokens']['survey-fielding']['paper-survey-url'] = array(
+    'name' => t('Paper Survey URL'),
+    'description' => t('URL for customized paper survey'),
+  );
+  $info['tokens']['survey-fielding']['incomplete-forms'] = array(
+    'name' => t('Incomplete Forms'),
+    'description' => t('Text to display when IMLS/Intake forms are incomplete'),
+  );
+  return $info;
 }
 
 /**
@@ -268,11 +312,11 @@ function survey_fielding_tokens($type, $tokens, array $data = array(), array $op
   $sanitize = !empty($options['sanitize']);
   $replacements = array();
 
-  if ($type == 'current-user'){
+  if ($type == 'survey-fielding'){
     global $user;
     foreach ($tokens as $name => $original) {
       switch ($name) {
-        case 'survey-fielding':
+        case 'date-range':
           $replacements[$original] = survey_fielding_dates();
           break;
         case 'survey-count':
@@ -298,6 +342,12 @@ function survey_fielding_tokens($type, $tokens, array $data = array(), array $op
           break;
         case 'data-entry-url':
           $replacements[$original] = 'http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs();
+          break;
+        case 'paper-survey-url':
+          $replacements[$original] = 'http://impactsurvey.org/papersurvey/?fscs=' . impact_util_fscs();
+          break;
+        case 'incomplete-forms':
+          $replacements[$original] = survey_fielding_incomplete_forms();
           break;
       }
     }
@@ -337,8 +387,14 @@ function survey_fielding_start_date() {
 }
 // Returns whether the user selected to administer paper surveys
 function survey_fielding_paper_survey() {
-	if(survey_fielding_paper_survey_value() == 1) return 'You have chosen to administer paper surveys';
-	else return 'You have chosen not to administer paper surveys';
+	if(survey_fielding_paper_survey_value() == 1) {
+	  $print_url = '<a href="http://impactsurvey.org/papersurvey/?fscs=' . impact_util_fscs() . '">Download your custom paper surveys here.</a>';
+	  $entry_url = '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Use this link to enter paper survey data.</a>';
+	  $output = '<h3>You have chosen to administer paper surveys</h3>';
+	  $output .= $print_url . '<br>' . $entry_url . '<br>';
+	  return $output;
+	}
+	else return '<h3>You have chosen not to administer paper surveys</h3>';
 }
 // Returns whether the user selected to administer paper surveys
 function survey_fielding_paper_survey_value() {
@@ -361,4 +417,11 @@ function survey_fielding_get_dates(){
   return ($result)
     ? array('start' => strtotime($result->start_date), 'end' => strtotime($result->end_date))
     : array('start' => '', 'end' => '');
+}
+function survey_fielding_incomplete_forms() {
+  $imls = impact_util_profile_status('imls_data');
+  $intake = impact_util_profile_status('pilot_intake');
+  if(empty($imls) && empty($intake)) return '<a href="profile-imls_data">IMLS Data</a> and <a href="profile-pilot_intake">Intake</a> forms';
+  else if(empty($imls) && !empty($intake)) return '<a href="profile-imls_data">IMLS Data</a> form';
+  else if(!empty($imls) && empty($intake)) return '<a href="profile-pilot_intake">Intake</a> form';
 }

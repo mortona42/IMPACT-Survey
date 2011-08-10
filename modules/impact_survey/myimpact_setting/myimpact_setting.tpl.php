@@ -1,4 +1,3 @@
-
 <div id="left_content" style="float:left;">
 
 	<h3><?php if(isset($libName)) print $libName;?></h3>
@@ -13,7 +12,7 @@
 	
 	<?php print $user->mail;?>
 	
-	<h3>Completed Surveys:  <span style='color:#333333'><?php if(isset($surveyCount)) print $surveyCount; else print "0" ?>*</span></h3><p>*Updated every 24 hours.</p>
+	<h3>Completed Surveys:  <span style='color:#333333'><?php if(isset($surveyCount)) print $surveyCount; else print "0" ?>*</span></h3><p>*Updated every 24 hours at 1:35am PST.</p>
 	
 	<input type="button" value="Edit" class="form-submit" onClick="window.location.href='myimpact/edit'" /> <br><br>
 		
