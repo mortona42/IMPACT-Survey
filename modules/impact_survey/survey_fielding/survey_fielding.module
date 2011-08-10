@@ -111,10 +111,10 @@ function survey_fielding_send_action($object, $context){
  */
 function survey_fielding_nameform() {
   $date = date('Y-m-d', strtotime(survey_fielding_end_date()));
-  $format = 'n/j/y';
+  $format = 'M j Y';
   $form['date2'] = array(
      '#type' => 'date_popup', // types 'date_text' and 'date_timezone' are also supported. See .inc file.
-     '#title' => 'End date',
+     '#title' => 'Stop date',
      '#default_value' => $date, 
      '#date_format' => $format,
      '#date_label_position' => 'within', // See other available attributes and what they do in date_api_elements.inc
@@ -124,7 +124,7 @@ function survey_fielding_nameform() {
   );
   $form['paper_survey'] = array (
       '#title' => 'Paper Survey',
-      '#description' => 'If you would like to administer a paper version of the survey, in addition to the web survey, check this box.',
+      '#description' => 'If you would like to supplement the online survey by offering a paper version, check this box.',
       '#type' => 'checkbox',
       '#default_value' => survey_fielding_paper_survey_value(),
       '#on_value' => 1,

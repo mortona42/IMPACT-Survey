@@ -28,13 +28,6 @@ function codebox_menu() {
   );
   return $items;
 }
-/**
- * Implements hook_menu_alter().
- */
-function codebox_menu_alter(&$items) {
-  //$items['node/8']['access callback'] = 'user_is_logged_in';
-  //$items['codebox/popup']['access callback'] = 'user_is_loggen_in';
-}
 function codebox_html($fscs) {
   $html = '<p style="margin: 5px 10px">';
   $html .= '<a href="http://impactsurvey.org/libselect/index.php?fscs=' . $fscs . '&utm_source=library&utm_medium=interstitial&utm_term=' . $fscs . '&utm_campaign=beta">';
