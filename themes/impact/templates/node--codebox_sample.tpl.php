@@ -21,7 +21,7 @@ hide($content['field_codebox_type']);
 print render($content);
 ?>
 <h3>Instructions - Hotlinked</h3>
-<p>This is the easiest method, use it if your website configuration allows it.</p>
+<p>This is the easiest method; use it if your website configuration allows it.</p>
 <ol>
 	<li>Copy the code below.</li>
 	<li>Paste it in your website code where you would like the image to appear.</li>

@@ -458,7 +458,7 @@ function myimpact_setting_myimpact_page(){
   $stepsArray = array(0 => "Confirm your library's <a href='./profile-imls_data'>IMLS Data</a>",
   					  1 => "Complete the <a href='./profile-pilot_intake'>Intake Form</a>",
   					  2 => "Select your <a href='./profile-survey_fielding'>survey fielding</a> dates",
-  					  3 => "<a href='./codebox'>Get your survey links.</a>",
+  					  3 => "<a href='./codebox'>Get your survey links</a>",
   					  4 => "Your report is ready.  View it <a href='./reports'>here</a>");
   $step = "";
   // Iterate through all the steps
