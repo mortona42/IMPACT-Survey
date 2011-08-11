@@ -58,10 +58,15 @@ function intake_form_block_view($delta = '') {
   switch($delta) {
     case 'intake_form_instructions':
       $block['subject'] = t('');
-      if(!impact_util_profile_save('pilot_intake'))
-        $block['content'] = variable_get('intake_form_instructions', 'Thank you for providing the following information about your library system. By "library system" we mean the library as an administrative entity, which may have a single outlet or multiple outlets. This information will be included in your library\'s report. We recommend gathering this information offline prior to completing and submitting the form below. Download a list of these questions by <a target="blank" href="http://impactsurvey.org/sites/impactsurvey.org/files/docs/IMPACT_Survey_Library_Intake_Form_Questions.pdf">clicking here</a>');
-      else
-        $block['content'] = variable_get('intake_form_saved_instructions', 'Your form is saved, please submit it when you are finished.');
+      $form_step = impact_util_form_step();
+      if($form_step != 'confirm') {
+        if(!impact_util_profile_save('pilot_intake'))
+          $block['content'] = variable_get('intake_form_instructions', 'Thank you for providing the following information about your library system. By "library system" we mean the library as an administrative entity, which may have a single outlet or multiple outlets. This information will be included in your library\'s report. We recommend gathering this information offline prior to completing and submitting the form below. Download a list of these questions by <a target="blank" href="http://impactsurvey.org/sites/impactsurvey.org/files/docs/IMPACT_Survey_Library_Intake_Form_Questions.pdf">clicking here</a>');
+        else
+          $block['content'] = variable_get('intake_form_saved_instructions', 'Your form is saved, please submit it when you are finished.');
+      } else {
+        $block['content'] = '';
+      }
       break;
   }
   return $block;
