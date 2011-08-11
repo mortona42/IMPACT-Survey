@@ -115,10 +115,23 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
   
   $form['profile_imls_data']['#prefix'] = '<table class="library_form"><thead><tr><th class="imls-field-name">Field</th><th class="imls-prev-data">2009 IMLS Data</th><th class="imls-field-prefix"></th><th class="imls-current-value">Updated Value</th><th class="imls-field-suffix"></th></tr></thead><tbody>';
   $form['profile_imls_data']['#suffix'] = '</tbody></table>';
+  
+  // If branches != IMLS data, display message to contact us (should be email to us)
+  $form['#submit'][] = 'imls_data_form_submit';
+  
+  //dpm($form);
+}
+function imls_data_form_submit($form, &$form_state) {
+  //if 
+  //dpm($form_state);
+  
 }
 function imls_data_validate_num_branches($element, &$form_state, $form) {
   if($element['#value'] < 1) {
     form_error($element, t('You need at least one branch.'));
+  }
+  if($element['#value'] != imls_data_num_branches(impact_util_fscs())) {
+    form_error($element, t('You have a different number of branches than we have on record.  You must <a href="/contact">Contact us</a> to continue.'));
   }
 }
 function imls_data_num_branches($fscs) {
@@ -311,7 +324,6 @@ function imls_data_block_configure($delta = '') {
  * Implements hook_block_save().
  */
 function imls_data_block_save($delta = '', $edit = array()) {
-  $form = array();
   switch($delta) {
     case 'verify_branches_instructions':
       variable_set('imls_data_verify_branches_instructions', $edit['body']);

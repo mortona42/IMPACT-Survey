@@ -1,6 +1,5 @@
 <?php
-function imls_data_form_profile2_edit_pilot_intake_form_alter(&$form, &$form_state) {
-  drupal_set_title('Intake Form');
+function intake_form_form_profile2_edit_pilot_intake_form_alter(&$form, &$form_state) {
   if(impact_util_profile_status('pilot_intake')) {
     drupal_set_message('You have already submitted this form. Please contact us if you need to make a change.', 'warning');
     drupal_goto(impact_util_profile_view_url());
@@ -32,5 +31,71 @@ function intake_form_profile2_view($profile, $view_mode, $langcode) {
     ksort($rows);
     
     $profile->content = array(0 => array('#markup' => theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => $attributes))));
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function intake_form_block_info() {
+  $blocks['intake_form_instructions'] = array(
+    'info' => t('Intake Form Instructions'), 
+    'cache' => DRUPAL_NO_CACHE,
+    'weight' => -1,
+    'status' => TRUE,
+    'region' => 'content',
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => "profile-pilot_intake/\nprofile-pilot_intake/*"
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function intake_form_block_view($delta = '') {
+  $block = array();
+  switch($delta) {
+    case 'intake_form_instructions':
+      $block['subject'] = t('');
+      if(!impact_util_profile_save('pilot_intake'))
+        $block['content'] = variable_get('intake_form_instructions', 'Thank you for providing the following information about your library system. By "library system" we mean the library as an administrative entity, which may have a single outlet or multiple outlets. This information will be included in your library\'s report. We recommend gathering this information offline prior to completing and submitting the form below. Download a list of these questions by <a target="blank" href="http://impactsurvey.org/sites/impactsurvey.org/files/docs/IMPACT_Survey_Library_Intake_Form_Questions.pdf">clicking here</a>');
+      else
+        $block['content'] = variable_get('intake_form_instructions', 'Your form is saved, please submit it when you are finished.');
+      break;
+  }
+  $block['content'] = 'asdf';
+  return $block;
+}
+/**
+ * Implements hook_block_configure().
+ */
+function intake_form_block_configure($delta = '') {
+  $form = array();
+  switch($delta) {
+    case 'intake_form_instructions':
+      $form['instructions'] = array(
+        '#type' => 'textarea', 
+        '#title' => t('Body'), 
+        '#default_value' => variable_get('intake_form_instructions', 'Thank you for providing the following information about your library system. By "library system" we mean the library as an administrative entity, which may have a single outlet or multiple outlets. This information will be included in your library\'s report. We recommend gathering this information offline prior to completing and submitting the form below. Download a list of these questions by <a target="blank" href="http://impactsurvey.org/sites/impactsurvey.org/files/docs/IMPACT_Survey_Library_Intake_Form_Questions.pdf">clicking here</a>'),
+      );
+      $form['saved'] = array(
+        '#type' => 'textarea', 
+        '#title' => t('Body'), 
+        '#default_value' => variable_get('intake_form_saved_instructions', 'Your form is saved, please submit it when you are finished.'),
+      );
+      break;
+  }
+  return $form;
+}
+/**
+ * Implements hook_block_save().
+ */
+function intake_form_block_save($delta = '', $edit = array()) {
+  switch($delta) {
+    case 'intake_form_instructions':
+      variable_set('intake_form_instructions', $edit['instructions']);
+      variable_set('intake_form_instructions', $edit['saved']);
+      break;
   }
 }

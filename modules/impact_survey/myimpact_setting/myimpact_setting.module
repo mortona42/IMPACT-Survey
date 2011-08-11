@@ -151,10 +151,8 @@ function myimpact_setting_submit_confirm_form($form, &$form_state, $type){
     	break;
   }
   $question = t('Are you sure you want to submit your !type_print?', array('!type_print' => $type_print));
-  $description = t('After submitting, you will not be allowed to edit this form.');
-   
-  
-  
+  $description = t('Please confirm the information you have entered. After you confirm, you will not be allowed to edit it.');
+
   $output = array();
   $output['confirm'] = confirm_form($form, $question, "$type/$user->uid/edit", $description);
   
@@ -461,7 +459,7 @@ function myimpact_setting_myimpact_page(){
   					  1 => "Complete the <a href='./profile-pilot_intake'>Intake Form</a>",
   					  2 => "Select your <a href='./profile-survey_fielding'>survey fielding</a> dates",
   					  3 => "<a href='./codebox'>Get your survey links.</a>",
-  					  4 => "Your report is ready, view it <a href='./reports'>here</a>");
+  					  4 => "Your report is ready.  View it <a href='./reports'>here</a>");
   $step = "";
   // Iterate through all the steps
   for($i = 0; $i < count($stepsArray); $i++) {
