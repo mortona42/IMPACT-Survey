@@ -64,7 +64,6 @@ function intake_form_block_view($delta = '') {
         $block['content'] = variable_get('intake_form_instructions', 'Your form is saved, please submit it when you are finished.');
       break;
   }
-  $block['content'] = 'asdf';
   return $block;
 }
 /**
