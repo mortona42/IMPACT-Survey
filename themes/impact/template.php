@@ -95,7 +95,9 @@ function impact_preprocess_page(&$variables){
   }
   // Block anonymous users from the codebox and codebox popup pages
   if((current_path() == 'node/8' && !user_is_logged_in()) 
-  || (current_path() == 'node/56' && !user_is_logged_in())) {
+  || (current_path() == 'node/56' && !user_is_logged_in())
+  || (current_path() == 'node/40' && !user_is_logged_in())
+  || (current_path() == 'node/9' && !user_is_logged_in())) {
     unset($variables['page']['content']['system_main']);
   }
 }

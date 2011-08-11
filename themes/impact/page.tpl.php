@@ -21,11 +21,11 @@
    				}
           
    		if($alt_name==''){
-	          $fscs = 	token_replace("[current-user:profile-library-registration:field-library-reg-system]");
+	          $fscs = token_replace("[current-user:profile-library-registration:field-library-reg-system]");
 	          $query = "SELECT library_name FROM {library_lookup} WHERE fscs_key = '$fscs'";
 	          $system_name = db_query($query)->fetchField();
    		}
-   		else $system_name=$alt_name;
+   		else $system_name = $alt_name;
    		
           $welcome = array( 
           		'href' => 'myimpact',

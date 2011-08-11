@@ -1,7 +1,7 @@
 <?php if(!$logged_in): ?>
-<h3 style="color:red">Please Log In</h3>
-<p style="color:red">This page is intented to be viewed while <a href="/user">logged in</a>, otherwise the code will not be customized for your library.</p>
+<p> This page contains customized links and information that will not work properly if you are not <a href="/user">logged in.</a></p>
 <?php endif; ?>
+<?php if($logged_in): ?>
 <div id="node-<?php print $node->nid; ?>"
 	class="<?php print $classes; ?> clearfix" <?php print $attributes; ?>>
 <?php print $user_picture; ?> <?php print render($title_prefix); ?> <?php if (!$page): ?>
@@ -45,3 +45,4 @@ $field_image = $node->field_image['und'][0]['filename'];
 $code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hosted&utm_content=$field_image&utm_term=$fscs&utm_campaign=pre-pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='/impact/$field_image' border='0' /&gt;&lt;/a&gt;";
 print $code;?>
 </code></p>
+<?php endif; ?>
