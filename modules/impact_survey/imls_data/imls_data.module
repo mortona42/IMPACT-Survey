@@ -168,10 +168,7 @@ function imls_data_calculate_sq_feet($fscs) {
 }
 // Add a table header to the saved value output
 function imls_data_profile2_view_alter(&$build) {
-  //if($build['#entity']->type == 'imls_data') {
-  //  $table_header = '<table class="library_form"><thead><tr><th>Field</th><th>2009 IMLS Data</th><th>Updated Value</th></tr></thead>';
-  //  $build[0]['#markup'] = str_replace('<table class="library_form">', $table_header, $build[0]['#markup']);
-  //}
+  //dpm($build);
 }
 function imls_data_profile2_view($profile, $view_mode, $langcode) {
   // check for imls_data and does not contain 'empty' content
