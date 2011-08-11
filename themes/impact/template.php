@@ -8,6 +8,7 @@ function impact_preprocess_page(&$variables){
     $variables['primary_nav'] = false;
   }
 
+  
   //check if edit part are using profile2
   $tell = explode('-', $_GET['q']);
    
@@ -66,7 +67,7 @@ function impact_preprocess_page(&$variables){
         $field_date= date('m/d/y', $date1).' - '.date('m/d/y', $date2);
 
         //output
-        $variables['field_date']="<br><span style='float: right;'>Fielding Dates:</span><br><a href='profile-survey_fielding' STYLE='text-decoration:none'>".$field_date."</a>";
+        $variables['field_date']="<br><span style='float: right;'>Fielding Dates:</span><br><a href='/profile-survey_fielding' STYLE='text-decoration:none'>".$field_date."</a>";
       }
     }
 
@@ -92,7 +93,13 @@ function impact_preprocess_page(&$variables){
 
 
   }
-   
+  dpm($variables);
+  // Block anonymous users from the codebox and codebox popup pages
+  if((current_path() == 'node/8' && !user_is_logged_in()) 
+  || (current_path() == 'node/56' && !user_is_logged_in())) {
+    dpm($variables);
+    unset($variables['page']['content']['system_main']);
+  }
 }
  
 
