@@ -1,8 +1,140 @@
 <?php
 function intake_form_form_profile2_edit_pilot_intake_form_alter(&$form, &$form_state) {
+  //dpm($form);
+  //dpm($form_state);
+  
   if(impact_util_profile_status('pilot_intake')) {
     drupal_set_message('You have already submitted this form. Please contact us if you need to make a change.', 'warning');
     drupal_goto(impact_util_profile_view_url());
+  }
+  drupal_add_css('div.form_error { border:solid 2px red;}', array('type' => 'inline') );
+  //dpm($form);
+  
+  $form['#validate'][] = 'intake_form_validate';
+  
+  // Catch and prevent ambiguous "illegal choice" error
+  $form['profile_pilot_intake']['field_pilot_intake_connection']['und']['#required'] = FALSE;
+  
+  // Add form_error class to div
+  if(!empty($form_state['input'])) {
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_it_support']))
+      $form['profile_pilot_intake']['field_pilot_intake_it_support']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_connection']))
+      $form['profile_pilot_intake']['field_pilot_intake_connection']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_assistive']))
+      $form['profile_pilot_intake']['field_pilot_intake_assistive']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_wireless']))
+      $form['profile_pilot_intake']['field_pilot_intake_wireless']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_session_m']))
+      $form['profile_pilot_intake']['field_pilot_intake_session_m']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_staff_learn']))
+      $form['profile_pilot_intake']['field_pilot_intake_staff_learn']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_vol_train']))
+      $form['profile_pilot_intake']['field_pilot_intake_vol_train']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_one_on_one']))
+      $form['profile_pilot_intake']['field_pilot_intake_one_on_one']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_online_safety']))
+      $form['profile_pilot_intake']['field_pilot_intake_online_safety']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_strat_plan']))
+      $form['profile_pilot_intake']['field_pilot_intake_strat_plan']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_partners']))
+      $form['profile_pilot_intake']['field_pilot_intake_partners']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_pat_expense']))
+      $form['profile_pilot_intake']['field_pilot_intake_pat_expense']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_hardware']))
+      $form['profile_pilot_intake']['field_pilot_intake_hardware']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_extend']))
+      $form['profile_pilot_intake']['field_pilot_intake_extend']['#attributes']['class'][] = 'form_error';
+    if(!isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_uses']))
+      $form['profile_pilot_intake']['field_pilot_intake_uses']['#attributes']['class'][] = 'form_error';
+    if(isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_assistive']['und'][0])) {
+      if($form_state['input']['profile_pilot_intake']['field_pilot_intake_assistive']['und'][0] == '0') {
+        $count = 0;
+        foreach($form_state['input']['profile_pilot_intake']['field_pilot_intake_assistive']['und'] as $index => $value) {
+          if($value) $count++;
+        }
+        if($count > 0)
+          $form['profile_pilot_intake']['field_pilot_intake_assistive']['#attributes']['class'][] = 'form_error';
+      }
+    }
+    if(isset($form_state['input']['profile_pilot_intake']['field_pilot_intake_uses']['und'][0])) {
+      if($form_state['input']['profile_pilot_intake']['field_pilot_intake_uses']['und'][0] == '0') {
+        $count = 0;
+        foreach($form_state['input']['profile_pilot_intake']['field_pilot_intake_uses']['und'] as $index => $value) {
+          if($value) $count++;
+        }
+        if($count > 0)
+          $form['profile_pilot_intake']['field_pilot_intake_uses']['#attributes']['class'][] = 'form_error';
+      }
+    }
+  }
+}
+function intake_form_validate(&$element, &$form_state) {
+  dpm($element);
+  dpm($form_state);
+  foreach($form_state['input']['profile_pilot_intake'] as $field => $value) {
+    //drupal_set_message('I like turtles', 'error');
+    if(!isset($value['und'])) {
+      switch($field) {
+        case 'field_pilot_intake_wireless' :
+        	drupal_set_message('Does the library provide wireless Internet? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_session_m' :
+        	drupal_set_message('Does the library use session management software? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_staff_learn' :
+        	drupal_set_message('Does the library provide staff with access to learning resources and opportunities relevant to PAT during working hours? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_vol_train' :
+        	drupal_set_message('Does the library provide public access technology training to volunteers? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_one_on_one' :
+        	drupal_set_message('Does the library offer appointments for one-on-one technology training or help? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_online_safety' :
+        	drupal_set_message('Does the library offer classes about online safety? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_strat_plan' :
+        	drupal_set_message('Does the library include public access technology in its strategic plan? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_partners' :
+        	drupal_set_message('Does the library engage community partners in delivering public access technology services? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_pat_expense' :
+        	drupal_set_message('Does the library have a way to track its expenses related to public access technology service provision? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_hardware' :
+        	drupal_set_message('Does the library have a public access technology hardware replacement plan? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_extend' :
+        	drupal_set_message('Are librarians permitted to extend the session time for patrons? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_connection' :
+        	form_set_error('profile_pilot_intake][field_pilot_intake_connection][und', 'What is the source of the library\'s Internet connection?');
+          //drupal_set_message('Are librarians permitted to extend the session time for patrons? field is required', 'error');
+        	break;
+        case 'field_pilot_intake_assistive' :
+          drupal_set_message('Are librarians permitted to extend the session time for patrons? field is required', 'error');
+        	break;
+      }
+    }
+  }
+  // If 'No' plus another choice is selected, throw an error
+  if($form_state['input']['profile_pilot_intake']['field_pilot_intake_assistive']['und'][0] == '0' ) {
+    $count = 0;
+    foreach($form_state['input']['profile_pilot_intake']['field_pilot_intake_assistive']['und'] as $index => $value) {
+      if($value) $count++;
+    }
+    if($count)
+      form_set_error('profile_pilot_intake][field_pilot_intake_assistive][und', 'Does the library provide any of the following assistive technologies to serve people with physical impairments/disabilities? Cannot select "no" when another choice is selected'); 
+  }
+  if($form_state['input']['profile_pilot_intake']['field_pilot_intake_uses']['und'][0] == '0' ) {
+    $count = 0;
+    foreach($form_state['input']['profile_pilot_intake']['field_pilot_intake_uses']['und'] as $index => $value) {
+      if($value) $count++;
+    }
+    if($count)
+      form_set_error('profile_pilot_intake][field_pilot_intake_uses][und', 'Does the library have dedicated public access Internet terminals for any of the following uses? Cannot select "no" when another choice is selected'); 
   }
 }
 function intake_form_profile2_view($profile, $view_mode, $langcode) {
