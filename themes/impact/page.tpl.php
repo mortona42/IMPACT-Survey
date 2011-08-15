@@ -47,7 +47,11 @@
       <?php endif; ?>
       
       <div id="siteName">
-        <?php if ($logo): print '<a href="' . $front_page . '" title="' . t('Home') . '"> <img src="' . check_url($logo) . '" alt="' . t('Home') . '" id="logo" /></a>'; endif; ?>
+        <?php // Hacky way to remove link from logo on survey finished page
+        if ($logo && current_path() != 'node/58'): print '<a href="' . $front_page . '" title="' . t('Home') . '"> <img src="' . check_url($logo) . '" alt="' . t('Home') . '" id="logo" /></a>'; 
+        endif;
+        if ($logo && current_path() == 'node/58'): print '<img src="' . check_url($logo) . '" alt="' . t('Home') . '" id="logo" />'; 
+        endif; ?>
         <div id="siteInfo">
           <?php if (!empty($site_name)): ?>
             <h1 id="siteTitle">
