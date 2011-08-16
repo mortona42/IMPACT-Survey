@@ -380,8 +380,8 @@ function survey_fielding_start_date() {
 // Returns whether the user selected to administer paper surveys
 function survey_fielding_paper_survey() {
 	if(survey_fielding_paper_survey_value() == 1) {
-	  $print_url = '<a href="http://impactsurvey.org/papersurvey/?fscs=' . impact_util_fscs() . '">Download your printable paper survey.</a>';
-	  $entry_url = '<a href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Click here to enter paper survey data.</a>';
+	  $print_url = '<a target="_blank" href="http://impactsurvey.org/papersurvey/?fscs=' . impact_util_fscs() . '">Download your printable paper survey.</a>';
+	  $entry_url = '<a target="_blank" href="http://impactsurvey.org/dataentry/?fscs=' . impact_util_fscs() . '">Click here to enter paper survey data.</a>';
 	  $output = '<h3>You have chosen to administer paper surveys</h3>';
 	  $output .= $print_url . '<br>' . $entry_url . '<br>';
 	  return $output;
@@ -414,6 +414,6 @@ function survey_fielding_incomplete_forms() {
   $imls = impact_util_profile_status('imls_data');
   $intake = impact_util_profile_status('pilot_intake');
   if(empty($imls) && empty($intake)) return '<a href="profile-imls_data">IMLS Data</a> and <a href="profile-pilot_intake">Intake</a> forms';
-  else if(empty($imls) && !empty($intake)) return '<a target="_blank" href="profile-imls_data">IMLS Data</a> form';
-  else if(!empty($imls) && empty($intake)) return '<a target="_blank" href="profile-pilot_intake">Intake</a> form';
+  else if(empty($imls) && !empty($intake)) return '<a href="profile-imls_data">IMLS Data</a> form';
+  else if(!empty($imls) && empty($intake)) return '<a href="profile-pilot_intake">Intake</a> form';
 }
