@@ -42,6 +42,15 @@ function manage_libraries_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 1,
   );
+  $items['admin/manage_libraries/pilot'] = array(
+		'title' => 'Pilot Libraries',
+		'description' => 'View and edit pilot library information',
+		'page callback' => 'manage_libraries_pilot',
+		'access callback' => 'user_access',
+		'access arguments' => array('profiles management'),	
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
   $items['admin/manage_libraries/%manage_libraries_check_type/%manage_libraries_check_uid/view'] = array(
 		'title' => 'hello',
 		'title callback' => 'manage_libraries_get_library_name',
@@ -114,6 +123,13 @@ function manage_libraries_menu() {
   
   return $items;
 }
+// List the pilot libraries on a tab
+function manage_libraries_pilot() {
+  $launch = strtotime('8/17/11');
+  $sql = "SELECT uid FROM {users} WHERE created > $launch";
+  $user_list = db_query($sql)->fetchCol();
+  return manage_libraries_select_query($user_list);
+}
 // Create an array with user data to display profiles
 function manage_libraries_select_query($user_list = array()) {
 
@@ -137,9 +153,9 @@ function manage_libraries_select_query($user_list = array()) {
   $table_data->addField($table_data->leftJoin('field_data_field_library_reg_lname', 'lname', 'lname.entity_id = reg.pid'), 'field_library_reg_lname_value', 'last_name');
   $table_data->addField($table_data->leftJoin('library_lookup', 'll', 'll.fscs_key = fscs.field_library_reg_system_value'), 'library_name', 'lib_name');
   $table_data->addField($table_data->leftJoin('profile', 'imls', 'imls.uid = u.uid AND imls.type = :type_imls', array(':type_imls' => 'imls_data')), 'pid', 'imls_pid');
-  $table_data->addField($table_data->leftJoin('profile', 'intake', 'intake.uid = u.uid AND intake.type = :type_intake', array(':type_intake' => 'intake_form')), 'pid', 'intake_pid');
+  $table_data->addField($table_data->leftJoin('profile', 'intake', 'intake.uid = u.uid AND intake.type = :type_intake', array(':type_intake' => 'pilot_intake')), 'pid', 'intake_pid');
   $table_data->addField($table_data->leftJoin('myimpact_profile_status', 'imls_stat', 'imls_stat.uid = u.uid AND imls_stat.type = :stat_imls', array(':stat_imls' => 'imls_data')), 'status', 'imls_stat');
-  $table_data->addField($table_data->leftJoin('myimpact_profile_status', 'intake_stat', 'intake_stat.uid = u.uid AND intake_stat.type = :stat_intake', array(':stat_intake' => 'intake_form')), 'status', 'intake_stat');
+  $table_data->addField($table_data->leftJoin('myimpact_profile_status', 'intake_stat', 'intake_stat.uid = u.uid AND intake_stat.type = :stat_intake', array(':stat_intake' => 'pilot_intake')), 'status', 'intake_stat');
   $table_data->addField($table_data->leftJoin('profile', 'fielding', 'fielding.uid = u.uid AND fielding.type = :type_fielding', array(':type_fielding' => 'survey_fielding')), 'pid', 'fielding_pid');
   $table_data->leftJoin('field_data_field_fielding_date', 'date', 'date.entity_id = fielding.pid');
   $table_data->addField('date', 'field_fielding_date_value', 'start_date');
@@ -166,7 +182,7 @@ function manage_libraries_select_query($user_list = array()) {
       manage_libraries_fix_user($row->username, $row->uid, $row->first_name, $row->last_name),
       $row->survey_responses,
       manage_libraries_fix_forms($row->uid, $row->imls_pid, $row->imls_stat, 'imls_data'),
-      manage_libraries_fix_forms($row->uid, $row->intake_pid, $row->intake_stat, 'intake_form'),
+      manage_libraries_fix_forms($row->uid, $row->intake_pid, $row->intake_stat, 'pilot_intake'),
       manage_libraries_fix_date($row->uid, $row->fielding_pid, $row->start_date, $row->end_date), 
       manage_libraries_fix_photo_logo($row->uid, $row->pl_pid, $row->photo_id, $row->photo_loc, $row->logo_id, $row->logo_loc),
     );
@@ -351,7 +367,7 @@ function manage_libraries_display($library_list = array()){
     array('data' => $user_data->username, 'title' => $user_data->first_name.' '.$user_data->last_name),
     array('data' => $user_data->responses),
     array('data' => isset($user_data->imls_pid) ? "<a href='manage_libraries/profile-imls_data/$user_data->uid/view'>Yes</a>" : 'No'),
-    array('data' => isset($user_data->intake_pid) ? "<a href='manage_libraries/profile-intake_form/$user_data->uid/view'>Yes</a>" : 'No'),
+    array('data' => isset($user_data->intake_pid) ? "<a href='manage_libraries/profile-pilot_intake/$user_data->uid/view'>Yes</a>" : 'No'),
     array('data' => isset($user_data->start_date) ? "<a href='manage_libraries/profile-photo_logo/$user_data->uid/view'>$user_data->start_date$user_data->end_date</a>" : $user_data->start_date.$user_data->end_date),
     array('data' => (isset($user_data->photo_id) || isset($user->logo_id)) ? "<a href='manage_libraries/profile-photo_logo/$user_data->uid/view'>view</a>" : 'No Photo/Logo')
     );
@@ -376,7 +392,7 @@ function _manage_libraries_complete_data_fields(&$user_data) {
    array('data' => $result_count),
    array('data' => isset($value['library_registration'])?$value['library_registration']:"<font color='grey'>NO</font>",'align'=>'center'),
    array('data' => isset($value['imls_data'])?$value['imls_data']:"<font color='grey'>NO</font>",'align'=>'center'),
-   array('data' => isset($value['intake_form'])?$value['intake_form']:"<font color='grey'>NO</font>",'align'=>'center'),
+   array('data' => isset($value['pilot_intake'])?$value['pilot_intake']:"<font color='grey'>NO</font>",'align'=>'center'),
    array('data' => isset($value['survey_fielding'])?$value['survey_fielding']:"<font color='grey'>NO</font>",'align'=>'center'),
    array('data' => isset($value['photo_logo'])?$value['photo_logo']:"<font color='grey'>NO</font>",'align'=>'center')
    );*/
@@ -428,8 +444,8 @@ function manage_libraries_convert_path_type($path){
   switch($path){
     case "profile-library_registration":
       return "library_registration";
-    case "profile-intake_form":
-      return "intake_form";
+    case "profile-pilot_intake":
+      return "pilot_intake";
     case "profile-imls_data":
       return "imls_data";
     case "profile-survey_fielding":
