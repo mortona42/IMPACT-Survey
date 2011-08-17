@@ -20,7 +20,7 @@ hide($content['body']);
 hide($content['field_codebox_type']);
 print render($content);
 ?>
-<h3>Instructions - Hotlinked</h3>
+<h3>Instructions - Hosted by IMPACT Survey</h3>
 <p>This is the easiest method; use it if your website configuration allows it.</p>
 <ol>
 	<li>Copy the code below.</li>
@@ -32,7 +32,7 @@ $field_image = $node->field_image['und'][0]['filename'];
 $code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hotlinked&utm_content=$field_image&utm_term=$fscs&utm_campaign=pre-pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='http://impactsurvey.org/codebox/img/$field_image' border='0' /&gt;&lt;/a&gt;";
 print $code;?>
 </code></p>
-<h3>Instructions - Hosted</h3>
+<h3>Instructions - Hosted by library</h3>
 <p>If your website doesn't permit hotlinked images, use this method.</p>
 <ol>
 	<li>Right click on the image and save it to your computer.</li>
