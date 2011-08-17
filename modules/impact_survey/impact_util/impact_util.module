@@ -48,3 +48,19 @@ function impact_util_profile_view_url() {
   $url = explode('/', current_path());
   return $base_url . '/' . $url[count($url)-3] . '/' . $url[count($url)-2];
 }
+// Check if The library is administering paper surveys
+// Returns 1 if yes, 0 if no
+function impact_util_paper_survey() {
+  global $user;
+  $paper = impact_util_profile_save('survey_fielding');
+  if($paper) {
+    $sql = "SELECT field_paper_survey_value FROM {field_data_field_paper_survey} WHERE entity_id = '$paper'";
+    return db_query($sql)->fetchField();
+  } else
+    return 0;
+}
+function impact_util_paper_survey_finished() {
+  global $user;
+  $sql = "SELECT paper_survey_finished FROM {paper_survey_finished} WHERE uid = $user->uid";
+  return db_query($sql)->fetchField();
+}
