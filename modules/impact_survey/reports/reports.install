@@ -1,0 +1,28 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+function reports_schema() {
+  $schema['paper_survey_finished'] = array(
+    'description' => 'Keeps track of completed paper survey data entry',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'User ID',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'paper_survey_finished' => array(
+        'description' => 'Paper survey finished',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE
+      ),
+    ),
+    'indexes' => array(     
+    ),
+    'unique keys' => array(
+    ),
+    'primary key' => array('uid'),
+  );
+  return $schema;
+}

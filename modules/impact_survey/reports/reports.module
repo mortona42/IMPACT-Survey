@@ -1,0 +1,70 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function reports_menu() {
+  $items = array();
+
+  $items['report'] = array(
+    'title' => 'Reports',
+    'description' => 'An area to view reports',
+    'page callback' => 'reports_page',
+    'page arguments' => array(),
+    'access callback' => 'user_is_logged_in'
+  );
+
+  return $items;
+}
+// 
+function reports_page() {
+  if(impact_util_paper_survey())
+    return drupal_get_form('reports_paper_survey_form');
+  else return 'You\'re not administering paper surveys';
+}
+
+/**
+ * Implements hook_theme().
+ */
+function reports_theme() {
+  return array(
+    'reports' => array(
+      'template' => 'reports',
+    ),
+  );
+}
+/**
+ * Implements hook_form().
+ */
+function reports_paper_survey_form($form, &$form_state) {
+  $form = array();
+  $form['finished'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Please check this box and click confirm when you have entered all paper survey data.')
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Confirm'
+  );
+  return $form;
+}
+/**
+ * Implements hook_form_alter().
+ */
+function reports_form_reports_paper_survey_form_alter(&$form, $form_state, $form_id) {
+  if(impact_util_paper_survey_finished()) {
+    $form['finished']['#default_value'] = 1;
+    $form['finished']['#disabled'] = TRUE;
+    unset($form['submit']);
+  }
+}
+function reports_paper_survey_form_submit($form, $form_state) {
+  global $user;
+  if($form_state['values']['finished'] == 1) {
+    db_merge('paper_survey_finished')
+      ->key(array('uid' => $user->uid))
+      ->fields(array(
+          'paper_survey_finished' => $form_state['values']['finished'],
+      ))
+      ->execute();
+  }
+}

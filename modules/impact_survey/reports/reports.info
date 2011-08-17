@@ -1,0 +1,4 @@
+name = Reports
+description = Provide a checkbox on the reports page if the user is administering paper surveys
+package = IMPACT
+core = 7.x
