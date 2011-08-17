@@ -137,6 +137,13 @@ function survey_fielding_nameform() {
   );
   return $form;
 }
+// If they have opted in to paper surveys, disable the checkbox
+function survey_fielding_form_survey_fielding_nameform_alter(&$form, &$form_state) {
+  if(time() > strtotime(survey_fielding_start_date())
+    && survey_fielding_paper_survey_value()) {
+    $form['paper_survey']['#disabled'] = TRUE;
+  }
+}
 // Validate the form
 function survey_fielding_nameform_validate($form, &$form_state) {
   if (empty($form_state['values']['date2'])){
