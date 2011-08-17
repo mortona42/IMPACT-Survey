@@ -361,6 +361,9 @@ function myimpact_setting_theme() {
     'myimpact_setting' => array(
       'template' => 'myimpact_setting',
     ),
+    'survey_finished_block' => array(
+    	'template' => 'survey_finished_block',
+    )
   );
 }
 
@@ -557,4 +560,40 @@ function myimpact_setting_form_status($type=''){
 	   if((empty($date) or strtotime($date)>time()) and empty($pid)) return True;
 	   else return False;
 	
+}
+// Redirect to myimpact after saving report cover images
+function myimpact_setting_form_profile2_edit_photo_logo_form_alter(&$form, $form_state) {
+  $form['#submit'][] = 'myimpact_setting_submit_redirect';
+}
+// Redirect to myimpact
+function myimpact_setting_submit_redirect($form, &$form_state) {
+  $form_state['redirect'] = 'myimpact';
+}
+
+/**
+ * Survey finished block
+ * Implements hook_block_info().
+ */
+function myimpact_setting_block_info() {
+  $blocks['survey_finished'] = array(
+    'info' => t('Survey Finished Footer'), 
+    'cache' => DRUPAL_CACHE_PER_USER,
+    'status' => 1,
+    'region' => 'footer bottom',
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'finished'
+  );
+
+  return $blocks;
+}
+/**
+ * Implements hook_block_view().
+ */
+function myimpact_setting_block_view($delta = '') {
+  if($delta == 'survey_finished') {
+    $block = array();
+    $block['subject'] = '';
+    $block['content'] = theme('survey_finished_block');
+    return $block;
+  }
 }
