@@ -83,7 +83,15 @@ function library_registration_form_profile2_edit_library_registration_form_alter
 // Store fscs key as username
 function library_registration_username_value($element, $input = FALSE, $form_state = array()) {
 	if(isset($form_state['input']['profile_library_registration']['field_library_reg_system']['und']))
-		return $form_state['input']['profile_library_registration']['field_library_reg_system']['und'];
+	  // If we have input for system, set their username
+	  if($form_state['input']['profile_library_registration']['field_library_reg_system']['und'] != 'TE0001')
+		  return $form_state['input']['profile_library_registration']['field_library_reg_system']['und'];
+		// Unless its a test account, in which case, increment TE0001-1
+		else {
+  	  $query = "SELECT COUNT(field_library_reg_system_value) FROM {field_data_field_library_reg_system } WHERE field_library_reg_system_value = '$fscs'";
+  	  $count = db_query($query)->fetchField() + 1;
+  	  return 'TE0001-' . $count;
+		}
 }
 // Copy grouped fields back into their original place
 function library_registration_submit($form, &$form_state) {
@@ -106,7 +114,7 @@ function library_registration_user_register_validate(&$form, &$form_state) {
 		$query = "SELECT field_library_reg_system_value FROM {field_data_field_library_reg_system } WHERE field_library_reg_system_value = '$fscs'";
 		$result = db_query($query);
 		if($result -> rowCount() > 0)
-		form_set_error('field_library_reg_system', 'This library is already registered, if this is an error, please <a href="/contact">contact us immediately.</a>');
+		  form_set_error('field_library_reg_system', 'This library is already registered, if this is an error, please <a href="/contact">contact us immediately.</a>');
 	}
 
 	$phone = $form_state['values']['profile_library_registration']['field_library_reg_phone']['und'][0]['value'];
