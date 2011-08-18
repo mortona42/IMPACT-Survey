@@ -448,7 +448,7 @@ In the meantime, a welcome message with further instructions has been sent to yo
                 <form action="" method="post">
                 <table border="0";>
                 <tr><td>Prefered Name</td><td><input name="preName" value="<?php print $system_name; ?>"></input></td></tr>
-                <tr><td>Username</td><td><input name="UserName" value="<?php print $user->name; ?>"></input></td></tr>
+                <tr><td>Username</td><td><input disabled="disabled" name="UserName" value="<?php print $user->name; ?>"></input></td></tr>
                 <tr><td>First Name</td><td><input name="fname" value="<?php print $firstname; ?>"></input></td></tr>
                 <tr><td>Last Name</td><td><input name="lname" value="<?php print $lastname; ?>"></input></td></tr>
                 <tr><td>Position</td><td><input name="position" value="<?php print $jobtitle; ?>"></input></td></tr>
