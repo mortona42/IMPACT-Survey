@@ -53,11 +53,8 @@ function library_registration_form_profile2_edit_library_registration_form_alter
   
   $form['profile_library_registration']['field_library_reg_extension']['und'][0]['value']['#size'] = 10;
   
-  // Reorder submit functions
-  // library_registration_name_fix sets the fscs key
   unset($form['#submit']);
   $form['#submit'][] = 'library_registration_name_and_website';
-  $form['#submit'][] = 'library_registration_name_fix';
   $form['#submit'][] = 'user_register_submit';
   $form['#submit'][] = 'library_registration_redirect';
   
@@ -154,9 +151,6 @@ function library_registration_form_profile2_edit_library_registration_form_alter
 	  '#default_value' => TRUE,
 	  '#disabled' => TRUE,
 	);
-	// Hide username and provide a default so it passes validation
-	$form['account']['name']['#type'] = 'hidden';
-	$form['account']['name']['#default_value'] = 'fscs key';
 }
 function library_registration_name_and_website(&$form, &$form_state) {
   $form_state['values']['profile_library_registration']['field_library_reg_pref']['und'][0]['value'] = $form_state['values']['profile_library_registration']['name_and_website_group'][0]['und'][0]['value'];
@@ -238,10 +232,6 @@ function library_registration_form_user_login_block_alter(&$form, &$form_state) 
 // copied user_login_submit from user.module and changed redirect
 function library_registration_login_redirect($form, &$form_state) {
   $form_state['redirect'] = 'myimpact';
-}
-function library_registration_name_fix($form, &$form_state) {
-  $fscs = $form_state['values']['profile_library_registration']['field_library_reg_system']['und'][0]['value'];
-  $form_state['values']['name'] = $fscs;
 }
 // send warning if system is already registered
 function library_registration_user_register_validate(&$form, &$form_state) {
