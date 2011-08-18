@@ -1,70 +1,162 @@
-<?php // $Id$
-/**
- * @file
- *
- * modifies the profile2 registration form in order to add dependent dropdown for name/fscskey
- *
- */
+<?php
+// Modifies the profile2 registration form in order to add dependent dropdown for state/fscskey
 function library_registration_form_profile2_edit_library_registration_form_alter(&$form, &$form_state) {
-  drupal_set_title('Library Registration');
-  // This field from the default registration form breaks ajax in IE.
-  unset($form['picture']);
-  // Change email description.
-  $form['account']['mail']['#description'] = 'A valid e-mail address. All e-mails from the system will be sent to this address. The e-mail address is not made public and will only be used for important information from us or if you wish to receive a new password.';
-  global $user;
-  if ($user->uid < 1) {
-    // Add ajax to fields
-    $form['profile_library_registration']['field_library_reg_state']['und']['#options'] = _library_registration_library_states();
-    $form['profile_library_registration']['field_library_reg_state']['und']['#attributes'] = array('class' => array('enabled-for-ajax'));
-    $form['profile_library_registration']['field_library_reg_state']['und']['#ajax'] = array(
-        'callback' => 'library_registration_state_change_callback',
-        'wrapper' => 'name-select',
-    
-      );
-    $selected = isset($form_state['values']['profile_library_registration']['field_library_reg_state']['und'][0]['value']) ? $form_state['values']['profile_library_registration']['field_library_reg_state']['und'][0]['value'] : '';
-      
-    $form['profile_library_registration']['field_library_reg_system']['#weight'] = 1;
-    $form['profile_library_registration']['field_library_reg_system']['und']['#options'] = _library_registration_library_names($selected);
-    $form['profile_library_registration']['field_library_reg_system']['und']['#attributes'] = array('class' => array('enabled-for-ajax'));
-    $form['profile_library_registration']['field_library_reg_system']['und']['#prefix'] = "<div id='name-select'>";
-    $form['profile_library_registration']['field_library_reg_system']['und']['#suffix'] = "</div>";
-    $form['profile_library_registration']['field_library_reg_system']['und']['#ajax'] = array(
-        'callback' => 'library_registration_system_change_callback',
-        'wrapper' => 'name-and-website',
-        'method' => 'replace',
-      );
-  } else {
-    unset($form['profile_library_registration']['field_library_reg_state']);
-    unset($form['profile_library_registration']['field_library_reg_system']);
-  }
-  // Get selected system
-    $form['profile_library_registration']['name_and_website_group']['#weight'] = 2;
-    $form['profile_library_registration']['name_and_website_group']['#prefix'] = "<div id='name-and-website'>";
-    $form['profile_library_registration']['name_and_website_group']['#suffix'] = "</div>";
-    if(isset($form['profile_library_registration']['field_library_reg_pref']) &&
-      isset($form['profile_library_registration']['field_library_reg_website'])) {
-    $form['profile_library_registration']['name_and_website_group'][] = $form['profile_library_registration']['field_library_reg_pref'];
-    $form['profile_library_registration']['name_and_website_group'][] = $form['profile_library_registration']['field_library_reg_website'];
-    $form['profile_library_registration']['name_and_website_group'][] = $form['profile_library_registration']['field_library_reg_short_name'];
-    unset($form['profile_library_registration']['field_library_reg_pref']);
-    unset($form['profile_library_registration']['field_library_reg_website']);
-    unset($form['profile_library_registration']['field_library_reg_short_name']);
-     }
-  
-  $form['profile_library_registration']['field_library_reg_extension']['und'][0]['value']['#size'] = 10;
-  
-  // Reorder submit functions
-  // library_registration_name_fix sets the fscs key
-  unset($form['#submit']);
-  $form['#submit'][] = 'library_registration_name_and_website';
-  $form['#submit'][] = 'library_registration_name_fix';
-  $form['#submit'][] = 'user_register_submit';
-  $form['#submit'][] = 'library_registration_redirect';
-  
+	drupal_set_title('Library Registration');
+	// Get the state if it has been selected
+	if(isset($form_state['input']['profile_library_registration']['field_library_reg_state']['und']))
+		$selected_state = $form_state['input']['profile_library_registration']['field_library_reg_state']['und'];
+	// Get the system & info if it has been selected
+	if(isset($form_state['input']['profile_library_registration']['field_library_reg_system']['und']))
+		$selected_system = $form_state['input']['profile_library_registration']['field_library_reg_system']['und'];
+
+	// This field from the default registration form breaks ajax in IE.
+	unset($form['picture']);
+
+	// Change email description.
+	$form['account']['mail']['#description'] = 'A valid e-mail address. All e-mails from the system will be sent to this address. The e-mail address is not made public and will only be used for important information from us or if you wish to receive a new password.';
+	
+	// Set state options
+	$form['profile_library_registration']['field_library_reg_state']['und']['#options'] = library_registration_state_list();
+	$form['profile_library_registration']['field_library_reg_state']['und']['#ajax'] = array(
+	    'callback' => 'library_registration_state_change_callback',
+	    'wrapper' => 'name-select',
+	);
+
+	// Set system options
+	if(isset($selected_state)) {
+		$form['profile_library_registration']['field_library_reg_system']['und']['#options'] = library_registration_system_list($selected_state);
+		$form['profile_library_registration']['field_library_reg_system']['und']['#disabled'] = FALSE;
+	}
+	else {
+		$form['profile_library_registration']['field_library_reg_system']['und']['#options'] = array('_none' => 'Select your system');
+		$form['profile_library_registration']['field_library_reg_system']['und']['#disabled'] = TRUE;
+	}
+	$form['profile_library_registration']['field_library_reg_system']['und']['#prefix'] = "<div id='name-select'>";
+	$form['profile_library_registration']['field_library_reg_system']['und']['#suffix'] = '</div>';
+	$form['profile_library_registration']['field_library_reg_system']['und']['#ajax'] = array(
+      'callback' => 'library_registration_system_change_callback',
+      'wrapper' => 'name-and-website',
+      'method' => 'replace',
+	);
+	// Add name/website group
+	$form['profile_library_registration']['name_and_website_group']['#weight'] = 2;
+	$form['profile_library_registration']['name_and_website_group']['#prefix'] = "<div id='name-and-website'>";
+	$form['profile_library_registration']['name_and_website_group']['#suffix'] = '</div>';
+	// Set name/website group
+	$form['profile_library_registration']['name_and_website_group']['field_library_reg_pref'] = $form['profile_library_registration']['field_library_reg_pref'];
+	$form['profile_library_registration']['name_and_website_group']['field_library_reg_website'] = $form['profile_library_registration']['field_library_reg_website'];
+	$form['profile_library_registration']['name_and_website_group']['field_library_reg_short_name'] = $form['profile_library_registration']['field_library_reg_short_name'];
+	// Unset fields we moved
+	unset($form['profile_library_registration']['field_library_reg_pref']);
+	unset($form['profile_library_registration']['field_library_reg_website']);
+	unset($form['profile_library_registration']['field_library_reg_short_name']);
+	// Set name/website group values
+	if(isset($selected_system)) {
+		$group = library_registration_name_website_group($selected_system);
+		$form_state['input']['profile_library_registration']['name_and_website_group']['field_library_reg_pref']['und'][0]['value'] = $group['library_name'];
+		$form_state['input']['profile_library_registration']['name_and_website_group']['field_library_reg_website']['und'][0]['value'] = $group['web_address'];
+	}
+	
+	// Set phone extension field width
+	$form['profile_library_registration']['field_library_reg_extension']['und'][0]['value']['#size'] = 10;
+
+	
+	$form['#submit'][] = 'library_registration_submit';
 	$form['#validate'][] = 'library_registration_user_register_validate';
-	if ($user->uid < 1) {
-  	// Proof of librarianship question
-  	$form['profile_library_registration']['proof_of_librarianship'] = array (
+	
+	// Proof of librarianship question
+	$form['profile_library_registration']['proof_of_librarianship'] = library_registration_proof();
+	// Add authorization checkbox
+	//$form['profile_library_registration']['field_library_reg_auth'] = library_registration_authorization();
+	
+	// Assign registered_library role
+	$form['account']['roles'][6] = array(
+	  '#type' => 'checkbox',
+	  '#title' => 'Registered User',
+	  '#default_value' => TRUE,
+	  '#disabled' => TRUE,
+	);
+	// Hide username and provide a value callback
+	$form['account']['name']['#type'] = 'hidden';
+	$form['account']['name']['#value_callback'] = 'library_registration_username_value';
+}
+// Store fscs key as username
+function library_registration_username_value($element, $input = FALSE, $form_state = array()) {
+	if(isset($form_state['input']['profile_library_registration']['field_library_reg_system']['und']))
+		return $form_state['input']['profile_library_registration']['field_library_reg_system']['und'];
+}
+// Copy grouped fields back into their original place
+function library_registration_submit($form, &$form_state) {
+	drupal_get_messages();
+	$form_state['values']['profile_library_registration']['field_library_reg_pref']['und'][0]['value'] = 
+		$form_state['values']['profile_library_registration']['name_and_website_group']['field_library_reg_pref']['und'][0]['value'];
+	$form_state['values']['profile_library_registration']['field_library_reg_website']['und'][0]['value'] = 
+		$form_state['values']['profile_library_registration']['name_and_website_group']['field_library_reg_website']['und'][0]['value'];
+	$form_state['values']['profile_library_registration']['field_library_reg_short_name']['und'][0]['value'] = 
+		$form_state['values']['profile_library_registration']['name_and_website_group']['field_library_reg_short_name']['und'][0]['value'];
+		
+	$form_state['values']['name'] = $form_state['values']['profile_library_registration']['field_library_reg_system']['und'][0]['value'];
+	
+	$form_state['redirect'] = array('thank-you');
+}
+// Send warning if system is already registered
+function library_registration_user_register_validate(&$form, &$form_state) {
+	$fscs = $form_state['values']['profile_library_registration']['field_library_reg_system']['und'][0]['value'];
+	if($fscs != 'TE0001') {
+		$query = "SELECT field_library_reg_system_value FROM {field_data_field_library_reg_system } WHERE field_library_reg_system_value = '$fscs'";
+		$result = db_query($query);
+		if($result -> rowCount() > 0)
+		form_set_error('field_library_reg_system', 'This library is already registered, if this is an error, please <a href="/contact">contact us immediately.</a>');
+	}
+
+	$phone = $form_state['values']['profile_library_registration']['field_library_reg_phone']['und'][0]['value'];
+	if(!is_numeric($phone)) form_set_error('phone number', 'The phone number must be numerical.');
+	if(strlen($phone) != 10) form_set_error('phone number2', 'The phone number must contain 10 digits.');
+
+}
+// Check answer to proof of librarianship question
+function library_registration_proof_validate($element, $form_state) {
+	if ($element['#required'] && $element['#value'] == '_none') {
+		form_error($element, t('Please answer the challenge question.'));
+	}
+	else {
+		if ($element['#value'] != 'ILS') {
+			form_error($element, t('You answered the challenge question incorrectly.'));
+		}
+	}
+}
+
+function library_registration_state_list() {
+	$sql = "SELECT DISTINCT library_state FROM {library_lookup} ORDER BY library_state ASC";
+	$states = array('_none' => 'Select your state');
+	foreach(db_query($sql)->fetchCol() as $state)
+		$states[$state] = $state;
+	return $states;
+}
+function library_registration_system_list($state) {
+	$sql = "SELECT fscs_key, library_name FROM {library_lookup} WHERE library_state = '$state' ORDER BY library_name ASC";
+	$systems = array('_none' => 'Select your system');
+	foreach(db_query($sql)->fetchAllKeyed() as $fscs_key => $lib_name)
+		$systems[$fscs_key] = $lib_name;
+	return $systems;
+}
+function library_registration_state_change_callback($form, $form_state) {
+	return $form['profile_library_registration']['field_library_reg_system']['und'];
+}
+function library_registration_system_change_callback($form, $form_state) {
+	return $form['profile_library_registration']['name_and_website_group'];
+}
+function library_registration_name_website_group($fscs) {
+	$sql = "SELECT library_name, web_address FROM {library_lookup} WHERE fscs_key = '$fscs'";
+	$group = db_query($sql)->fetchAssoc();
+	$group['library_name'] = impact_util_capwords(trim($group['library_name']));
+	$group['web_address'] = ($group['web_address'] == -3 || $group['web_address'] == 'm')
+		? ''
+		: strtolower(trim($group['web_address']));
+	return $group;
+}
+function library_registration_proof() {
+	return array (
   		'#entity_type' => 'profile2',
   	 	'#bundle' => 'library_registration',
   	  '#field_name' => 'field_library_reg_proof',
@@ -84,188 +176,66 @@ function library_registration_form_profile2_edit_library_registration_form_alter
   	 		'IKR' => 'IKR',
   			'ILS' => 'ILS', 
   			'IDP' => 'IDP', 
-  	  ), 
+	),
   	  '#value_key' => 'value',
   	  '#element_validate' => array (
-  	    0 => 'library_registration_proof_validate',
-  	  ),
+	0 => 'library_registration_proof_validate',
+	),
   	  '#properties' => array ( 
   	  	'strip_tags' => 1, 
   	  	'optgroups' => 1,
   	  	'empty_option' => 'option_select',
   	  	'filter_xss' => FALSE,
-  	  ),
+	),
   	  '#after_build' => array (0 => 'field_form_element_after_build'),
   	  '#weight' => 11,
-  	);
-  	// Add authorization checkbox
-  	/*
-  	$form['profile_library_registration']['field_library_reg_auth'] = array(
-      '#type' => 'container',
-      '#attributes' => array(
-        'class' => array(
-          'field-type-list-boolean',
-          'field-name-field-library-reg-auth',
-          'field-widget-options-onoff',
-        ),
-      ),
-      '#weight' => '11',
-      '#tree' => TRUE,
-      '#language' => 'und',
-      'und' => array(
-        '#entity_type' => 'profile2',
-        '#bundle' => 'library_registration',
-        '#field_name' => 'field_library_reg_auth',
-        '#language' => 'und',
-        '#field_parents' => array(
-          'profile_library_registration',
-        ),
-        '#columns' => array(
-          'value',
-        ),
-        '#title' => 'I am the library director, or have been authorized to register this library system.',
-        '#description' => '',
-        '#required' => TRUE,
-        '#delta' => 0,
-        '#type' => 'checkbox',
-        '#default_value' => 0,
-        '#on_value' => 1,
-        '#off_value' => 0,
-        '#value_key' => 'value',
-        '#element_validate' => array(
-          'impact_registration_authorization_validate',
-        ),
-        '#properties' => array(
-          'filter_xss' => TRUE,
-          'strip_tags' => FALSE,
-          'empty_option' => FALSE,
-          'optgroups' => FALSE,
-        ),
-        '#after_build' => array(
-          'field_form_element_after_build',
-        ),
-      ),
-    );*/
-	}
-	// Assign registered_library role
-	$form['account']['roles'][6] = array(
-	  '#type' => 'checkbox',
-	  '#title' => 'Registered User',
-	  '#default_value' => TRUE,
-	  '#disabled' => TRUE,
 	);
-	// Hide username and provide a default so it passes validation
-	$form['account']['name']['#type'] = 'hidden';
-	$form['account']['name']['#default_value'] = 'fscs key';
 }
-function library_registration_name_and_website(&$form, &$form_state) {
-  $form_state['values']['profile_library_registration']['field_library_reg_pref']['und'][0]['value'] = $form_state['values']['profile_library_registration']['name_and_website_group'][0]['und'][0]['value'];
-  $form_state['values']['profile_library_registration']['field_library_reg_website']['und'][0]['value'] = $form_state['values']['profile_library_registration']['name_and_website_group'][1]['und'][0]['value'];
-}
-function library_registration_redirect(&$form, &$form_state) {
-  drupal_get_messages();
-  $form_state['redirect'] = array('thank-you');
-}
-// use library_lookup table in the database to collect available states
-function _library_registration_library_states() {
-  $query = "SELECT DISTINCT library_state FROM {library_lookup} ";
-  $result = db_query($query);
-  $states = array('Select your state');
-  $i = 1;
-  foreach ($result as $state) {
-    if($state->library_state != 'Test') {
-      $states[$i] = $state -> library_state;
-      $i++;
-    }
-  }
-  $states[] = 'Test';
-  return drupal_map_assoc($states);
-}
-/**
- * Helper function to populate the second dropdown. This would normally be
- * pulling data from the database.
- *
- * @param key. This will determine which set of options is returned.
- *
- * @return array of options
- */
-function _library_registration_library_names($key = '') {
-    if($key != '') {
-      $query = "SELECT fscs_key, library_name  FROM {library_lookup} WHERE library_state = '$key' 
-        ORDER BY library_name";
-      $result = db_query($query);
-      $result_keyed = $result->fetchAllKeyed();
-      array_unshift($result_keyed, 'Select your system');
-  	  return $result_keyed;
-    }
-    else {
-      return array('fscskey' => ' -- ');
-    }
-}
-/**
- * Selects just the second dropdown to be returned for re-rendering
- *
- * @return renderable array (the second dropdown)
- */
-function library_registration_state_change_callback(&$form, $form_state) {
-    return $form['profile_library_registration']['field_library_reg_system']['und'];
-    
-}
-function library_registration_system_change_callback(&$form, &$form_state) {
-  // This method uses a database call to retrieve the system name, given the fscs key.
-  // There is probably a better way to store this information when it is first called to populate the select list.
-  $fscs = $form_state['values']['profile_library_registration']['field_library_reg_system']['und'][0]['value'];
-  $query = "SELECT library_name, web_address FROM {library_lookup} WHERE fscs_key = '$fscs'";
-  $library_system = db_query($query)->fetchField();
-  $preferred_name = impact_util_capwords(trim($library_system));
-  $system_website = db_query($query)->fetchField(1);
-  $system_website = strtolower(trim($system_website));
-  if($system_website == -3) $system_website = '';
-  $form['profile_library_registration']['name_and_website_group'][0]['und'][0]['value']['#value'] = $preferred_name;
-  $form['profile_library_registration']['name_and_website_group'][1]['und'][0]['value']['#value'] = $system_website;
-  return $form['profile_library_registration']['name_and_website_group'];
-}
-// redirect login block (use log in tab while registering new account)
-function library_registration_form_user_login_alter(&$form, &$form_state) {
-	$form['#action'] = '';
-	$form['#submit'][] = 'library_registration_login_redirect';
-}// redirect sidebar login
-function library_registration_form_user_login_block_alter(&$form, &$form_state) {
-	$form['#action'] = '';
-	$form['#submit'][] = 'library_registration_login_redirect';
-}
-// redirect to myimpact (no status)
-// copied user_login_submit from user.module and changed redirect
-function library_registration_login_redirect($form, &$form_state) {
-  $form_state['redirect'] = 'myimpact';
-}
-function library_registration_name_fix($form, &$form_state) {
-  $fscs = $form_state['values']['profile_library_registration']['field_library_reg_system']['und'][0]['value'];
-  $form_state['values']['name'] = $fscs;
-}
-// send warning if system is already registered
-function library_registration_user_register_validate(&$form, &$form_state) {
-  $fscs = $form_state['values']['profile_library_registration']['field_library_reg_system']['und'][0]['value'];
-  if($fscs != 'TE0001') {
-    $query = "SELECT field_library_reg_system_value FROM {field_data_field_library_reg_system } WHERE field_library_reg_system_value = '$fscs'";
-    $result = db_query($query);
-    if($result -> rowCount() > 0)
-    	form_set_error('field_library_reg_system', 'This library is already registered, if this is an error, please <a href="/contact">contact us immediately.</a>');
-  }
-  
-  $phone=$form_state['values']['profile_library_registration']['field_library_reg_phone']['und'][0]['value'];
-	if(!is_numeric($phone)) form_set_error('phone number', 'The phone number should be numerical.');
-	if(strlen($phone)!=10) form_set_error('phone number2', 'The phone number should contain 10 digits.');
-
-}
-// Check answer to proof of librarianship question
-function library_registration_proof_validate($element, $form_state) {
-  if ($element['#required'] && $element['#value'] == '_none') {
-    form_error($element, t('Please answer the challenge question.'));
-  } 
-  else {
-    if ($element['#value'] != 'ILS') {
-        form_error($element, t('You answered the challenge question incorrectly.'));
-    }
-  }
-}
+/*function library_registration_authorization() {
+ array(
+ '#type' => 'container',
+ '#attributes' => array(
+ 'class' => array(
+ 'field-type-list-boolean',
+ 'field-name-field-library-reg-auth',
+ 'field-widget-options-onoff',
+ ),
+ ),
+ '#weight' => '11',
+ '#tree' => TRUE,
+ '#language' => 'und',
+ 'und' => array(
+ '#entity_type' => 'profile2',
+ '#bundle' => 'library_registration',
+ '#field_name' => 'field_library_reg_auth',
+ '#language' => 'und',
+ '#field_parents' => array(
+ 'profile_library_registration',
+ ),
+ '#columns' => array(
+ 'value',
+ ),
+ '#title' => 'I am the library director, or have been authorized to register this library system.',
+ '#description' => '',
+ '#required' => TRUE,
+ '#delta' => 0,
+ '#type' => 'checkbox',
+ '#default_value' => 0,
+ '#on_value' => 1,
+ '#off_value' => 0,
+ '#value_key' => 'value',
+ '#element_validate' => array(
+ 'impact_registration_authorization_validate',
+ ),
+ '#properties' => array(
+ 'filter_xss' => TRUE,
+ 'strip_tags' => FALSE,
+ 'empty_option' => FALSE,
+ 'optgroups' => FALSE,
+ ),
+ '#after_build' => array(
+ 'field_form_element_after_build',
+ ),
+ ),
+ );
+ }*/
