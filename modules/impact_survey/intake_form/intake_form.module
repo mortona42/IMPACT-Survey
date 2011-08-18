@@ -1,14 +1,10 @@
 <?php
 function intake_form_form_profile2_edit_pilot_intake_form_alter(&$form, &$form_state) {
-  //dpm($form);
-  //dpm($form_state);
-  
   if(impact_util_profile_status('pilot_intake')) {
     drupal_set_message('You have already submitted this form. Please contact us if you need to make a change.', 'warning');
     drupal_goto(impact_util_profile_view_url());
   }
   drupal_add_css('div.form_error { border:solid 2px red;}', array('type' => 'inline') );
-  //dpm($form);
   
   $form['#validate'][] = 'intake_form_validate';
   
@@ -70,10 +66,7 @@ function intake_form_form_profile2_edit_pilot_intake_form_alter(&$form, &$form_s
   }
 }
 function intake_form_validate(&$element, &$form_state) {
-  dpm($element);
-  dpm($form_state);
   foreach($form_state['input']['profile_pilot_intake'] as $field => $value) {
-    //drupal_set_message('I like turtles', 'error');
     if(!isset($value['und'])) {
       switch($field) {
         case 'field_pilot_intake_wireless' :
