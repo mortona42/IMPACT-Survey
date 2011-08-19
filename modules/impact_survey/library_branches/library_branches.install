@@ -1,0 +1,77 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+function library_branches_schema() {
+  $schema['library_branches_2009_changes'] = array(
+    'description' => 'Contains changes that libraries have made to the 2009 data set',
+    'fields' => array(
+      'state' => array(
+        'description' => 'State abbreviation',
+        'type' => 'char',
+        'length' => 2,
+        'not null' => TRUE
+      ),
+      'fscs_key' => array(
+        'description' => 'Library system ID',
+        'type' => 'char',
+        'length' => 6,
+        'not null' => TRUE
+      ),
+      'fscs_seq' => array(
+        'description' => 'Decrements from 999',
+        'type' => 'char',
+        'length' => 3,
+        'not null' => TRUE
+      ),
+      'branch_name' => array(
+        'description' => 'Name of the library branch',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'address' => array(
+        'description' => 'Street address for this branch',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'city' => array(
+        'description' => 'City the branch is in',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'zip' => array(
+        'description' => 'Branch zip code',
+        'type' => 'char',
+        'length' => 5,
+        'not null' => TRUE
+      ),
+      'square_feet' => array(
+        'description' => 'Total square feet of this branch',
+        'type' => 'int',
+        'size' => 'medium',
+        'not null' => TRUE
+      ),
+      'latitude' => array(
+        'description' => 'Latitude for this branch',
+        'type' => 'float'
+      ),
+      'longitude' => array(
+        'description' => 'Longitude for this branch',
+        'type' => 'float'
+      ),
+      
+    ),
+    'indexes' => array(
+    	'State' => array('state'),
+      'FSCS Key' => array('fscs_key')
+    ),
+    'unique keys' => array(
+    	'Branch Name' => array('branch_name')
+    ),
+    'primary key' => array('fscs_key', 'fscs_seq'),
+  );
+  return $schema;
+}

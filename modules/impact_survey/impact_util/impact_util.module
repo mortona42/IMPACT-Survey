@@ -64,3 +64,7 @@ function impact_util_paper_survey_finished() {
   $sql = "SELECT paper_survey_finished FROM {paper_survey_finished} WHERE uid = $user->uid";
   return db_query($sql)->fetchField();
 }
+// Get the current library's state
+function impact_util_get_state() {
+  return token_replace('[current-user:profile-library-registration:field-library-reg-state]');
+}

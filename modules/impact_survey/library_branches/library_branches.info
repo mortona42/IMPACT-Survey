@@ -1,0 +1,4 @@
+name = Library Branches
+description = Provide a form for libraries to add/remove/edit branches
+core = 7.x
+package = IMPACT
