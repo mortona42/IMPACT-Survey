@@ -17,8 +17,19 @@ function impact_util_capwords($string, $delimiters = array('-','/','(', ' ')) {
 }
 
 // Get the current user's fscs key
-function impact_util_fscs() {
-  return token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+// If $uid is empty, return the current user's fscs key
+// Otherwise, return the fscs key for the given $uid
+function impact_util_fscs($uid = '') {
+	if(empty($uid))
+  	return token_replace('[current-user:profile-library-registration:field-library-reg-system]');
+  else {
+  	$sql = "SELECT sys.field_library_reg_system_value AS fscs_key
+FROM {field_data_field_library_reg_system} AS sys
+JOIN {profile} p ON sys.entity_id = p.pid
+JOIN {users} u ON p.uid = u.uid
+WHERE u.uid = '$uid'";
+  	return db_query($sql)->fetchField();
+  }
 }
 // Determine weather the current user's profile (imls or intake) is submitted or not
 function impact_util_profile_status($type) {

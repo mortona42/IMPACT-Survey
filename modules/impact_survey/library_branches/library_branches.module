@@ -12,73 +12,243 @@ function library_branches_menu() {
     'title' => 'Edit Branches',
     'description' => 'Edit branches',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('library_branches_edit_form'),
+    'page arguments' => array('library_branches_edit'),
     'access callback' => TRUE
   );
 
+  $items['profile-imls_data/%/new'] = array(
+    'title' => 'New Branch',
+    'description' => 'New Branch',
+    'page callback' => 'library_branches_new',
+    //'page arguments' => array('library_branches_edit'),
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2
+  );
   return $items;
 }
-
-function library_branches_edit_form($form, &$form_state) {
-  dpm(impact_util_get_state());
-  
-  //drupal_add_js(drupal_get_path('module', 'library_branches') . '/library_branches_map.js');
-  drupal_add_js('http://maps.google.com/maps/api/js?sensor=true', 'external');
-  // Set dimensions for the map
-  drupal_add_css('div#gmap{width:600px;height:300px}', 'inline');
-  dpm(drupal_get_path('module', 'library_branches') . '/library_branches_map.js');
+function library_branches_new($uid) {
+	$fscs = impact_util_fscs($uid);
+	$output = drupal_get_form('library_branches_edit', $fscs);
+	return $output;
+}
+function library_branches_edit($form, &$form_state, $fscs) {
+  //drupal_add_js('http://maps.google.com/maps/api/js?sensor=true', 'external');
+  drupal_add_css(drupal_get_path('module', 'library_branches') . '/library_branches.css', array('type' => 'file'));
+  unset($form['replace']);
   
   $form = array();
-  
-  $form['state'] = array(
-    '#type' => 'hidden',
-    '#value' => impact_util_get_state()
+  	
+  $form['select_branch'] = array(
+  	'#type' => 'select',
+  	'#title' => 'Select a branch to edit',
+  	'#options' => library_branches_list_all(),
+  	'#ajax' => array(
+  		'callback' => 'library_branches_replace',
+  		'wrapper' => 'edit-replace',
+  		'method' => 'replace',
+  	),
   );
-  $form['fscs_key'] = array(
-    '#type' => 'hidden',
-  );
-  $form['fscs_seq'] = array(
-    '#type' => 'hidden',
-  );
-  $form['branch_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Branch Name'),
-  );
-  $form['address'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Address'),
-  );
-  $form['city'] = array(
-    '#type' => 'textfield',
-    '#title' => t('City'),
-  );
-  $form['zip'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Zip'),
-  );
-  $form['map'] = array (
-    '#markup' => '<div id="gmap"></div>'
-  );
-  $form['latitude'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Latitude'),
-    '#attributes' => array('id' => 'lat')
-  );
-  $form['longitude'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Longitude'),
-    '#attributes' => array('id' => 'lon')
-  );
-  $form['square_feet'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Square Feet'),
+  $form['replace'] = array(
+  	'#type' => 'container',
+	  'fscs_key' => array(
+	    '#type' => 'hidden',
+	  	'#value' => $fscs
+	  ),
+	  'fscs_seq' => array(
+	    '#type' => 'hidden',
+	  	'#value' => 9999,
+	  ),
+	  'branch_name' => array(
+	    '#type' => 'textfield',
+	    '#title' => t('Branch Name'),
+	  	'#required' => TRUE
+	  ),
+	  'address' => array(
+		  '#type' => 'textfield',
+		  '#title' => t('Address'),
+			'#required' => TRUE,
+	  ),
+	  'address_row' => array(
+	  	'#type' => 'container',
+	  	'state' => array(
+		    '#type' => 'textfield',
+	  		'#title' => t('State'),
+		    '#value' => 'state',
+		  	'#disabled' => TRUE,
+		  	'#required' => TRUE,
+		  	'#size' => 2,
+		  ),
+	  	'city' => array(
+		    '#type' => 'textfield',
+		    '#title' => t('City'),
+		  	'#required' => TRUE,
+		  	'#size' => 30,
+		  ),
+	  	'zip' => array(
+		    '#type' => 'textfield',
+		    '#title' => t('Zip'),
+		  	'#required' => TRUE,
+		  	'#size' => 5,
+		  )
+	  ),
+	  'map' => array (
+	    '#markup' => '
+	 		<div id="map-instructions">Center the map on your library in order to find the longitude and latitude</div>
+	    <div id="gmap"></div>
+	    '
+	  ),
+	  'location' => array (
+	  	'#type' => 'container',
+		  'latitude' => array(
+		    '#type' => 'textfield',
+		    '#title' => t('Latitude'),
+		    '#attributes' => array('id' => array('lat')),
+		  	'#required' => TRUE,
+		  	'#size' => 10
+		  ),
+		  'longitude' => array(
+		    '#type' => 'textfield',
+		    '#title' => t('Longitude'),
+		    '#attributes' => array('id' => array('lon')),
+		  	'#required' => TRUE,
+		  	'#size' => 10
+		  )
+	  ),
+	  'square_feet' => array(
+	    '#type' => 'textfield',
+	    '#title' => t('Square Feet'),
+	  	'#required' => TRUE
+	  ),
+	  'bookmobile' => array(
+	  	'#type' => 'checkbox',
+	  	'#title' => t('Is this a bookmobile?'),
+	  ),
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Submit',
-  );
-  $script_loc = drupal_get_path('module', 'library_branches') . '/library_branches_map.js';
-  $form['map_script'] = array ('#markup' => '<script type="text/javascript" src="' . $script_loc . '"></script>');
+    '#value' => 'Submit'
+  );	
+  if(impact_util_form_step() == 'new') {
+	  $form['table'] = array(
+	    '#markup' => library_branches_verify_branches()
+	  );
+  }
   
+  //$script_loc = base_path() . drupal_get_path('module', 'library_branches') . '/library_branches_map.js';
+  //$form['map_script'] = array ('#markup' => '<script type="text/javascript" src="' . $script_loc . '"></script>');
   return $form;
+}
+function library_branches_edit_validate($form, $form_state) {
+	dpm($form);
+	dpm($form_state);
+	//form_set_error('hello');
+}
+function library_branches_edit_submit($form, $form_state) {
+	/*dpm($form);
+	dpm($form_state);
+	$insert = db_insert('library_branches_2009_changes')
+		->fields(array(
+			'state' => $form_state['values']['state'],
+			'fscs_key' => $form_state['values']['fscs_key'],
+			'fscs_seq' => library_branches_calculate_seq($form_state['values']['fscs_key']),
+			'branch_name' => $form_state['values']['branch_name'],
+			'address' => $form_state['values']['address'],
+			'city' => $form_state['values']['city'],
+			'zip' => $form_state['values']['zip'],
+			'latitude' => $form_state['values']['latitude'],
+			'longitude' => $form_state['values']['longitude'],
+			'square_feet' => $form_state['values']['square_feet'],
+		))
+		->execute();*/
+		//drupal_goto('edit-branches');
+}
+function library_branches_calculate_seq($fscs) {
+	$sql = "SELECT COUNT(fscs_key) FROM {library_branches_2009_changes} WHERE fscs_key = '$fscs'";
+	$seq = db_query($sql)->fetchField();
+	return 9999 - $seq;
+}
+function library_branches_verify_branches() {
+  $branches = db_query("SELECT * FROM {square_feet} WHERE fscs_key = :fscs ORDER BY lib_name", array(':fscs' => impact_util_fscs()));
+  $header = array('Branch Name', 'Address', 'City', 'Zip', 'Square Feet');
+  $rows = array();
+  
+  foreach($branches->fetchAll() as $branch) {
+    $sq_feet = ($branch->sq_feet > 0) ? $branch->sq_feet : 'N/A';
+    $rows[] = array(
+      impact_util_capwords($branch->lib_name),
+      impact_util_capwords($branch->address),
+      impact_util_capwords($branch->city),
+      $branch->zip,
+      $sq_feet
+    );
+  }
+  
+  $variables = array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('class' => 'library_form'),
+    'caption' => '',
+    'colgroups' => array(),
+    'sticky' => '',
+    'empty' => ''
+  );
+  
+  drupal_set_title('Verify Library Branches');
+  $output = '<h3>' . imls_data_num_branches(impact_util_fscs()) . ' Total Branches</h3>';
+  $output .= theme('table', $variables);
+  return $output;
+}
+function library_branches_list_all($uid = '') {
+	$fscs = impact_util_fscs($uid);
+  /*$sql = "SELECT STABR AS state, fscs_key, FSCS_SEQ AS fscs_seq, 
+  	lib_name AS branch_name, ADDRESS AS address, CITY AS city, 
+  	ZIP AS zip, sq_feet AS square_feet, 
+  	LONGITUD AS longitude, LATITUDE AS latitude
+ 	  FROM {square_feet}
+		WHERE fscs_key = '$fscs'
+		UNION ALL
+		SELECT state, fscs_key, fscs_seq, branch_name, address, city, zip, square_feet, longitude, latitude
+		FROM {library_branches_2009_changes}
+		WHERE fscs_key = '$fscs'";*/
+  $sql = "SELECT FSCS_SEQ AS fscs_seq, 
+  	lib_name AS branch_name
+ 	  FROM {square_feet}
+		WHERE fscs_key = '$fscs'
+		UNION ALL
+		SELECT fscs_seq, branch_name
+		FROM {library_branches_2009_changes}
+		WHERE fscs_key = '$fscs'";
+  	
+  $branches = array('new' => 'New Branch');
+  foreach(db_query($sql)->fetchAllKeyed() as $fscs_seq => $branch_name) {
+  	$branches[$fscs_seq] = impact_util_capwords($branch_name);
+  }
+	return $branches;
+}
+function library_branches_get_branch($fscs, $fscs_seq) {
+	return array(
+		'branch_name' => $fscs_seq,
+		'address' => $fscs_seq
+	);/*
+	if($fscs_seq < 5000)
+		$sql = "SELECT fscs_key, FSCS_SEQ AS fscs_seq, lib_name AS branch_name, ADDRESS AS address, CITY AS city, ZIP AS zip, LONGITUD AS longitude, LATITUDE AS latitude, sq_feet AS square_feet
+		FROM {square_feet} WHERE FSCS_SEQ = '$fscs_seq' AND fscs_key = '$fscs'";
+	else 
+		$sql = "SELECT fscs_key, fscs_seq, branch_name, address, city, zip, longitude, latitude, square_feet
+		FROM {library_branches_2009_changes} WHERE fscs_seq = '$fscs_seq' AND fscs_key = '$fscs'";
+	return db_query($sql)->fetchAssoc();*/
+}
+function library_branches_replace(&$form, &$form_state) {
+	//$form['replace']['branch_name']['#default_value'] = if(isset())form_state['input']['branch_select'];
+	//$form['replace']['branch_name']['#default_value'] = $form_state['values']['select_branch'];
+	//$form_state['input']['branch_name'] = $form_state['values']['select_branch'];
+	$form_state['rebuild'] = TRUE;
+	return $form['replace'];
+}
+function library_branches_branch_name($form_state) {
+	return ($form_state['input']['values'])
+		? $form_state['input']['values']
+		: '';
 }

@@ -19,9 +19,9 @@ function library_branches_schema() {
         'not null' => TRUE
       ),
       'fscs_seq' => array(
-        'description' => 'Decrements from 999',
+        'description' => 'Decrements from 9999',
         'type' => 'char',
-        'length' => 3,
+        'length' => 4,
         'not null' => TRUE
       ),
       'branch_name' => array(

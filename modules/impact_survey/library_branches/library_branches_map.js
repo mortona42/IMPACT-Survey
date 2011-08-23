@@ -1,7 +1,7 @@
 // These are the modifiable variables:
 var latElem = document.getElementById("lat");
 var lonElem = document.getElementById("lon");
-var zoom = 5;  //might set to 10
+var zoom = 10;  //might set to 10
 latElem.value = 48.0000;  // default lat
 lonElem.value = -122.0000; // default lon
 
