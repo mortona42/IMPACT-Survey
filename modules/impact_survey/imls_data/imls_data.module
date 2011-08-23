@@ -26,18 +26,18 @@ function imls_data_verify_branches_access($uid) {
     return FALSE;
 }
 function imls_data_verify_branches() {
-  $branches = db_query("SELECT * FROM {square_feet} WHERE fscs_key = :fscs ORDER BY lib_name", array(':fscs' => impact_util_fscs()));
+  $branches = db_query("SELECT branch_name, address, city, zip, square_feet FROM {imls_out_2009} WHERE fscs_key = :fscs ORDER BY branch_name", array(':fscs' => impact_util_fscs()));
   $header = array('Branch Name', 'Address', 'City', 'Zip', 'Square Feet');
   $rows = array();
   
   foreach($branches->fetchAll() as $branch) {
-    $sq_feet = ($branch->sq_feet > 0) ? $branch->sq_feet : 'N/A';
+    $square_feet = ($branch->square_feet > 0) ? $branch->square_feet : 'N/A';
     $rows[] = array(
-      impact_util_capwords($branch->lib_name),
+      impact_util_capwords($branch->branch_name),
       impact_util_capwords($branch->address),
       impact_util_capwords($branch->city),
       $branch->zip,
-      $sq_feet
+      $square_feet
     );
   }
   
@@ -125,31 +125,7 @@ function imls_data_validate_num_branches($element, &$form_state, $form) {
   }
 }
 function imls_data_num_branches($fscs) {
-  return db_query("SELECT COUNT(fscs_key) AS count FROM {square_feet} WHERE fscs_key = '$fscs'")->fetch()->count;
-}
-// Calculate sq feet
-function imls_data_calculate_sq_feet($fscs) {
-  $outlets = db_select('square_feet', 's')
-  ->fields('s', array('lib_name', 'sq_feet'))
-  ->condition('fscs_key', $fscs)
-  ->execute()
-  ->fetchAllAssoc('lib_name');
-
-  $sum = 0;
-  $error = 0;
-  foreach ($outlets as $outlet) {
-    if ($outlet->sq_feet == -1) {
-      $error = 1;
-    } else if ($outlet->sq_feet > 0) {
-      $sum += $outlet->sq_feet;
-    }
-  }
-  if ($error > 0) {
-    $message = "One or more of your branches is missing square feet values.  <a href='/square_feet' target='_blank' class='square_feet_link'>Click here</a> to edit branch data.";
-    drupal_set_message($message, 'warning', FALSE);
-    $sum = 0;
-  }
-  return $sum;
+  return db_query("SELECT COUNT(fscs_key) AS count FROM {imls_out_2009} WHERE fscs_key = '$fscs'")->fetch()->count;
 }
 function imls_data_profile2_view($profile, $view_mode, $langcode) {
   // check for imls_data and does not contain 'empty' content
@@ -172,7 +148,6 @@ function imls_data_profile2_view($profile, $view_mode, $langcode) {
     $imls_data_fields = array(
       'field_hours' => number_format($imls_data->hrs_open),
       'field_expend_tot' => '$' . number_format($imls_data->tot_op_exp),
-      //'field_fte_decimal' => number_format($imls_data->tot_staff),
       'field_fte_decimal' => $imls_data->tot_staff,
       'field_terminals' => number_format($imls_data->gp_terms),
       'field_pac_uses' => number_format($imls_data->pit_usr),
