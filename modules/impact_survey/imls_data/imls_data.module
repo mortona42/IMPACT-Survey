@@ -76,14 +76,14 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
   
   // Get IMLS Data
   $fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
-  $query_system = "SELECT * FROM {library_lookup} WHERE fscs_key = '$fscs'";
+  $query_system = "SELECT * FROM {imls_sys_2009} WHERE fscs_key = '$fscs'";
   $result_system = db_query($query_system)->fetchObject();
   $imls_data = array (
     'field_legalpop' => $result_system->popu_lsa,
     'field_visits' => $result_system->visits,
     'field_hours' => $result_system->hrs_open,
     'field_expend_tot' => $result_system->tot_op_exp,
-    'field_fte' => $result_system->tot_staff,
+    'field_fte_decimal' => $result_system->tot_staff,
     'field_terminals' => $result_system->gp_terms,
     'field_pac_uses' => $result_system->pit_usr,
     'field_num_branches' => imls_data_num_branches($fscs)
@@ -116,15 +116,7 @@ function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state)
   $form['profile_imls_data']['#prefix'] = '<table class="library_form"><thead><tr><th class="imls-field-name">Field</th><th class="imls-prev-data">2009 IMLS Data</th><th class="imls-field-prefix"></th><th class="imls-current-value">Updated Value</th><th class="imls-field-suffix"></th></tr></thead><tbody>';
   $form['profile_imls_data']['#suffix'] = '</tbody></table>';
   
-  // If branches != IMLS data, display message to contact us (should be email to us)
-  $form['#submit'][] = 'imls_data_form_submit';
-  
   //dpm($form);
-}
-function imls_data_form_submit($form, &$form_state) {
-  //if 
-  //dpm($form_state);
-  
 }
 function imls_data_validate_num_branches($element, &$form_state, $form) {
   if($element['#value'] < 1) {
@@ -137,11 +129,6 @@ function imls_data_validate_num_branches($element, &$form_state, $form) {
 function imls_data_num_branches($fscs) {
   return db_query("SELECT COUNT(fscs_key) AS count FROM {square_feet} WHERE fscs_key = '$fscs'")->fetch()->count;
 }
-/*
- function imls_data_form_submit($form, &$form_state) {
- drupal_set_message(t('The changes have been saved.'));
- $form_state['redirect'] = 'myimpact';
- }*/
 // Calculate sq feet
 function imls_data_calculate_sq_feet($fscs) {
   $outlets = db_select('square_feet', 's')
@@ -166,10 +153,6 @@ function imls_data_calculate_sq_feet($fscs) {
   }
   return $sum;
 }
-// Add a table header to the saved value output
-function imls_data_profile2_view_alter(&$build) {
-  //dpm($build);
-}
 function imls_data_profile2_view($profile, $view_mode, $langcode) {
   // check for imls_data and does not contain 'empty' content
   if($profile->type == 'imls_data') {
@@ -185,13 +168,14 @@ function imls_data_profile2_view($profile, $view_mode, $langcode) {
     
     // Get the IMLS data for this library
     $fscs = impact_util_fscs();
-    $sql = "SELECT * FROM {library_lookup} WHERE fscs_key = :fscs";
+    $sql = "SELECT * FROM {imls_sys_2009} WHERE fscs_key = :fscs";
     $imls_data = db_query($sql, array(':fscs' => $fscs))->fetch();
     // Format the data in an array we can reference
     $imls_data_fields = array(
       'field_hours' => number_format($imls_data->hrs_open),
       'field_expend_tot' => '$' . number_format($imls_data->tot_op_exp),
-      'field_fte' => number_format($imls_data->tot_staff),
+      //'field_fte_decimal' => number_format($imls_data->tot_staff),
+      'field_fte_decimal' => $imls_data->tot_staff,
       'field_terminals' => number_format($imls_data->gp_terms),
       'field_pac_uses' => number_format($imls_data->pit_usr),
       'field_legalpop' => number_format($imls_data->popu_lsa),
