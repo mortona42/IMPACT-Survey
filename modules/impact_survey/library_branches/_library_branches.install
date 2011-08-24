@@ -3,7 +3,7 @@
  * Implements hook_schema().
  */
 function library_branches_schema() {
-  $schema['library_branches_2009_changes'] = array(
+  $schema['imls_out_change'] = array(
     'description' => 'Contains changes that libraries have made to the 2009 data set',
     'fields' => array(
       'state' => array(

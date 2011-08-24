@@ -1,0 +1,8 @@
+#edit-address-row div {
+  display:inline;
+  float:left;
+}
+#gmap {
+  width:700px;
+  height:350px;
+}
