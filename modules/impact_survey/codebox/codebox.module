@@ -30,10 +30,10 @@ function codebox_menu() {
 }
 function codebox_html($fscs) {
   $html = '<p style="margin: 5px 10px">';
-  $html .= '<a href="http://impactsurvey.org/libselect/index.php?fscs=' . $fscs . '&utm_source=library&utm_medium=interstitial&utm_term=' . $fscs . '&utm_campaign=beta">';
+  $html .= '<a href="http://impactsurvey.org/libselect/index.php?fscs=' . $fscs . '&utm_source=library&utm_medium=interstitial&utm_term=' . $fscs . '&utm_campaign=pilot">';
   $html .= '<img title="Click here to take our survey" alt="Click here to take our survey" src="/impact/impactbanner.jpg" width="631" height="194" style="border: 1px solid gray" /></a><br />';
   $html .= 'How do you use the library\'s computers and Internet access?</p>';
-  $html .= '<p style="margin: 5px 10px"><b style="font-size: 110%"><a href="http://impactsurvey.org/libselect/index.php?fscs=' . $fscs . '&utm_source=library&utm_medium=interstitial&utm_term=' . $fscs . '&utm_campaign=beta">';
+  $html .= '<p style="margin: 5px 10px"><b style="font-size: 110%"><a href="http://impactsurvey.org/libselect/index.php?fscs=' . $fscs . '&utm_source=library&utm_medium=interstitial&utm_term=' . $fscs . '&utm_campaign=pilot">';
   $html .= '<span style="color:#0000FF">Take our survey</span></a> and help your library evaluate its technology services!</b></p>';
   header('Content-Disposition: attachment; filename="impact.html"');
   print $html;
@@ -97,7 +97,7 @@ function codebox_analytics_fire($file) {
   //$var_utmp='tracker/'.$_GET['url'].'.'.$_GET['filetype']; //this example adds a fake file request to the (fake) tracker directory (the image/pdf filename).
   $var_utmp= 'codebox/host/'.$file;
   
-  $urchinUrl='http://www.google-analytics.com/__utm.gif?utmwv='.$var_utmwv.'&utmn='.$var_utmn.'&utmsr=-&utmsc=-&utmul=-&utmje=0&utmfl=-&utmdt=-&utmhn='.$var_utmhn.'&utmr='.$var_referer.'&utmp='.$var_utmp.'&utmac='.$var_utmac.'&utmt=event&utme='.$var_utme.'&utmcc=__utma%3D'.$var_cookie.'.'.$var_random.'.'.$var_today.'.'.$var_today.'.'.$var_today.'.2%3B%2B__utmb%3D'.$var_cookie.'%3B%2B__utmc%3D'.$var_cookie.'%3B%2B__utmz%3D'.$var_cookie.'.'.$var_today.'.2.2.utmccn%3Dpre-pilot-c%7Cutmcsr%3Dcodebox-c%7Cutmcmd%3Dimage/javascript-c%3B%2B__utmv%3D'.$var_cookie.'.'.$var_uservar.'%3B';
+  $urchinUrl='http://www.google-analytics.com/__utm.gif?utmwv='.$var_utmwv.'&utmn='.$var_utmn.'&utmsr=-&utmsc=-&utmul=-&utmje=0&utmfl=-&utmdt=-&utmhn='.$var_utmhn.'&utmr='.$var_referer.'&utmp='.$var_utmp.'&utmac='.$var_utmac.'&utmt=event&utme='.$var_utme.'&utmcc=__utma%3D'.$var_cookie.'.'.$var_random.'.'.$var_today.'.'.$var_today.'.'.$var_today.'.2%3B%2B__utmb%3D'.$var_cookie.'%3B%2B__utmc%3D'.$var_cookie.'%3B%2B__utmz%3D'.$var_cookie.'.'.$var_today.'.2.2.utmccn%3Dpilot-c%7Cutmcsr%3Dcodebox-c%7Cutmcmd%3Dimage/javascript-c%3B%2B__utmv%3D'.$var_cookie.'.'.$var_uservar.'%3B';
 
   $handle = fopen ($urchinUrl, "r");
   $test = fgets($handle);
