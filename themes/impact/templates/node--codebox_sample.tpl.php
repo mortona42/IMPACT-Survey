@@ -29,7 +29,7 @@ print render($content);
 <p class="code"><code>
 	<?php $fscs = token_replace("[current-user:profile-library-registration:field-library-reg-system]");
 $field_image = $node->field_image['und'][0]['filename'];
-$code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hotlinked&utm_content=$field_image&utm_term=$fscs&utm_campaign=pre-pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='http://impactsurvey.org/codebox/img/$field_image' border='0' /&gt;&lt;/a&gt;";
+$code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hotlinked&utm_content=$field_image&utm_term=$fscs&utm_campaign=pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='http://impactsurvey.org/codebox/img/$field_image' border='0' /&gt;&lt;/a&gt;";
 print $code;?>
 </code></p>
 <h3>Instructions - Hosted by library</h3>
@@ -42,7 +42,7 @@ print $code;?>
 <p class="code"><code>
 	<?php $fscs = token_replace("[current-user:profile-library-registration:field-library-reg-system]");
 $field_image = $node->field_image['und'][0]['filename'];
-$code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hosted&utm_content=$field_image&utm_term=$fscs&utm_campaign=pre-pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='/impact/$field_image' border='0' /&gt;&lt;/a&gt;";
+$code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hosted&utm_content=$field_image&utm_term=$fscs&utm_campaign=pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='/impact/$field_image' border='0' /&gt;&lt;/a&gt;";
 print $code;?>
 </code></p>
 <?php endif; ?>
