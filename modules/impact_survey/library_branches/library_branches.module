@@ -41,28 +41,30 @@ function library_branches_delete($fscs, $seq) {
   return "asdf";
 }
 function library_branches_new($uid) {
-	$fscs = impact_util_fscs($uid);
-	$output = drupal_get_form('library_branches_edit', $fscs);
+	$fscs_key = impact_util_fscs($uid);
+	$output = drupal_get_form('library_branches_edit', $fscs_key);
 	return $output;
 }
 function library_branches_edit($form, &$form_state, $fscs_key) {
+	/*
+	unset($form_state['input']);
+	unset($form_state['values']);
+	unset($form['select_branch']['#default_value']);
+	unset($form['select_branch']['#value']);
+	*/
+  unset($form_state['input']);
   // Get the selected branch
   $selected_branch = (isset($form_state['values']['select_branch'])) ? $form_state['values']['select_branch'] : 0;
   if($selected_branch != 0) {
     $branch_data = library_branches_get_branch($fscs_key, $selected_branch);
-    unset($form_state['input']['branch_name']);
-    unset($form_state['input']['address']);
-    unset($form_state['input']['city']);
-    unset($form_state['input']['state']);
-    unset($form_state['input']['zip']);
-    unset($form_state['input']['bookmobile']);
-  } else {
-    unset($form_state['input']);
   }
   drupal_add_js('http://maps.google.com/maps/api/js?sensor=true', 'external');
-  drupal_add_js(drupal_get_path('module', 'library_branches') . '/library_branches_map.js', array('type' => 'file', 'scope' => 'footer'));
+  //drupal_add_js(drupal_get_path('module', 'library_branches') . '/library_branches_map.js', array('type' => 'file', 'scope' => 'footer'));
   drupal_add_css(drupal_get_path('module', 'library_branches') . '/library_branches.css', array('type' => 'file'));
-  
+  $form['fscs_key'] = array(
+  	'#type' => 'hidden',
+  	'#default_value' => $fscs_key
+  );
   $form['select_branch'] = array(
   	'#type' => 'select',
   	'#title' => 'Select a branch to edit',
@@ -118,20 +120,23 @@ function library_branches_edit($form, &$form_state, $fscs_key) {
   	'#required' => TRUE,
   	'#size' => 5,
   );
+  $bookmobile = isset($branch_data) ? $branch_data['square_feet'] : 1;
   $form['bookmobile'] = array(
     '#type' => 'checkbox',
     '#title' => t('Bookmobile'),
     '#prefix' => '<div id="bookmobile-wrapper">',
     '#suffix' => '</div>',
-    '#default_value' => TRUE,//(isset($branch_data)) ? $branch_data['zip'] : '',
+    '#default_value' => ($bookmobile <= 0) ? TRUE : FALSE,
   	'#required' => TRUE,
     '#ajax' => array(
-    	'callback' => 'library_branches_bookmobile_callback'
+  		'callback' => 'library_branches_bookmobile_callback',
+  		'wrapper' => 'map-area-wrapper'
     )
   );
   $form['map_area'] = array(
     '#type' => 'container',
-    '#attributes' => array('id' => array('map-area'))
+    '#prefix' => '<div id="map-area-wrapper">',
+    '#suffix' => '</div>',
   );
   $form['map_area']['map'] = array (
 	  '#markup' => '<div id="map-instructions">Center the map on your library in order to find the longitude and latitude</div>
@@ -157,6 +162,11 @@ function library_branches_edit($form, &$form_state, $fscs_key) {
     '#default_value' => (isset($branch_data)) ? $branch_data['longitude'] : '',
   	'#required' => TRUE
   );
+  $form['map_area']['script'] = array (
+	  '#markup' => '<script type="text/javascript" src="/' . drupal_get_path('module', 'library_branches') . '/library_branches_map.js">' . '</script>',
+    '#prefix' => '<div id="script-wrapper">',
+    '#suffix' => '</div>',
+	);
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Submit',
@@ -171,12 +181,15 @@ function library_branches_edit($form, &$form_state, $fscs_key) {
   );
   if(impact_util_form_step() == 'new') {
 	  $form['table'] = array(
-	    '#markup' => library_branches_verify_branches()
+	    '#markup' => imls_data_verify_branches()
 	  );
   }
+	//dpm($form);
+	//dpm($form_state);
   return $form;
 }
 function library_branches_edit_validate($form, $form_state) {
+	//dpm($form);
 	//dpm($form_state);
 	//form_set_error('hello');
 }
@@ -205,7 +218,7 @@ function library_branches_submit($form, $form_state) {
 	}
 }
 function library_branches_delete_submit($form, &$form_state) {
-	$fscs_key = $form_state['fscs'];
+	$fscs_key = $form_state['values']['fscs_key'];
   // Get fscs_seq or 0 for new branch
   $fscs_seq = ($form_state['values']['select_branch'] != 'new')
 	  ? $form_state['values']['select_branch']
@@ -235,9 +248,9 @@ function library_branches_calculate_seq($fscs) {
 	}
 	return $seq;
 }
+  /*
 function library_branches_verify_branches() {
   return imls_data_verify_branches();
-  /*
   $branches = db_query("SELECT * FROM {imls_out_2009} WHERE fscs_key = :fscs ORDER BY lib_name", array(':fscs' => impact_util_fscs()));
   $header = array('Branch Name', 'Address', 'City', 'Zip', 'Square Feet');
   $rows = array();
@@ -266,12 +279,12 @@ function library_branches_verify_branches() {
   drupal_set_title('Verify Library Branches');
   $output = '<h3>' . imls_data_num_branches(impact_util_fscs()) . ' Total Branches</h3>';
   $output .= theme('table', $variables);
-  return $output;*/
-}
-function library_branches_branch_list($fscs) {
+  return $output;
+}*/
+function library_branches_branch_list($fscs_key) {
   $sql = "SELECT fscs_seq, branch_name
  	  FROM {imls_out_2009}
-		WHERE fscs_key = '$fscs'
+		WHERE fscs_key = '$fscs_key'
 		AND deleted != 1
 		ORDER BY branch_name ASC";
   $branches = array('new' => 'New Branch');
@@ -280,47 +293,64 @@ function library_branches_branch_list($fscs) {
   }
 	return $branches;
 }
-function library_branches_get_branch($fscs, $fscs_seq) {
+function library_branches_get_branch($fscs_key, $fscs_seq) {
   $sql = "SELECT state, fscs_key, fscs_seq, branch_name, address, city, zip, longitude, latitude, square_feet
-		FROM {imls_out_2009} WHERE fscs_seq = '$fscs_seq' AND fscs_key = '$fscs'";
+		FROM {imls_out_2009} WHERE fscs_seq = '$fscs_seq' AND fscs_key = '$fscs_key'";
 	return db_query($sql)->fetchAssoc();
 }
 function library_branches_replace(&$form, &$form_state) {
 	return $form['branch_name'];
 }
-function library_branches_get_state($fscs) {
-  $sql = "SELECT state FROM {imls_out_2009} WHERE fscs_key = '$fscs'";
+function library_branches_get_state($fscs_key) {
+  $sql = "SELECT state FROM {imls_out_2009} WHERE fscs_key = '$fscs_key'";
   return db_query($sql)->fetchField();
 }
 function library_branches_get_name($fscs_key, $fscs_seq) {
   $sql = "SELECT branch_name FROM {imls_out_2009} WHERE fscs_key = '$fscs_key' AND fscs_seq = '$fscs_seq'";
   return db_query($sql)->fetchField();
 }
-function library_branches_select_branch_callback($form, $form_state) {
+function library_branches_select_branch_callback($form, &$form_state) {
   $commands = array();
+  
+  $fscs_key = $form_state['values']['fscs_key'];
+  $fscs_seq = $form_state['values']['select_branch'];
+  if($fscs_seq != 'new') $branch_data = library_branches_get_branch($fscs_key, $fscs_seq);
+  if(isset($branch_data) && $branch_data['square_feet'] <= 0) $bookmobile = 1;
+  else $bookmobile = 0;
+  
+  if($bookmobile == 1) {
+    $commands[] = ajax_command_remove('#map-wrapper');
+    $commands[] = ajax_command_remove('#latitude-wrapper');
+    $commands[] = ajax_command_remove('#longitude-wrapper');
+    $commands[] = ajax_command_remove('#script-wrapper');
+  } else if($form_state['values']['bookmobile'] == 1) {
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['map']));
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['latitude']));
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['longitude']));
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['script']));
+  }
+  
+ 	$commands[] = ajax_command_replace('#bookmobile-wrapper', drupal_render($form['bookmobile']));
   $commands[] = ajax_command_replace('#branch-name-wrapper', drupal_render($form['branch_name']));
   $commands[] = ajax_command_replace('#address-wrapper', drupal_render($form['address']));
   $commands[] = ajax_command_replace('#address-row', drupal_render($form['address_row']));
-  /*
-  $commands[] = ajax_command_replace('#branch-name-wrapper', drupal_render($form['branch_name']));
-  $commands[] = ajax_command_replace('#address-wrapper', drupal_render($form['address']));
-  $commands[] = ajax_command_replace('#city-wrapper', drupal_render($form['city']));
-  $commands[] = ajax_command_replace('#state-wrapper', drupal_render($form['state']));
-  $commands[] = ajax_command_replace('#zip-wrapper', drupal_render($form['zip']));
-  //$commands[] = ajax_command_replace('#bookmobile-wrapper', drupal_render($form['bookmobile']));
-  $commands[] = ajax_command_replace('#latitude-wrapper', drupal_render($form['latitude']));
-  $commands[] = ajax_command_replace('#longitude-wrapper', drupal_render($form['longitude']));
-  */
+  $commands[] = ajax_command_replace('#latitude-wrapper', drupal_render($form['map_area']['latitude']));
+  $commands[] = ajax_command_replace('#longitude-wrapper', drupal_render($form['map_area']['longitude']));
+  
   return array('#type' => 'ajax', '#commands' => $commands);
 }
 function library_branches_bookmobile_callback($form, $form_state) {
   $commands = array();
-  if($form_state['values']['bookmobile']) {
+  if($form_state['values']['bookmobile'] == TRUE) {
     $commands[] = ajax_command_remove('#map-wrapper');
     $commands[] = ajax_command_remove('#latitude-wrapper');
     $commands[] = ajax_command_remove('#longitude-wrapper');
+    $commands[] = ajax_command_remove('#script-wrapper');
   } else {
-    $commands[] = ajax_command_replace('#map-area', drupal_render($form['map_area']));
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['map']));
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['latitude']));
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['longitude']));
+    $commands[] = ajax_command_append('#map-area-wrapper', drupal_render($form['map_area']['script']));
   }
   
   return array('#type' => 'ajax', '#commands' => $commands);
