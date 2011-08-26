@@ -1,8 +1,32 @@
-#edit-address-row div {
-  display:inline;
-  float:left;
-}
 #gmap {
   width:700px;
   height:350px;
 }
+#address-row > div {
+  display:inline-block;
+  margin-right:12px;
+}
+#address-row  .form-item {
+  margin-top:0;
+  margin-bottom:0;
+}
+/*
+#city-wrapper div,
+#state-wrapper div,
+#zip-wrapper div {
+  float:left;
+}
+#city-wrapper label,
+#state-wrapper label {
+  display:inline-block;
+}
+#city-wrapper div,
+#state-wrapper div {
+  display:inline;
+}
+#city-wrapper input,
+#state-wrapper input {
+  display:inline-block;
+}
+
+*/

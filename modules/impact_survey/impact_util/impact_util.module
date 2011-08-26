@@ -5,7 +5,7 @@
 // @$delimiters  (optional) - an array of characters that should be followed by a capital letter
 // This function accomplishes a similar task to ucwords(strtolower("Some string"))
 function impact_util_capwords($string, $delimiters = array('-','/','(', ' ')) {
-  $string = strtolower($string);
+  $string = strtolower(trim($string));
   foreach ($delimiters as $delim) {
     $string = explode($delim, $string);
     foreach ($string as $index=>$capword) {
