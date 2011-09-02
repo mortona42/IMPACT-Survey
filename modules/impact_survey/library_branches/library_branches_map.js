@@ -6,9 +6,9 @@
 		// These are the modifiable variables:
 		var latElem = document.getElementById("lat");
 		var lonElem = document.getElementById("lon");
-		var zoom = 10;  //might set to 10
-		//latElem.value = 48.0000;  // default lat
-		//lonElem.value = -122.0000; // default lon
+		var zoom = 12;  //might set to 10
+		latElem.value = 47.660074;  // default lat
+		lonElem.value = -122.317446; // default lon
 
 		/*
 			It would be a good idea to put a SQL query here to find the "average" location of all of the library system's branches.
