@@ -143,7 +143,7 @@ jQuery(document).ready(function($){
 	function checkCookie() {
     		if (document.cookie.length > 0 && document.cookie.indexOf(cookieName + '=') != -1) {
             	// do nothing, cookie already sent
-			centerPopup(); loadPopup();
+			
     		} else {
     	        // handle jQuery animation
 			centerPopup();
