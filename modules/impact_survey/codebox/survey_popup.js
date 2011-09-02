@@ -1,4 +1,4 @@
-var fscs="WA0059";
+
 var html = '<div style="width:100%;text-align:right;font-weight:bold"><a href="#" id="popupContactClose">Close X</a></div>'
 html += '<div id="innerContainer" style="background:white;margin:12px;padding:6px">';
 html += '<a style="width:100%; margin-left:10px;" href="http://impactsurvey.org/libselect/?fscs=' +fscs+ '"><img title="Click here to take our survey" alt="Click here to take our survey" src="http://www.aacpl.net/impactsurvey/impactbanner.jpg" width="631" height="194" style="border: 1px solid gray"></a>';
