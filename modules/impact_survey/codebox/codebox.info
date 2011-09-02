@@ -1,4 +1,3 @@
-; $Id$
 name = Codebox
 description = "Provides resources to libraries to host the IMPACT survey"
 core = 7.x

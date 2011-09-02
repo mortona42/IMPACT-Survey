@@ -25,6 +25,12 @@ function codebox_menu() {
       'access callback' => TRUE,
     	'type' => MENU_CALLBACK,
     ),
+  	'codebox/jquery/%' => array(
+      'page callback' => 'codebox_jquery',
+      'page arguments' => array(2),
+      'access callback' => TRUE,
+    	'type' => MENU_CALLBACK,
+    ),
   );
   return $items;
 }
@@ -60,6 +66,13 @@ function codebox_image($file){
     echo $image;
   }
   fclose($imageurl);
+}
+function codebox_jquery($fscs) {
+  codebox_analytics_fire('jquery_popup');
+  $js = "var fscs = '$fscs';\n";
+  $js .= file_get_contents(drupal_get_path('module', 'codebox') . '/survey_popup.js');
+  header('Content-Type: application/x-javascript');
+  print $js;
 }
 function codebox_js($fscs) {
   codebox_analytics_fire('js_popup');
