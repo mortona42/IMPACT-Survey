@@ -1,9 +1,9 @@
 
 var html = '<div style="width:100%;text-align:right;font-weight:bold"><a href="#" id="popupContactClose">Close X</a></div>'
 html += '<div id="innerContainer" style="background:white;margin:12px;padding:6px">';
-html += '<a style="width:100%; margin-left:10px;" href="http://impactsurvey.org/libselect/?fscs=' +fscs+ '&utm_source=library&utm_medium=interstitial&utm_term=' + fscs + '&utm_campaign=pilot"><img title="Click here to take our survey" alt="Click here to take our survey" src="http://www.aacpl.net/impactsurvey/impactbanner.jpg" width="631" height="194" style="border: 1px solid gray"></a>';
+html += '<a style="width:100%; margin-left:10px;" target="_blank" href="http://impactsurvey.org/libselect/?fscs=' +fscs+ '&utm_source=library&utm_medium=interstitial&utm_term=' + fscs + '&utm_campaign=pilot"><img title="Click here to take our survey" alt="Click here to take our survey" src="http://impactsurvey.org/drupal/sites/impactsurvey.org/files/overlay/impactbanner.jpg" width="631" height="194" style="border: 1px solid gray"></a>';
 html += "<br />   How do you use the library's computers and Internet access?";	
-html += "<br />  <a href='http://impactsurvey.org/libselect/?fscs="+fscs+"&utm_source=library&utm_medium=interstitial&utm_term=" + fscs + "&utm_campaign=pilot'>Take our survey</a> and help your library evaluate its technology services!";
+html += "<br />  <a target='_blank' href='http://impactsurvey.org/libselect/?fscs="+fscs+"&utm_source=library&utm_medium=interstitial&utm_term=" + fscs + "&utm_campaign=pilot'>Take our survey</a> and help your library evaluate its technology services!";
 html += '</div>';
 	
 /*!
