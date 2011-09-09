@@ -64,7 +64,7 @@ function survey_fielding_validate($form, &$form_state){
   if($start > strtotime('9/26/2011'))
     form_set_error('profile_survey_fielding', 'For our pilot test, we require you to start no later than September 26th.');
     
-  if($end > strtotime('10/12/2011'))
+  if($end > strtotime('10/23/2011'))
     form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 12th.');
   
   if(($end - $start)/60/60/24 > 27)
