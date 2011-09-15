@@ -65,7 +65,7 @@ function survey_fielding_validate($form, &$form_state){
     form_set_error('profile_survey_fielding', 'For our pilot test, we require you to start no later than September 26th.');
     
   if($end > strtotime('10/23/2011'))
-    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 12th.');
+    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 23rd.');
   
   if(($end - $start)/60/60/24 > 27)
     form_set_error('profile_survey_fielding', 'You may not run the survey for more than 4 weeks.');
@@ -157,8 +157,8 @@ function survey_fielding_nameform_validate($form, &$form_state) {
     form_set_error('user_name', t('The selected end date is earlier than the start date'));
   }
   $end = strtotime($form_state['values']['date2']);
-  if($end > strtotime('10/3/2011'))
-    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 3rd.');
+  if($end > strtotime('10/23/2011'))
+    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 23rd.');
   if(($end - strtotime(survey_fielding_start_date()))/60/60/24 > 27)
     form_set_error('profile_survey_fielding', 'You may not run the survey for more than 4 weeks.');
 }
