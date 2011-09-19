@@ -15,13 +15,23 @@ function reports_menu() {
 
   return $items;
 }
-// 
 function reports_page() {
+  $dates = impact_util_get_dates();
+  $report_url = reports_report_url();
+  
+  // Check if survey fielding dates are selected.
+  if(empty($dates['end']))
+    return 'You have not yet chosen your <a href="/profile-survey_fielding">Survey Fielding Dates</a>.  You will be able to download your report here 24 hours after your survey ends.';
+  
+  // Check if it has been 24 hours since end date.
+  if($dates['end'] + 60 * 60 * 24 > time())
+    return 'you must wait 24 hours after survey completion in order to view your report';
+  
+  // Check if they are using the paper survey
   if(impact_util_paper_survey())
     return drupal_get_form('reports_paper_survey_form');
-  else return 'You\'re not administering paper surveys';
+  else return $report_url;
 }
-
 /**
  * Implements hook_theme().
  */
@@ -45,11 +55,16 @@ function reports_paper_survey_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => 'Confirm'
   );
+  
+  if(reports_data_entry_done() == 1) {
+    $form['report_url'] = array(
+      '#markup' => reports_report_url()
+    );
+  }
+  
   return $form;
 }
-/**
- * Implements hook_form_alter().
- */
+// Permanently check the box if they have already confirmed data entry
 function reports_form_reports_paper_survey_form_alter(&$form, $form_state, $form_id) {
   if(impact_util_paper_survey_finished()) {
     $form['finished']['#default_value'] = 1;
@@ -57,6 +72,7 @@ function reports_form_reports_paper_survey_form_alter(&$form, $form_state, $form
     unset($form['submit']);
   }
 }
+// Submit paper survey form
 function reports_paper_survey_form_submit($form, $form_state) {
   global $user;
   if($form_state['values']['finished'] == 1) {
@@ -67,4 +83,18 @@ function reports_paper_survey_form_submit($form, $form_state) {
       ))
       ->execute();
   }
+}
+// Check if user has confirmed data entry
+function reports_data_entry_done() {
+  global $user;
+  $sql = "SELECT paper_survey_finished FROM {paper_survey_finished} WHERE uid='$user->uid'";
+  return db_query($sql)->fetchField();
+}
+// Returns the report url
+function reports_report_url() {
+  $report_url = '<a href="http://impactsurvey.org/_reports/pdf/report.php?fscs=';
+  $report_url .= impact_util_fscs();
+  $report_url .= '">Click here to download your report.</a>';
+  
+  return $report_url;
 }

@@ -1,26 +1,34 @@
 <?php
-// A better version of ucwords that capitalizes just the first word, regardless 
-// of the previous case. It also capitalizes the first word after an array of delimiters.
-// @$string - the string to be capitalized
-// @$delimiters  (optional) - an array of characters that should be followed by a capital letter
-// This function accomplishes a similar task to ucwords(strtolower("Some string"))
-function impact_util_capwords($string, $delimiters = array('-','/','(', ' ')) {
-  $string = strtolower(trim($string));
-  foreach ($delimiters as $delim) {
-    $string = explode($delim, $string);
-    foreach ($string as $index=>$capword) {
-      $string[$index] = ucfirst($capword);
-    }
-    $string = implode($delim, $string);
-  }
-  return $string;
+// A better version of ucwords that capitalizes just the first word,
+// regardless of the previous case. Also it capitalizes the first word
+// after an array of delimiters.
+// Accepts $string - the string to be capitalized
+// Accepts option $delimiters - an array of characters to trigger capitalization
+function capwords($string, $delimiters = array('-','/', ' '))
+{
+   $string = strtolower(htmlentities($string));
+   $delimiters = array ('-', '/', ' ');
+   foreach ($delimiters as $delim) 
+   {
+      $string = explode($delim, $string);
+      foreach ($string as $index=>$capword) 
+      {
+         if (strlen($capword) > 0) 
+         {
+                 $capword[0] = strtoupper($capword[0]);
+         }       
+         $string[$index] = ($capword);
+      }
+      $string = implode($delim, $string);
+   }
+   return $string;
 }
 
 // Get the current user's fscs key
 // If $uid is empty, return the current user's fscs key
 // Otherwise, return the fscs key for the given $uid
-function impact_util_fscs($uid = '') {
-	if(empty($uid))
+function impact_util_fscs($uid = 0) {
+	if($uid == 0)
   	return token_replace('[current-user:profile-library-registration:field-library-reg-system]');
   else {
   	$sql = "SELECT sys.field_library_reg_system_value AS fscs_key
@@ -78,4 +86,34 @@ function impact_util_paper_survey_finished() {
 // Get the current library's state
 function impact_util_get_state() {
   return token_replace('[current-user:profile-library-registration:field-library-reg-state]');
+}
+// Returns a formatted start date
+function impact_util_start_date($uid = 0) {
+  $dates = impact_util_get_dates($uid);
+  if($dates['start'] != '')
+    return date('l n/j/Y', $dates['start']);
+  else return '';
+}
+// Returns a formatted end date
+function impact_util_end_date($uid = 0) {
+  $dates = impact_util_get_dates($uid);
+  if($dates['end'] != '')
+    return date('l n/j/Y', $dates['end']);
+  else return '';
+}
+// Returns array of start and end dates
+function impact_util_get_dates($uid = 0){
+  if($uid == 0) {
+    global $user;
+    $uid = $user->uid;
+  }
+  //get the fielding dates from field_data_field_fielding_date
+  $sql = 'SELECT field_fielding_date_value AS start_date,
+	   field_fielding_date_value2 AS end_date 
+	   FROM {field_data_field_fielding_date} AS a, 
+	   {profile} AS b WHERE a.entity_id=b.pid AND b.uid=:uid';
+  $result = db_query($sql, array('uid'=>$uid))->fetch();
+  return ($result)
+    ? array('start' => strtotime($result->start_date), 'end' => strtotime($result->end_date))
+    : array('start' => '', 'end' => '');
 }
