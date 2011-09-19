@@ -5,7 +5,7 @@
 function reports_menu() {
   $items = array();
 
-  $items['report'] = array(
+  $items['reports'] = array(
     'title' => 'Reports',
     'description' => 'An area to view reports',
     'page callback' => 'reports_page',
