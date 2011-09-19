@@ -25,7 +25,7 @@ function reports_page() {
   
   // Check if it has been 24 hours since end date.
   if($dates['end'] + 60 * 60 * 24 > time())
-    return 'you must wait 24 hours after survey completion in order to view your report';
+    return 'You must wait 24 hours after survey completion in order to view your report.';
   
   // Check if they are using the paper survey
   if(impact_util_paper_survey())
