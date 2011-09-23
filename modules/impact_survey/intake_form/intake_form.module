@@ -1,6 +1,6 @@
 <?php
 function intake_form_form_profile2_edit_pilot_intake_form_alter(&$form, &$form_state) {
-  if(impact_util_profile_status('pilot_intake')) {
+  if(impact_util_profile_status('pilot_intake') && !user_access('profiles management')) {
     drupal_set_message('You have already submitted this form. Please contact us if you need to make a change.', 'warning');
     drupal_goto(impact_util_profile_view_url());
   }
@@ -130,6 +130,7 @@ function intake_form_validate(&$element, &$form_state) {
       form_set_error('profile_pilot_intake][field_pilot_intake_uses][und', 'Does the library have dedicated public access Internet terminals for any of the following uses? Cannot select "no" when another choice is selected'); 
   }
 }
+// Display the profile as a table
 function intake_form_profile2_view($profile, $view_mode, $langcode) {
   if($profile->type == 'pilot_intake'){
     // If the profile is unsubmitted (and not on confirm), go to edit
@@ -139,18 +140,38 @@ function intake_form_profile2_view($profile, $view_mode, $langcode) {
       drupal_goto(current_path() . '/edit');
       
     drupal_set_title('Intake Form');
-    // Get all the field info for the pilot_intake profile
+    // Get all the field info for the pilot_intake profile (weight, titles)
     $query = "SELECT field_name, data FROM {field_config_instance} WHERE bundle = 'pilot_intake'";
     $fields = db_query($query)->fetchAllKeyed();
     
     $header = array('Field', 'Data');
     $attributes = array('class' => array('library_form'));
     $rows = array();
+    
+    // Loop through profile content to collect data to send to theme('table', $variables)
     foreach($profile->content as $field => $value) {
       $splode = explode('_', $field);
+      // Proceed if the element is a data field
       if($splode[0] == 'field') {
+        // Get the field weight from the field_config query
         $weight = unserialize($fields[$field]);
-        $rows[$weight['widget']['weight']] = array($profile->content[$field]['#title'], $value[0]['#markup']);
+        // Loop through multiple choice answers
+        $markup = array();
+        foreach($value as $answer_field => $answer) {
+          // Answers are keyed by an int index
+          if(is_int($answer_field)) {
+            $markup[] = $answer['#markup'];
+          }
+        }
+        // Turn our markup array into a string
+        $markup_string = '';
+        foreach($markup as $mark => $up) {
+          $markup_string .= $up;
+          if($mark < count($markup) - 1) {
+            $markup_string .= ', ';
+          }
+        }
+        $rows[$weight['widget']['weight']] = array($profile->content[$field]['#title'], $markup_string);
       }
     }
     ksort($rows);
