@@ -1,6 +1,6 @@
 <div id="left_content" style="float:left;">
 
-	<h3><?php if(isset($libName)) print $libName;?></h3>
+	<h3 style="margin-bottom:0;"><?php if(isset($libName)) print $libName;?></h3>
 	
 	Username: <?php print $user->name;?><br>
 	
@@ -12,11 +12,16 @@
 	
 	<?php print $user->mail;?>
 	
-	<h3>Completed Surveys:  <span style='color:#333333'><?php if(isset($surveyCount)) print $surveyCount; else print "0" ?>*</span></h3><p>*Updated every 24 hours at 1:35am PST.</p>
+	<br/>
 	
 	<input type="button" value="Edit" class="form-submit" onClick="window.location.href='myimpact/edit'" /> <br><br>
 		
-	<font id="next_step">Next Step</font><br><br>
+	<h3 style="margin-bottom:0;">Completed Surveys:  <span style='color:#333333;'><?php if(isset($surveyCount)) print $surveyCount; else print "0" ?>*</span></h3><p style="margin:0;">*Updated every 24 hours at 1:35am PST.</p>
+	
+  <?php $fscs = impact_util_fscs();	?>
+	<input type="button" value="Enter paper survey data" class="form-submit" onclick="window.open('http://impactsurvey.org/dataentry/?fscs=<?php print $fscs; ?>')"/> <br><br>
+		
+	<h3 style="margin-bottom:0;color:#4B1065;">Next Step</h3>
 	
 	<?php if(isset($step)) print $step;?>
 

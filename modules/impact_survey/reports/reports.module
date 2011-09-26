@@ -55,6 +55,10 @@ function reports_paper_survey_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => 'Confirm'
   );
+  $fscs = impact_util_fscs();
+  $form['enter_data'] = array(
+    '#markup' => '<input type="button" value="Enter paper survey data" class="form-submit" onclick="window.open(\'http://impactsurvey.org/dataentry/?fscs=' . $fscs . '\')"/>'
+  );
   
   if(reports_data_entry_done() == 1) {
     $form['report_url'] = array(
@@ -70,6 +74,7 @@ function reports_form_reports_paper_survey_form_alter(&$form, $form_state, $form
     $form['finished']['#default_value'] = 1;
     $form['finished']['#disabled'] = TRUE;
     unset($form['submit']);
+    unset($form['enter_data']);
   }
 }
 // Submit paper survey form
@@ -92,9 +97,8 @@ function reports_data_entry_done() {
 }
 // Returns the report url
 function reports_report_url() {
-  $report_url = '<a href="http://impactsurvey.org/_reports/pdf/report.php?fscs=';
-  $report_url .= impact_util_fscs();
-  $report_url .= '">Click here to download your report.</a>';
+  $fscs = impact_util_fscs();
+  $report_url = '<input target="_blank" type="button" class="form-submit" value="Download Report" onclick="window.open(\'http://impactsurvey.org/_reports/pdf/report.php?fscs=' . $fscs . '\')"/>';
   
   return $report_url;
 }
