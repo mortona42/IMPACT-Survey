@@ -31,6 +31,12 @@ function codebox_menu() {
       'access callback' => TRUE,
     	'type' => MENU_CALLBACK,
     ),
+  	'codebox/delaware' => array(
+      'page callback' => 'codebox_delaware',
+      'page arguments' => array(),
+      'access callback' => TRUE,
+    	'type' => MENU_CALLBACK,
+    ),
   );
   return $items;
 }
@@ -88,10 +94,11 @@ function codebox_js_test($fscs) {
   header('Content-Type: application/x-javascript');
   print $js;
 }
-
-function codebox_javascript($file) {
-  codebox_analytics_fire($file);
+function codebox_delaware() {
+  codebox_analytics_fire('jquery_popup_delaware');
+  $js = file_get_contents(drupal_get_path('module', 'codebox') . '/survey_popup_delaware.js');
   header('Content-Type: application/x-javascript');
+  print $js;
 }
 
 // Fire a call to google analytics to report a hit to hotlinked javascript or images
