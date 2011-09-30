@@ -98,7 +98,7 @@ function reports_data_entry_done() {
 // Returns the report url
 function reports_report_url() {
   $fscs = impact_util_fscs();
-  $report_url = '<input target="_blank" type="button" class="form-submit" value="Download Report" onclick="window.open(\'http://impactsurvey.org/_reports/pdf/report.php?fscs=' . $fscs . '\')"/>';
+  $report_url = '<input target="_blank" type="button" class="form-submit" value="Download Report" onclick="window.open(\'http://impactsurvey.org/_reports/pdf/report.php?fscs=' . $fscs . '\')"/>* The report will take a few minutes to load.';
   
   return $report_url;
 }
