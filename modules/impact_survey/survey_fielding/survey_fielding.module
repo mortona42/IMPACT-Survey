@@ -54,9 +54,10 @@ function survey_fielding_validate($form, &$form_state){
     $start = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']);
     $end = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value2']);
     
+    /*  Commented to allow users to enter 10/3
     if($start < time () && !empty($start))
       form_set_error('profile_survey_fielding','The start date must be after the current date');
-    	
+   	*/
     if(empty($start))
       form_set_error('profile_survey_fielding',"Please use the <font color='green' size='3px'>pop-up calendar</font> (recommended), or input in the correct format, i.e. May 16 2011");
     
