@@ -47,31 +47,35 @@ function survey_fielding_form_profile2_edit_survey_fielding_form_alter(&$form, &
 function survey_fielding_validate($form, &$form_state){
   //delete all the default error messages because the default one, say "Field value #1 is required", is not very understandable and friendly
   drupal_get_messages('error');
-
-  $start = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']);
-  $end = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value2']);
   
-  if($start < time () && !empty($start))
-    form_set_error('profile_survey_fielding','The start date must be after the current date');
-  	
-  if(empty($start))
-    form_set_error('profile_survey_fielding',"Please use the <font color='green' size='3px'>pop-up calendar</font> (recommended), or input in the correct format, i.e. May 16 2011");
-  
-  if($end <= $start && !empty($start))
-    form_set_error('profile_survey_fielding', 'The start date must be before the end date (if your end date is correct, please check that your format matches the format of May 6 2011, or use the pop-up calendar.)');
-
-  // Going to restrict to 2 week minimum instead
-  if($start > strtotime('10/3/2011'))
-    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to start no later than October 3rd.');
+  // User 1 may enter any value
+  global $user;
+  if($user->uid != 1) {
+    $start = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value']);
+    $end = strtotime($form_state['values']['profile_survey_fielding']['field_fielding_date']['und']['0']['value2']);
     
-  if($end > strtotime('10/30/2011'))
-    form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 30th.');
-  
-  if(($end - $start)/60/60/24 > 27)
-    form_set_error('profile_survey_fielding', 'You may not run the survey for more than 4 weeks.');
+    if($start < time () && !empty($start))
+      form_set_error('profile_survey_fielding','The start date must be after the current date');
+    	
+    if(empty($start))
+      form_set_error('profile_survey_fielding',"Please use the <font color='green' size='3px'>pop-up calendar</font> (recommended), or input in the correct format, i.e. May 16 2011");
     
-  if(($end - $start)/60/60/24 < 13)
-    form_set_error('profile_survey_fielding', 'You must run the survey for at least 2 weeks.' . ($end - $start)/60/60/24);
+    if($end <= $start && !empty($start))
+      form_set_error('profile_survey_fielding', 'The start date must be before the end date (if your end date is correct, please check that your format matches the format of May 6 2011, or use the pop-up calendar.)');
+  
+    // Going to restrict to 2 week minimum instead
+    if($start > strtotime('10/3/2011'))
+      form_set_error('profile_survey_fielding', 'For our pilot test, we require you to start no later than October 3rd.');
+      
+    if($end > strtotime('10/30/2011'))
+      form_set_error('profile_survey_fielding', 'For our pilot test, we require you to end no later than October 30th.');
+    
+    if(($end - $start)/60/60/24 > 27)
+      form_set_error('profile_survey_fielding', 'You may not run the survey for more than 4 weeks.');
+      
+    if(($end - $start)/60/60/24 < 13)
+      form_set_error('profile_survey_fielding', 'You must run the survey for at least 2 weeks.' . ($end - $start)/60/60/24);
+  }
 }
 
 /**
