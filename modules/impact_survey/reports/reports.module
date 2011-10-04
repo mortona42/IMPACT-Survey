@@ -99,6 +99,8 @@ function reports_data_entry_done() {
 function reports_report_url() {
   $fscs = impact_util_fscs();
   $report_url = '<input target="_blank" type="button" class="form-submit" value="Download Report" onclick="window.open(\'http://impactsurvey.org/_reports/pdf/report.php?fscs=' . $fscs . '\')"/>* The report will take a few minutes to load.';
+  $report_url .= '<br/><input target="_blank" type="button" class="form-submit" value="Comments: Other Uses" onclick="window.open(\'http://impactsurvey.org/_reports/pdf/report.php?fscs=' . $fscs . '&comments=uses\')"/>';
+  $report_url .= '<br/><input target="_blank" type="button" class="form-submit" value="Comments: Improvement Suggestions" onclick="window.open(\'http://impactsurvey.org/_reports/pdf/report.php?fscs=' . $fscs . '&comments=improve\')"/>';
   
   return $report_url;
 }
