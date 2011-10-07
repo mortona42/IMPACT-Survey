@@ -120,6 +120,15 @@ function manage_libraries_menu() {
 		'file path' => drupal_get_path('module','profile2'),
 		'type' => MENU_NORMAL_ITEM,
   );
+  /*
+  $items['admin/test_management'] = array (
+    'title' => 'Test Management',
+    'page callback' => 'manage_libraries_test_management',
+    'page arguments' => array(),
+		'access callback' => 'user_access',
+		'access arguments' => array('profiles management'),	
+  );
+  */
   
   return $items;
 }
@@ -130,6 +139,79 @@ function manage_libraries_pilot() {
   $user_list = db_query($sql)->fetchCol();
   return manage_libraries_select_query($user_list);
 }
+/*
+// Playing with other methods.. this uses ->extend('PagerDefault')
+function manage_libraries_test_management($user_list = array()) {
+
+  $header = array(
+    array('data' => 'ID', 'field' => 'u.uid', 'sort' => 'asc'),
+    array('data' => 'Library System', 'field' => 'pref_name'),
+    array('data' => 'User', 'field' => 'username'),
+    array('data' => 'Responses', 'field' => 'survey_responses'),
+    array('data' => 'IMLS Data', 'field' => 'imls_stat'),
+    array('data' => 'Intake Form', 'field' => 'intake_stat'),
+    array('data' => 'Survey Fielding', 'field' => 'end_date'),
+    array('data' => 'Photo&Logo', 'field' => 'pl_pid')
+  );
+  $table_data = db_select('users', 'u')->extend('PagerDefault')->extend('TableSort')->orderByHeader($header);
+  $table_data->addField('u', 'uid', 'uid');
+  $table_data->addField('u', 'name', 'username');
+  $table_data->addField($table_data->leftJoin('profile', 'reg', 'reg.uid = u.uid AND reg.type = :type_reg', array(':type_reg' => 'library_registration')), 'pid', 'reg_pid');
+  $table_data->addField($table_data->leftJoin('field_data_field_library_reg_pref', 'pref', 'pref.entity_id = reg.pid'), 'field_library_reg_pref_value', 'pref_name');
+  $table_data->addField($table_data->leftJoin('field_data_field_library_reg_system', 'fscs', 'fscs.entity_id = reg.pid'), 'field_library_reg_system_value', 'fscs_key');
+  $table_data->addField($table_data->leftJoin('field_data_field_library_reg_fname', 'fname', 'fname.entity_id = reg.pid'), 'field_library_reg_fname_value', 'first_name');
+  $table_data->addField($table_data->leftJoin('field_data_field_library_reg_lname', 'lname', 'lname.entity_id = reg.pid'), 'field_library_reg_lname_value', 'last_name');
+  $table_data->addField($table_data->leftJoin('library_lookup', 'll', 'll.fscs_key = u.name'), 'library_name', 'lib_name');
+  $table_data->addField($table_data->leftJoin('profile', 'imls', 'imls.uid = u.uid AND imls.type = :type_imls', array(':type_imls' => 'imls_data')), 'pid', 'imls_pid');
+  $table_data->addField($table_data->leftJoin('profile', 'intake', 'intake.uid = u.uid AND intake.type = :type_intake', array(':type_intake' => 'pilot_intake')), 'pid', 'intake_pid');
+  $table_data->addField($table_data->leftJoin('myimpact_profile_status', 'imls_stat', 'imls_stat.uid = u.uid AND imls_stat.type = :stat_imls', array(':stat_imls' => 'imls_data')), 'status', 'imls_stat');
+  $table_data->addField($table_data->leftJoin('myimpact_profile_status', 'intake_stat', 'intake_stat.uid = u.uid AND intake_stat.type = :stat_intake', array(':stat_intake' => 'pilot_intake')), 'status', 'intake_stat');
+  $table_data->addField($table_data->leftJoin('profile', 'fielding', 'fielding.uid = u.uid AND fielding.type = :type_fielding', array(':type_fielding' => 'survey_fielding')), 'pid', 'fielding_pid');
+  $table_data->leftJoin('field_data_field_fielding_date', 'date', 'date.entity_id = fielding.pid');
+  $table_data->addField('date', 'field_fielding_date_value', 'start_date');
+  $table_data->addField('date', 'field_fielding_date_value2', 'end_date');
+  $table_data->addField($table_data->leftJoin('profile', 'pl', 'pl.uid = u.uid AND pl.type = :type_photo', array(':type_photo' => 'photo_logo')), 'pid', 'pl_pid');
+  $table_data->addField($table_data->leftJoin('field_data_field_reg_library_pic', 'photo', 'photo.entity_id = pl.pid'), 'field_reg_library_pic_fid', 'photo_id');
+  $table_data->addField($table_data->leftJoin('file_managed', 'photo_f', 'photo_f.fid = photo.field_reg_library_pic_fid'), 'filename', 'photo_loc');
+  $table_data->addField($table_data->leftJoin('field_data_field_reg_logo_pic', 'logo', 'logo.entity_id = pl.pid'), 'field_reg_logo_pic_fid', 'logo_id');
+  $table_data->addField($table_data->leftJoin('file_managed', 'logo_f', 'logo_f.fid = logo.field_reg_logo_pic_fid'), 'filename', 'logo_loc');
+  $table_data->leftJoin('survey_responses', 'responses', 'responses.LibId = fscs.field_library_reg_system_value');
+  $table_data->addExpression('COUNT(responses.LibId)', 'survey_responses');
+  $table_data->groupBy('u.uid');
+  if(empty($user_list))
+    $table_data = $table_data->condition('u.uid', 0, '>');
+  else
+    $table_data = $table_data->condition('u.uid', $user_list, 'IN');
+
+  $table_data = $table_data->execute();
+  
+  $rows = array();
+  foreach ($table_data as $row) {
+    $rows[] = array (
+      array('data' => $row->uid),
+      //!empty($row->pref_name) ? $row->pref_name : 'PREFERRED NAME NOT SET',//
+      manage_libraries_fix_pref_name($row->pref_name, $row->lib_name, $row->uid, $row->fscs_key),
+      manage_libraries_fix_user($row->username, $row->uid, $row->first_name, $row->last_name),
+      $row->survey_responses,
+      manage_libraries_fix_forms($row->uid, $row->imls_pid, $row->imls_stat, 'imls_data'),
+      manage_libraries_fix_forms($row->uid, $row->intake_pid, $row->intake_stat, 'pilot_intake'),
+      manage_libraries_fix_date($row->uid, $row->fielding_pid, $row->start_date, $row->end_date), 
+      manage_libraries_fix_photo_logo($row->uid, $row->pl_pid, $row->photo_id, $row->photo_loc, $row->logo_id, $row->logo_loc),
+    );
+  }
+  $variables = array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array(),
+    'caption' => NULL,
+    'colgroups' => array(),
+    'sticky' => FALSE,
+    'empty' => 'empty'
+  );
+  return theme_table($variables) . theme('pager');
+}
+*/
+
 // Create an array with user data to display profiles
 function manage_libraries_select_query($user_list = array()) {
 
@@ -151,7 +233,7 @@ function manage_libraries_select_query($user_list = array()) {
   $table_data->addField($table_data->leftJoin('field_data_field_library_reg_system', 'fscs', 'fscs.entity_id = reg.pid'), 'field_library_reg_system_value', 'fscs_key');
   $table_data->addField($table_data->leftJoin('field_data_field_library_reg_fname', 'fname', 'fname.entity_id = reg.pid'), 'field_library_reg_fname_value', 'first_name');
   $table_data->addField($table_data->leftJoin('field_data_field_library_reg_lname', 'lname', 'lname.entity_id = reg.pid'), 'field_library_reg_lname_value', 'last_name');
-  $table_data->addField($table_data->leftJoin('library_lookup', 'll', 'll.fscs_key = fscs.field_library_reg_system_value'), 'library_name', 'lib_name');
+  //$table_data->addField($table_data->leftJoin('library_lookup', 'll', 'll.fscs_key = u.name'), 'library_name', 'lib_name');
   $table_data->addField($table_data->leftJoin('profile', 'imls', 'imls.uid = u.uid AND imls.type = :type_imls', array(':type_imls' => 'imls_data')), 'pid', 'imls_pid');
   $table_data->addField($table_data->leftJoin('profile', 'intake', 'intake.uid = u.uid AND intake.type = :type_intake', array(':type_intake' => 'pilot_intake')), 'pid', 'intake_pid');
   $table_data->addField($table_data->leftJoin('myimpact_profile_status', 'imls_stat', 'imls_stat.uid = u.uid AND imls_stat.type = :stat_imls', array(':stat_imls' => 'imls_data')), 'status', 'imls_stat');
@@ -178,7 +260,8 @@ function manage_libraries_select_query($user_list = array()) {
   foreach ($table_data as $row) {
     $rows[] = array (
       array('data' => $row->uid),
-      manage_libraries_fix_pref_name($row->pref_name, $row->lib_name, $row->uid, $row->fscs_key),
+      //manage_libraries_fix_pref_name($row->pref_name, $row->lib_name, $row->uid, $row->fscs_key),
+      manage_libraries_fix_pref_name($row->pref_name, $row->uid, $row->fscs_key),
       manage_libraries_fix_user($row->username, $row->uid, $row->first_name, $row->last_name),
       $row->survey_responses,
       manage_libraries_fix_forms($row->uid, $row->imls_pid, $row->imls_stat, 'imls_data'),
@@ -198,10 +281,10 @@ function manage_libraries_select_query($user_list = array()) {
   );
   return theme_table($variables);
 }
-function manage_libraries_fix_pref_name($pref_name, $lib_name, $uid, $fscs_key) {
+function manage_libraries_fix_pref_name($pref_name, /*$lib_name, */$uid, $fscs_key) {
   $pref_name = array(
   	'data' => array(
-    	'#markup' => isset($pref_name) ? $pref_name : (isset($lib_name) ? $lib_name : 'Library name not set'),
+    	'#markup' => isset($pref_name) ? $pref_name : 'Preferred name not set',
       '#prefix' => "<a href='/admin/manage_libraries/profile-library_registration/$uid/view' title='$fscs_key'>",
       '#suffix' => '</a>'
     )
