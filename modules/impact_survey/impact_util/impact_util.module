@@ -6,7 +6,7 @@
 // Accepts option $delimiters - an array of characters to trigger capitalization
 function impact_util_capwords($string, $delimiters = array('-','/', ' '))
 {
-   $string = strtolower(htmlentities($string));
+   $string = strtolower(htmlentities(trim($string)));
    $delimiters = array ('-', '/', ' ');
    foreach ($delimiters as $delim) 
    {
