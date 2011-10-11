@@ -66,7 +66,7 @@ function faq_schema() {
       'detailed_question' => array(
         'type' => 'text',
         'size' => 'normal',
-        'not null' => TRUE,
+        'not null' => FALSE,
         'description' => 'The faq long question text.',
       ),
     ),
@@ -240,3 +240,22 @@ function faq_update_6003() {
 
   return t('Detailed question column added.  Existing nodes have been given the same detailed question as current question.');
 }
+
+/**
+ * Make'detailed_question' column nullable.
+ */
+function faq_update_7000() {
+  db_change_field('faq_questions', 'detailed_question', 'detailed_question', array('type' => 'text', 'size' => 'normal', 'not null' => FALSE));
+  return t('Detailed question field can now be null.');
+}
+
+/**
+ * Delete obsolete variables.
+ */
+function faq_update_7001() {
+  variable_del('faq_block_recent_faq_count');
+  variable_del('faq_block_random_faq_count');
+  variable_del('faq_enable_term_links');
+  return t('Deleted obsolete variables.');
+}
+

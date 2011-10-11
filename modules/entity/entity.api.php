@@ -120,6 +120,9 @@
  *   entity_metadata_no_hook_node_access() for an example.
  *   This is optional, but suggested for the Rules integration, and required for
  *   the admin ui (see above).
+ * - form callback: (optional) Specfiy a callback that returns a fully built
+ *   edit form for your entity type. See entity_form().
+ *   In case the 'admin ui' is used, no callback needs to be specified.
  *
  * @see hook_entity_info()
  * @see entity_metadata_hook_entity_info()
@@ -160,6 +163,9 @@ function entity_crud_hook_entity_info() {
  * entity types with the entity CRUD API.
  *
  * Additional keys are:
+ * - plural label: (optional) The human-readable, plural name of the entity
+ *   type. As 'label' it should start capitalized.
+ * - description: (optional) A human-readable description of the entity type.
  * - access callback: (optional) Specify a callback that returns access
  *   permissions for the operations 'create', 'update', 'delete' and 'view'.
  *   The callback gets optionally the entity and the user account to check for
@@ -173,8 +179,15 @@ function entity_crud_hook_entity_info() {
  *   entity of this type.
  * - view callback: (optional) A callback to render a list of entities.
  *   See entity_metadata_view_node() as example.
+ * - form callback: (optional) A callback that returns a fully built edit form
+ *   for the entity type.
  * - token type: (optional) A type name to use for token replacements. Set it
  *   to FALSE if there aren't any token replacements for this entity type.
+ * - configuration: (optional) A boolean value that specifies whether the entity
+ *   type should be considered as configuration. Modules working with entities
+ *   may use this value to decide whether they should deal with a certain entity
+ *   type. Defaults to TRUE to for entity types that are exportable, else to
+ *   FALSE.
  *
  * @see hook_entity_info()
  * @see entity_crud_hook_entity_info()
@@ -182,6 +195,8 @@ function entity_crud_hook_entity_info() {
  * @see entity_create()
  * @see entity_save()
  * @see entity_delete()
+ * @see entity_view()
+ * @see entity_form()
  */
 function entity_metadata_hook_entity_info() {
   return array(
@@ -227,7 +242,10 @@ function entity_metadata_hook_entity_info() {
  *        - uri: An absolute URI or URL.
  *        - entities - You may use the type of each entity known by
  *          hook_entity_info(), e.g. 'node' or 'user'. Internally entities are
- *          represented by their identifieres.
+ *          represented by their identifieres. In case of single-valued
+ *          properties getter callbacks may return full entity objects as well,
+ *          while a value of FALSE is interpreted like a NULL value as "property
+ *          is not set".
  *        - entity: A special type to be used generically for entities where the
  *          entity type is not known beforehand. The entity has to be
  *          represented using an EntityMetadataWrapper.

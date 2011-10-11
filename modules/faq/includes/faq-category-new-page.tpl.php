@@ -47,10 +47,10 @@
  */
 
 if ($category_depth > 0) {
-  $hdr = 'h6';
+  $hdr = 'h4';
 }
 else {
-  $hdr = 'h5';
+  $hdr = 'h3';
 }
 
 ?><div class="faq-category-group">

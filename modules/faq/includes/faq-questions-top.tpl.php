@@ -37,16 +37,20 @@
 <?php while ($key < $limit): ?>
   <?php // Cycle through all the answers and "more" links. $key will represent the applicable position in the arrays. ?>
   <div class="faq-question">
-  <strong>
-  <?php print $question_label; ?>
-  </strong>
+  <?php if (!empty($question_label)): ?>
+    <strong class="faq-question-label">
+    <?php print $question_label; ?>
+    </strong>
+  <?php endif; ?>
   <?php print $answers[$key]['question']; ?>
   </div> <!-- Close div: faq-question -->
 
   <div class="faq-answer">
-  <strong>
-  <?php print $answer_label; ?>
-  </strong>
+  <?php if (!empty($answer_label)): ?>
+    <strong class="faq-answer-label">
+    <?php print $answer_label; ?>
+    </strong>
+  <?php endif; ?>
   <?php print $answers[$key]['body']; ?>
   <?php print $answers[$key]['links']; ?>
   </div> <!-- Close div: faq-answer -->

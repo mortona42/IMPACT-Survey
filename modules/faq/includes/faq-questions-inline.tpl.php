@@ -29,16 +29,20 @@
     <?php // Cycle through the $nodes array so that we now have a $node variable to work with. ?>
     <br />
     <div class="faq-question">
-    <strong>
-    <?php print $question_label; ?>
-    </strong>
+    <?php if (!empty($question_label)): ?>
+      <strong class="faq-question-label">
+      <?php print $question_label; ?>
+      </strong>
+    <?php endif; ?>
     <?php print $node['question']; ?>
     </div> <!-- Close div: faq-question -->
 
     <div class="faq-answer">
-    <strong>
-    <?php print $answer_label; ?>
-    </strong>
+    <?php if (!empty($answer_label)): ?>
+      <strong class="faq-answer-label">
+      <?php print $answer_label; ?>
+      </strong>
+    <?php endif; ?>
     <?php print $node['body']; ?>
     <?php if (isset($node['links'])): ?>
       <?php print $node['links']; ?>

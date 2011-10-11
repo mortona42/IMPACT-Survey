@@ -6,13 +6,21 @@
  */
 
 /**
- * Implements hook_views_data()
+ * Implements hook_views_data().
+ *
+ * Provides Views integration for entities if they satisfy one of these
+ * conditions:
+ *  - hook_entity_info() specifies a 'views controller class' key.
+ *  - hook_entity_info() specifies a 'module' key, and the module does not
+ *    implement hook_views_data().
+ *
+ * @see entity_crud_hook_entity_info().
  */
 function entity_views_data() {
   $data = array();
   foreach (entity_crud_get_info() as $type => $info) {
-    // Only enable the integration by default, it we know the module providing
-    // the entity and it does not provide views integration yet.
+    // Provide default integration with the basic controller class if we know
+    // the module providing the entity and it does not provide views integration.
     if (!isset($info['views controller class'])) {
       $info['views controller class'] = isset($info['module']) && !module_hook($info['module'], 'views_data') ? 'EntityDefaultViewsController' : FALSE;
     }
@@ -35,7 +43,7 @@ function entity_views_data() {
  */
 function entity_views_plugins() {
   foreach (views_fetch_data() as $table => $data) {
-    if (!empty($data['table']['base']['entity type'])) {
+    if (!empty($data['table']['entity type'])) {
       $base_tables[] = $table;
     }
   }
@@ -87,13 +95,12 @@ class EntityDefaultViewsController {
       // Define the base group of this table. Fields that don't
       // have a group defined will go into this field by default.
       $data[$table]['table']['group']  = drupal_ucfirst($this->info['label']);
+      $data[$table]['table']['entity type'] = $this->type;
 
       $data[$table]['table']['base'] = array(
         'field' => $this->info['entity keys']['id'],
         'title' => drupal_ucfirst($this->info['label']),
-        // @todo: Support an entity info description key or such?
-        'help' => '',
-        'entity type' => $this->type,
+        'help' => isset($this->info['description']) ? $this->info['description'] : '',
       );
       $data[$table] += $this->schema_fields();
 
@@ -148,7 +155,7 @@ class EntityDefaultViewsController {
       $label_lowercase = drupal_strtolower($this->info['label'][0]) . drupal_substr($this->info['label'], 1);
       $property_label_lowercase = drupal_strtolower($property_info['label'][0]) . drupal_substr($property_info['label'], 1);
 
-      $this->relationships[$info['base table']][$this->info['base table']] = array(
+      $this->relationships[$info['base table']][$this->info['base table'] . '_' . $views_field_name] = array(
         'title' => $this->info['label'],
         'help' => t("Associated @label via the @label's @property.", array('@label' => $label_lowercase, '@property' => $property_label_lowercase)),
         'relationship' => array(
@@ -199,6 +206,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_string',
           ),
         );
+      break;
 
       case 'decimal':
       case 'integer':
@@ -207,6 +215,7 @@ class EntityDefaultViewsController {
             'real field' => $views_field_name,
             'handler' => 'views_handler_field_numeric',
             'click sortable' => TRUE,
+            'float' => ($type == 'decimal'),
            ),
           'sort' => array(
             'real field' => $views_field_name,
@@ -221,6 +230,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_numeric',
           ),
         );
+      break;
 
       case 'date':
         $return += $description + array(
@@ -242,6 +252,51 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_date',
           ),
         );
+      break;
+
+      case 'uri':
+        $return += $description + array(
+          'field' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_field_url',
+            'click sortable' => TRUE,
+           ),
+          'sort' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_sort',
+          ),
+          'filter' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_filter_string',
+          ),
+          'argument' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_argument_string',
+          ),
+        );
+      break;
+
+      case 'boolean':
+        $return += $description + array(
+          'field' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_field_boolean',
+            'click sortable' => TRUE,
+           ),
+          'sort' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_sort',
+          ),
+          'filter' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_filter_boolean_operator',
+          ),
+          'argument' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_argument_string',
+          ),
+        );
+      break;
     }
 
     // If there is an options list callback, add to the filter.

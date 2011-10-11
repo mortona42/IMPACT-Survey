@@ -251,8 +251,11 @@ function entity_property_verify_data_type($data, $type) {
  *   The entity type to create an entity for.
  * @param $values
  *   An array of values as described by the entity's property info. All entity
- *   properties of the given entiy type that are marked as required, are
- *   required.
+ *   properties of the given entity type that are marked as required, must be
+ *   present.
+ *   If the passed values have no matching property, their value will be
+ *   assigned to the entity directly, without the use of the metadata-wrapper
+ *   property.
  *
  * @return EntityDrupalWrapper
  *   An EntityDrupalWrapper wrapping the newly created entity or FALSE, if
@@ -264,14 +267,30 @@ function entity_property_values_create_entity($entity_type, $values = array()) {
     // Create the initial entity by passing the values for all 'entity keys'
     // to entity_create().
     $entity_keys = array_filter($info['entity keys']);
-    $entity = entity_create($entity_type, array_intersect_key($values, array_flip($entity_keys)));
+    $creation_values = array_intersect_key($values, array_flip($entity_keys));
+
+    // In case the bundle key does not match the property that sets it, ensure
+    // the bundle key is initialized somehow, so entity_extract_ids()
+    // does not bail out during wrapper creation.
+    if (!empty($info['entity keys']['bundle'])) {
+      $creation_values += array($info['entity keys']['bundle'] => FALSE);
+    }
+    $entity = entity_create($entity_type, $creation_values);
+
     // Now set the remaining values using the wrapper.
     $wrapper = entity_metadata_wrapper($entity_type, $entity);
     foreach ($values as $key => $value) {
       if (!in_array($key, $info['entity keys'])) {
-        $wrapper->$key->set($value);
+        if (isset($wrapper->$key)) {
+          $wrapper->$key->set($value);
+        }
+        else {
+          $entity->$key = $value;
+        }
       }
     }
+    // @todo: Once we require Drupal 7.7 or later, verify the entity has
+    // now a valid bundle and throw the EntityMalformedException if not.
     return $wrapper;
   }
   return FALSE;

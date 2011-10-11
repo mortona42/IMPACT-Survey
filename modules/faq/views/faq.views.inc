@@ -54,20 +54,6 @@ function faq_views_data() {
       'field' => 'tid',
     ),
   );
-  $data['faq_weights']['weight'] = array(
-    'title' => t('FAQ weight'),
-    'help' => t('The weight of the FAQ node.'),
-    'field' => array(
-      'handler' => 'views_handler_field_numeric',
-      'click sortable' => TRUE,
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
-    ),
-  );
 
   return $data;
 }

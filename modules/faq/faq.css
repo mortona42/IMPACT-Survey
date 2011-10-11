@@ -26,6 +26,11 @@
   padding-left: 40px;
 }
 
+.faq-answer .faq-answer-label {
+  float: left;
+  margin-right: 0.5em;
+}
+
 .faq-dl-hide-answer {
   padding-bottom: 15px;
 }

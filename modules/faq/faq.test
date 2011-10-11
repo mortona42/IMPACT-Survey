@@ -39,13 +39,13 @@ class FaqTestCase extends DrupalWebTestCase {
     $this->admin_user = $this->drupalCreateUser(array('administer taxonomy', 'administer faq', 'administer faq order', 'administer blocks'));
     $this->drupalLogin($this->admin_user);
 
-    $this->faq_user = $this->drupalCreateUser(array('create faq', 'edit faq', 'view faq page', 'access content'));
+    $this->faq_user = $this->drupalCreateUser(array('create faq content', 'edit any faq content', 'delete any faq content', 'view faq page', 'access content'));
 
     // Set up the vocab and terms.
     $this->setupTaxonomy();
 
     // Categorize questions.
-    $this->drupalPost('admin/config/faq/categories', array('faq_use_categories' => '1'), t('Save configuration'));
+    $this->drupalPost('admin/config/content/faq/categories', array('faq_use_categories' => '1'), t('Save configuration'));
 
     // Set answer_user as default expert.
     $roles = $this->faq_user->roles;
@@ -98,43 +98,56 @@ class FaqTestCase extends DrupalWebTestCase {
    * Values also stored in protected variable $tax
    */
   function setupTaxonomy() {
-
     // Create vocabulary.
-    $this->taxonomy = array();
-    $this->taxonomy['name'] = $this->randomName(8); // Create taxonomy vocabulary name
-    $this->taxonomy['description'] = $this->randomName(64);
-    $this->taxonomy['nodes[faq]'] = '1'; // Assign vocab to FAQ node types
-    $this->taxonomy['tags'] = '1'; // Users may create tags
-    $this->taxonomy['multiple'] = '1'; // may have more than one tag
-    $this->taxonomy['required'] = '1'; // but minimum 1 tag
-    $this->drupalPost('admin/structure/taxonomy/add/vocabulary', $this->taxonomy, t('Save'));
-    $this->assertText(t('Created new vocabulary @name', array('@name' => $this->taxonomy['name'])));
+    $this->vocabulary = $vocabulary = new stdClass();
+    $vocabulary->name = $this->randomName(8);
+    $vocabulary->description = $this->randomName(64);
+    $vocabulary->machine_name = drupal_strtolower($this->randomName());
+    $vocabulary->help = '';
+    $vocabulary->nodes = array('faq' => 'faq');
+    $vocabulary->weight = mt_rand(0, 10);
+    taxonomy_vocabulary_save($vocabulary);
 
-    $this->assertText(t('FAQ'));
+    $field = array(
+      'field_name' => 'taxonomy_' . $this->vocabulary->machine_name,
+      'type' => 'taxonomy_term_reference',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $this->vocabulary->machine_name,
+            'parent' => 0,
+          ),
+        ),
+      ),
+    );
+    field_create_field($field);
+
+    $this->instance = array(
+      'field_name' => 'taxonomy_' . $this->vocabulary->machine_name,
+      'bundle' => 'faq',
+      'entity_type' => 'node',
+      'widget' => array(
+        'type' => 'taxonomy_autocomplete',
+
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'taxonomy_term_reference_link',
+        ),
+      ),
+    );
+    field_create_instance($this->instance);
 
     // Add term
     // Click the last occurrence of the link.
-    $this->clickLink(t('add terms'), substr_count($this->drupalGetContent(), 'add terms') - 1);
-    $this->assertText(t('Add term to @name', array('@name' => $this->taxonomy['name']) ));
-
-    $url = parse_url($this->getUrl());
-    if ($url['query'] == '') {
-      $array = split('/', $url['path']);
-      $this->taxonomy['id'] = $array[4];
-    }
-    else {
-      $array = split('/', $url['query']);
-      $this->taxonomy['id'] = $array[3];
-    }
-    $this->pass(var_export($array, TRUE));
-
-    $url = $this->getUrl();
-    $this->term = array();
-    $this->term['name'] = $this->randomName(8); // Create taxonomy vocabulary name
-    $this->term['description'] = $this->randomName(64);
-    $this->drupalPost($url, $this->term, t('Save'));
-    $this->assertText(t('Created new term @name', array('@name' => $this->term['name'])));
-
+    $this->term = $term = new stdClass();
+    $term->name = $this->randomName(8);
+    $term->description = $this->randomName(64);
+    // Use the first available text format.
+    $term->format = db_query_range('SELECT format FROM {filter_format}', 0, 1)->fetchField();
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
   }
 
   /**
@@ -187,7 +200,7 @@ class CreateFaqTestCase extends FaqTestCase {
   public static function getInfo() {
     return array(
       'name' => t('Create FAQ node'),
-      'description' => t('Add, Edit and delete FAQ nodes when FAQ module is enabled.'),
+      'description' => t('Add, edit and delete FAQ nodes when FAQ module is enabled.'),
       'group' => t('Frequently Asked Questions'),
     );
   }
@@ -198,7 +211,7 @@ class CreateFaqTestCase extends FaqTestCase {
   function testFaqCreate() {
 
     // Create and log in user with create FAQ permissions
-    $this->admin_user = $this->drupalCreateUser(array('create faq', 'view faq page'));
+    $this->admin_user = $this->drupalCreateUser(array('create faq content', 'view faq page'));
     $this->drupalLogin($this->admin_user);
 
     // Verify that the faq page is visible and available but empty
@@ -206,11 +219,12 @@ class CreateFaqTestCase extends FaqTestCase {
     $this->assertText(t('Frequently Asked Questions'), t('FAQ page is available for view faq page permissions.'));
 
     // Fill in the Create FAQ node 1 form and post it
+    $langcode = LANGUAGE_NONE;
     $this->faq1 = array();
-    $this->faq1['title'] = $this->randomName(8);
-    $this->faq1['taxonomy[tags][1]'] = $this->term['name']; // Add existing term
+    $this->faq1['title'] = 'faq1_'. $this->randomName(8);
+    $this->faq1[$this->instance['field_name'] . '[' . $langcode .']'] = $this->term->name;
     $this->faq1['detailed_question'] = $this->randomName(16);
-    $this->faq1['body'] = $this->randomName(16);
+    $this->faq1["body[$langcode][0][value]"] = $this->randomName(16);
     $this->drupalPost('node/add/faq', $this->faq1, t('Save'));
 
     // Check that new FAQ node has actually been created
@@ -218,10 +232,10 @@ class CreateFaqTestCase extends FaqTestCase {
 
     // Fill in the Create FAQ node 2 form and post it
     $this->faq2 = array();
-    $this->faq2['title'] = $this->randomName(8);
-    $this->faq2['taxonomy[tags][1]'] = $this->randomName(8); // Add new term
+    $this->faq2['title'] = 'faq2_'. $this->randomName(8);
+    $this->faq2[$this->instance['field_name'] . '[' . $langcode .']'] = $this->randomName(8); // Add new term
     $this->faq2['detailed_question'] = $this->randomName(16);
-    $this->faq2['body'] = $this->randomName(16);
+    $this->faq2["body[$langcode][0][value]"] = $this->randomName(16);
     $this->drupalPost('node/add/faq', $this->faq2, t('Save'));
 
     // Check that new FAQ node has actually been created
@@ -241,32 +255,32 @@ class CreateFaqTestCase extends FaqTestCase {
     $this->drupalGet('faq');
     $this->assertText(t('Frequently Asked Questions'), t('FAQ page is available for view faq page permissions.'));
     $this->assertText($this->faq1['title'], t('Created FAQ node 1 available on FAQ page.'));
-    $this->assertText($this->faq1['taxonomy[tags][1]'], t('Term for node 1  available on FAQ page.'));
+    $this->assertText($this->faq1[$this->instance['field_name'] . '[' . $langcode .']'], t('Term for node 1 available on FAQ page.'));
     $this->assertText($this->faq2['title'], t('Created FAQ node 2 available on FAQ page.'));
-    $this->assertText($this->faq2['taxonomy[tags][1]'], t('Term for node 2  available on FAQ page.'));
+    $this->assertText($this->faq2[$this->instance['field_name'] . '[' . $langcode .']'], t('Term for node 2 available on FAQ page.'));
 
     // Navigate to FAQ node created on FAQ page
     $this->clickLink(t($this->faq1['title']));
-    $this->assertText(t($this->faq1['body']));
+    $this->assertText(t($this->faq1["body[$langcode][0][value]"]));
 
     // Enable categorisation of FAQ nodes
     // Create and log in user with create and administer FAQ permissions
-    $this->admin_user = $this->drupalCreateUser(array('create faq', 'view faq page', 'administer faq'));
+    $this->admin_user = $this->drupalCreateUser(array('create faq content', 'view faq page', 'administer faq'));
     $this->drupalLogin($this->admin_user);
 
     // faq_use_categories
     $faqcfg = array();
     $faqcfg['faq_use_categories'] = '1'; // Enable categorised FAQs
-    $this->drupalPost('admin/config/faq/categories', $faqcfg, t('Save configuration'));
+    $this->drupalPost('admin/config/content/faq/categories', $faqcfg, t('Save configuration'));
     $this->drupalLogout();
 
     $this->drupalLogin($view_faq_user);
     $this->drupalGet('faq');
     $this->assertText(t('Frequently Asked Questions'), t('FAQ page is available for view faq page permissions.'));
     $this->assertText($this->faq1['title'], t('Created FAQ node 1 available on FAQ page.'));
-    $this->assertText($this->faq1['taxonomy[tags][1]'], t('Term for node 1 not available on FAQ page.'));
+    $this->assertText($this->faq1[$this->instance['field_name'] . '[' . $langcode .']'], t('Term for node 1 not available on FAQ page.'));
     $this->assertText($this->faq2['title'], t('Created FAQ node 2 available on FAQ page.'));
-    $this->assertText($this->faq2['taxonomy[tags][1]'], t('Term for node 2 not available on FAQ page.'));
+    $this->assertText($this->faq2[$this->instance['field_name'] . '[' . $langcode .']'], t('Term for node 2 not available on FAQ page.'));
 
     // TODO: Add update and Delete of FAQ nodes
 
@@ -283,7 +297,7 @@ class CRAUDFaqTestCase extends FaqTestCase {
   public static function getInfo() {
     return array(
       'name' => t('CRUD Question'),
-      'description' => t('Create, Read, Update and Delete a question'),
+      'description' => t('Create, read, update and delete a question'),
       'group' => t('Frequently Asked Questions'),
     );
   }
@@ -302,9 +316,9 @@ class CRAUDFaqTestCase extends FaqTestCase {
     // Create a FAQ node.
     $edit = array();
     $edit['title'] = $this->randomName(8);
-    $edit['taxonomy[tags][' . $this->taxonomy['id'] . ']'] = $this->randomName(8);
+    $edit[$this->instance['field_name'] . '['. LANGUAGE_NONE .']'] = $this->randomName(8);
     $edit['detailed_question'] = $this->randomName(64);
-    $edit['body'] = $this->randomString(264);
+    $edit['body['. LANGUAGE_NONE .'][0][value]'] = $this->randomString(264);
     $this->drupalPost('node/add/faq', $edit, t('Save'));
     $this->assertText(t('FAQ @title has been created.', array('@title' => $edit['title'])));
 
@@ -329,19 +343,14 @@ class CRAUDFaqTestCase extends FaqTestCase {
     $this->drupalGet('node/' . $node->nid); // It should also be possible to open the node directly
 
     // Update FAQ
-    // Log in user with answer question. Must also have edit faq and view faq page permission
+    // Log in user with answer question. Must also have edit any faq content and view faq page permissions.
     $this->drupalLogin($this->faq_user);
     $edit2['title'] = 'title-' . $this->randomName(8);
-    $edit2['body']  = 'body-' . $this->randomName(64);
-    $this->drupalPost( 'node/' . $node->nid . '/edit',
-              array(
-      'title' => $edit2['title'],
-      'body' => $edit2['body'],
-    ),
-              t('Save'));
+    $edit2['body['. LANGUAGE_NONE .'][0][value]']  = 'body-' . $this->randomName(64);
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit2, t('Save'));
     $this->assertText(t('FAQ @title has been updated.', array('@title' => $edit2['title'])));
     $this->assertText($edit2['title'], 'Title has changed');
-    $this->assertText($edit2['body'], 'Body has changed');
+    $this->assertText($edit2['body['. LANGUAGE_NONE .'][0][value]'], 'Body has changed');
 
     // Delete FAQ
     // Try deleting faq by edit faq permission
@@ -349,9 +358,9 @@ class CRAUDFaqTestCase extends FaqTestCase {
 
     // Log in user with delete FAQ permissions
     $this->drupalLogin($this->admin_user);
-    $this->drupalPost(  'node/' . $node->nid . '/edit', array(), t('Delete'));
+    $this->drupalPost('node/' . $node->nid . '/edit', array(), t('Delete'));
     $this->assertText(t('Are you sure you want to delete @title?', array('@title' => $edit2['title'])));
-    $this->drupalPost(  'node/' . $node->nid . '/delete', array(), t('Delete'));
+    $this->drupalPost('node/' . $node->nid . '/delete', array(), t('Delete'));
     $this->assertText(t('FAQ @title has been deleted.', array('@title' => $edit2['title'])));
 
   }
