@@ -407,9 +407,29 @@ function myimpact_setting_myimpact_page(){
 	if(!empty($phoneext)) $phoneext="-ex($phoneext)";
 	
 	//Completed Surveys
-	$fscs = token_replace('[current-user:profile-library-registration:field-library-reg-system]');
-	$result_count = db_query("SELECT COUNT( * ) AS responses FROM {survey_responses} WHERE libid = :fscs", array('fscs'=>$fscs))->fetchField();
-
+	$result_count = 0;
+	$dates_selected = 0;
+	$dates = impact_util_get_dates();
+	
+	// Start and end are empty strings if not selected
+	if(!empty($dates['start']) && !empty($dates['end']))
+	  $dates_selected = 1;
+	
+	// Query for number of results if fielding dates have been selected
+	if($dates_selected == 1) {
+  	$fscs = impact_util_fscs();
+  	$dates = impact_util_get_dates();
+  	$start = $dates['start'];
+  	$end = $dates['end'];
+  	$sql = "SELECT count(*) AS total FROM dr_survey_responses r
+  JOIN dr_survey_responses_dates d ON r.respondent_id = d.respondent_id
+  WHERE r.LibID LIKE '%$fscs%'
+  AND (r.datacollection_endquestion = 'PReview' 
+  OR (d.date >= FROM_UNIXTIME($start) AND d.date <= FROM_UNIXTIME($end)))";
+  	$result_count = db_query($sql)->fetchAssoc();
+  	$result_count = $result_count['total'];
+	}
+	
 	//Step
 	//get the forms submitted
 	$sql="select type from {myimpact_profile_status} where uid=:uid";
@@ -487,34 +507,9 @@ function myimpact_setting_myimpact_page(){
   	}
   }
 		
-	//Photo and Logo
-  $tag="Change Images";
-			
-  $publicPath=variable_get('file_public_path', conf_path() . '/files');
-  //get the path of logo
-  $sql="select uri from {profile} as p,{field_data_field_reg_logo_pic} as f, {file_managed} as m where p.uid=:uid and p.type='photo_logo' and f.entity_id=p.pid and m.fid=f.field_reg_logo_pic_fid";
-  $logo=db_query($sql,array('uid'=>$uid))->fetchField();
-
-  //get the path of library pic
-  $sql="select uri from {profile} as p,{field_data_field_reg_library_pic} as f, {file_managed} as m where p.uid=:uid and p.type='photo_logo' and f.entity_id=p.pid and m.fid=f.field_reg_library_pic_fid";
-  $libPic=db_query($sql,array('uid'=>$uid))->fetchField();
-		
-  //default tips
-  if(empty($logo) or empty($libPic)) $tip='<h5 id="photo_logo_message">Please upload your library logo and a photo to use in your report.</h5>';
-  else $tip='';
-  $pic_output = $tip;
-  			  
-  //default pictures
-  if(empty($logo)) {$logo="public://default_images/default_logo.jpg";$tag="Upload Your Images";}
-  if(empty($libPic)) {$libPic="public://default_images/default_library_pic.jpg";$tag="Upload Your Images";}
-  
-	$pic_output.="<img width=100px height=100px src='".myimpact_setting_convUri($logo, $publicPath)."' alt='library logo'/>"."<br>";
-  $pic_output.="<img width=100px height=100px src='".myimpact_setting_convUri($libPic, $publicPath)."' alt='library photo' align=center />";
-  
-  // Hijack/test photo/logo
-  //$sample_cover = drupal_get_path('module', 'myimpact_setting') . '/myimpact_setting_report_cover.svg';
+	// Report cover sample
   $pic_output = '<script type="image/svg+xml">' . myimpact_report_cover_display() . '</script>';
-  
+  $tag = 'Set Cover Images';
   
   $content = array(
   	'libName' => $system_name,
@@ -527,6 +522,7 @@ function myimpact_setting_myimpact_page(){
   	'step'=>$step,
   	'pic_output' =>$pic_output,
   	'tag' => $tag,
+    'dates_selected' => $dates_selected
   );
 	return theme('myimpact_setting', $content);
 }
