@@ -280,7 +280,7 @@ function manage_libraries_select_query($user_list = array()) {
     'empty' => 'empty'
   );
   
-  $url = '<a href="library_data/csv">Download CSV</a>';
+  $url = '<a href="/library_data/csv">Download CSV</a>';
   
   return $url . theme_table($variables);
 }
