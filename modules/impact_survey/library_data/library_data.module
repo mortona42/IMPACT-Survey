@@ -105,7 +105,7 @@ function library_data_table() {
       'colgroups' => array()
     );
   
-  $url = '<a href="library_data/csv">Download CSV</a>';
+  $url = '<a href="/library_data/csv">Download CSV</a>';
   $table = theme('table', $variables);
   
   return $url . $table;
