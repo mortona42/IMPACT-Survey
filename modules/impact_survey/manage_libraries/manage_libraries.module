@@ -279,7 +279,10 @@ function manage_libraries_select_query($user_list = array()) {
     'sticky' => FALSE,
     'empty' => 'empty'
   );
-  return theme_table($variables);
+  
+  $url = '<a href="library_data/csv">Download CSV</a>';
+  
+  return $url . theme_table($variables);
 }
 function manage_libraries_fix_pref_name($pref_name, /*$lib_name, */$uid, $fscs_key) {
   $pref_name = array(

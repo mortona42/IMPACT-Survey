@@ -1,0 +1,123 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function library_data_menu() {
+  $items = array();
+
+  /*$items['admin/library_data'] = array(
+    'title' => 'New Management Screen',
+    'description' => 'View library status and info',
+    'page callback' => 'library_data_table',
+    'page arguments' => array(),
+    'access callback' => TRUE
+  );*/
+  
+  $items['library_data/csv'] = array(
+    'title' => 'Download library data csv',
+    'description' => 'Download data as csv',
+    'page callback' => 'library_data_csv',
+    'page arguments' => array(),
+    'access callback' => 'user_access',
+    'access arguments' => array('profiles management')
+  );
+  
+  return $items;
+}
+
+// Get library status data from database
+function library_data_query() {
+  $sql = "SELECT
+u.uid AS uid, 
+max(fscs.field_library_reg_system_value) AS fscs_key, 
+max(pref.field_library_reg_pref_value) AS library_name, 
+u.mail AS email, 
+max(phone.field_library_reg_phone_value) AS phone, 
+max(fname.field_library_reg_fname_value) AS first_name, 
+max(lname.field_library_reg_lname_value) AS last_name, 
+u.created AS date_created, 
+u.access AS last_visit, 
+u.status AS user_status, 
+max(imls_status.status) AS imls_status, 
+max(intake_status.status) AS intake_status, 
+max(date.field_fielding_date_value) AS start_date, 
+max(date.field_fielding_date_value2) AS end_date,
+max(logo.field_reg_logo_pic_fid) AS logo_id,
+max(photo.field_reg_library_pic_fid) AS photo_id,
+max(resp.responses) AS responses
+FROM dr_users u 
+LEFT JOIN dr_profile p ON u.uid = p.uid 
+LEFT JOIN dr_field_data_field_library_reg_system fscs ON p.pid = fscs.entity_id
+LEFT JOIN dr_field_data_field_library_reg_phone phone ON p.pid = phone.entity_id 
+LEFT JOIN dr_field_data_field_library_reg_fname fname ON p.pid = fname.entity_id 
+LEFT JOIN dr_field_data_field_library_reg_lname lname ON p.pid = lname.entity_id 
+LEFT JOIN dr_field_data_field_library_reg_pref pref ON p.pid = pref.entity_id 
+LEFT JOIN dr_field_data_field_fielding_date date ON p.pid = date.entity_id 
+LEFT JOIN dr_field_data_field_reg_logo_pic logo ON p.pid = logo.entity_id 
+LEFT JOIN dr_field_data_field_reg_library_pic photo ON p.pid = photo.entity_id 
+LEFT JOIN dr_myimpact_profile_status imls_status ON p.pid = imls_status.pid AND imls_status.type = 'imls_data'
+LEFT JOIN dr_myimpact_profile_status intake_status ON p.pid = intake_status.pid AND intake_status.type = 'pilot_intake'
+LEFT JOIN (SELECT LibID AS fscs_key, count(LibID) AS responses FROM dr_survey_responses GROUP BY LibID) resp ON fscs.field_library_reg_system_value = resp.fscs_key
+GROUP BY u.uid";
+  return db_query($sql);
+}
+
+function library_data_csv() {
+  // Load necessary data
+  $header = library_data_header();
+  $num_columns = count($header);
+  $query = library_data_query();
+  
+  // Set $data string with csv data
+  $data = '';
+  library_data_csv_line($data, $header, $num_columns);
+  foreach($query as $row) {
+    library_data_csv_line($data, $row, $num_columns);
+  }
+  
+  $filename = 'library_status-' . date('y-m-d') . '.csv';
+  
+  // Set header as csv and print string
+  header('Content-Type: text/csv');
+  header('Content-Disposition: attachment; filename="'.$filename.'"');
+  print $data;
+}
+
+function library_data_table() {
+  // Load necessary data
+  $header = library_data_header();
+  $query = library_data_query();
+  
+  $rows = array();
+  foreach($query as $library) {
+    $row = array();
+    foreach($library as $field) {
+      $row[] = isset($field) ? $field : 'none';
+    }
+    $rows[] = $row;
+  }
+  
+  $variables = array(
+      'header' => $header,
+      'rows' => $rows,
+      'attributes' => array(),
+      'caption' => t(''),
+      'colgroups' => array()
+    );
+  
+  $url = '<a href="library_data/csv">Download CSV</a>';
+  $table = theme('table', $variables);
+  
+  return $url . $table;
+}
+function library_data_header() {
+  return array('uid', 'fscs_key', 'library_name', 'email', 'phone', 'first_name', 'last_name', 'date_created', 'last_visit', 'user_status', 'imls_status', 'intake_status', 'start_date', 'end_date', 'logo_id', 'photo_id', 'responses');
+}
+function library_data_csv_line(&$data, $row, $num_columns) {
+  $i=1;
+  foreach($row as $field) {
+    $data .= isset($field) ? '"' . $field . '"' : '"none"';
+    $data .= ($i < $num_columns) ? ',' : "\n";
+    $i++;
+  }
+}
