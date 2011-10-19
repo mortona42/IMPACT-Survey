@@ -1,5 +1,5 @@
 <?php
-abstract class ImpactSurveyMigration extends DynamicMigration {
+abstract class ImpactSurveyMigration extends Migration {
   public function __construct() {
     parent::__construct(MigrateGroup::getInstance('ImpactMigrate'));
   }

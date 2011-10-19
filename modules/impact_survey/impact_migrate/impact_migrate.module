@@ -36,11 +36,16 @@ function impact_migrate_imls_columns() {
       8 => array('num_uses', 'Number of PAC Terminal Uses')
     );
 }
+// Add migration to list when a new csv file is uploaded
+// TODO:  Create this node type in module so it can easily be ported
 function impact_migrate_node_insert($node) {
-  dpm($node);
-  $source_csv = file_load($node->field_source_csv['und'][0]['fid']);
-  dpm($source_csv);
-  Migration::registerMigration('CatsMigration', strtolower(pathinfo($source_csv, PATHINFO_FILENAME)), array('source_file' => $path . '/' . $source_csv->filename));
+  // Just act on user_data_csv nodes
+  if($node->type == 'user_data_csv') {
+    $source_csv = file_load($node->field_migrate_csv['und'][0]['fid']);
+    $filename = explode('migrate/', $source_csv->uri);
+    Migration::registerMigration('ImpactDynamic', $filename[1], array('source_file' => $source_csv->uri));
+    //Migration::deregisterMigration('gl2000_18.csv');
+  }
 }
 
 function impact_migrate_intake_columns() {

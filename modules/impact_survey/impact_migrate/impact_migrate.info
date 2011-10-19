@@ -8,3 +8,4 @@ dependencies[] = migrate_extras
 dependencies[] = profile2
 
 files[] = impact_migrate_user.inc
+files[] = impact_migrate_dynamic.inc
