@@ -1,0 +1,10 @@
+name = IMPACT Migrate
+description = Generate new users with profiles from a CSV file.
+core = 7.x
+package = IMPACT
+
+dependencies[] = migrate
+dependencies[] = migrate_extras
+dependencies[] = profile2
+
+files[] = impact_migrate_user.inc

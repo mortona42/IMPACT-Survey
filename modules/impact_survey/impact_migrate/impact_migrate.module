@@ -1,0 +1,67 @@
+<?php 
+
+/*
+ * You must implement hook_migrate_api(), setting the API level to 2, for
+ * your migration classes to be recognized by the Migrate module.
+ */
+function impact_migrate_migrate_api() {
+  $api = array(
+    'api' => 2,
+  );
+  return $api;
+}
+
+function impact_migrate_columns() {
+  return array(
+      0 => array('fscs_key', 'FSCS Key'),
+      1 => array('system_name', 'System Name'),
+      2 => array('email', 'Email'),
+      3 => array('first_name', 'First Name'),
+      4 => array('last_name', 'Last Name'),
+      5 => array('phone', 'Phone Number'),
+      6 => array('website', 'Website')
+    );
+}
+
+function impact_migrate_imls_columns() {
+  return array(
+      0 => array('fscs_key', 'FSCS Key'),
+      1 => array('num_branches', 'Number of Branches'),
+      2 => array('num_residents', 'Number of Residents'),
+      3 => array('num_visits', 'Number of Visits'),
+      4 => array('num_hours', 'Number of Hours'),
+      5 => array('op_exp', 'Operational Expenditures'),
+      6 => array('num_fte', 'Number of FTEs'),
+      7 => array('num_term', 'Number of PAC Terminals'),
+      8 => array('num_uses', 'Number of PAC Terminal Uses')
+    );
+}
+function impact_migrate_node_insert($node) {
+  dpm($node);
+  $source_csv = file_load($node->field_source_csv['und'][0]['fid']);
+  dpm($source_csv);
+  Migration::registerMigration('CatsMigration', strtolower(pathinfo($source_csv, PATHINFO_FILENAME)), array('source_file' => $path . '/' . $source_csv->filename));
+}
+
+function impact_migrate_intake_columns() {
+  return array(
+      0 => array('fscs_key', 'FSCS Key'),
+      1 => array('it_source', 'IT Source'),
+      2 => array('isp', 'Internet Connection'),
+      3 => array('dl_speed', 'Download Speed'),
+      4 => array('wifi', 'Wifi Provided'),
+      5 => array('assistive', 'Assistive Technology'),
+      6 => array('session', 'Session Management'),
+      7 => array('staff_learn', 'Staff Learning'),
+      8 => array('vol_training', 'Volunteer Training'),
+      9 => array('one', 'One On One'),
+      10 => array('safety', 'Online Safety'),
+      11 => array('pac', 'PAC Strategy'),
+      12 => array('partners', 'Community Partners'),
+      13 => array('expenses', 'PAC Expenses'),
+      14 => array('replacement', 'PAC Replacement'),
+      15 => array('max_session', 'Max Session'),
+      16 => array('extend', 'Extend Session'),
+      17 => array('dedicated', 'Dedicated PAC')
+    );
+}
