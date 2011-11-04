@@ -34,11 +34,6 @@
     font-size: .8em
 }
 
-#center a {
-    color: #00B0F0;
-    text-decoration:underline;
-}
-
 #center p {
     font-size: 1em
 }
@@ -47,4 +42,7 @@
     color:#ccc;
     width:600px;
     padding:5px;
+}
+#center dt {
+  font-size:smaller;
 }

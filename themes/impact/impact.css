@@ -28,6 +28,24 @@ input, fieldset, textarea {
 #center .tabs a {
 	color:#333;
 }
+a {
+  color:#1A96D4;
+  text-decoration:underline;
+}
+/*  Buttons  */
+a.impact_button {
+  color:#FFF;
+  background-color:#7B309B;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:12px;
+  margin:5px;
+  padding:5px;
+  display:inline-block;
+}
+a.impact_button:hover {
+  background-color:#4B1065;
+}
 
 /**  Blocks  **/
 .blockregion .block h2 {
@@ -67,6 +85,9 @@ input, fieldset, textarea {
 	top:15px;
 	right:32px;
 }
+#topMenu a {
+  color:#333;
+}
 .not-logged-in #siteName img#logo {
 	margin:0;
 }
@@ -80,6 +101,10 @@ input, fieldset, textarea {
 	border-left:2px solid #eee;
 	background-color:#809F45;
 	padding:0 5px;
+  color:#333;
+}
+#dateHead a {
+  color:#333;
 }
 /**  Menu  **/
 #primaryMenu ul.sf-menu {
@@ -273,7 +298,7 @@ li a.active {
 		color:#7B309B;
 		font-size: 1.33em;
 		font-weight: bold;
-	}
+}
 	
 /* imls data and intake form */
 table.library_form {
@@ -291,3 +316,4 @@ td.library_answers {
 	width: 180px;
 	
 }
+

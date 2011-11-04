@@ -1,4 +1,0 @@
-name = Library Data
-description = Exports data as a csv file
-core = 7.x
-package = IMPACT

@@ -63,7 +63,7 @@ function imls_data_verify_branches() {
  *
  */
 function imls_data_form_profile2_edit_imls_data_form_alter(&$form, &$form_state) {
-  if(impact_util_profile_status('imls_data')) {
+  if(impact_util_profile_status('imls_data') && !user_access('profiles management')) {
     drupal_set_message('You have already submitted this form. Please contact us if you need to make a change.', 'warning');
     drupal_goto(impact_util_profile_view_url());
   }
