@@ -104,6 +104,7 @@ class ImpactDynamic extends DynamicMigration {
   // Must be overwritten for dynamic migrations, otherwise it just uses class name
   // I think this is just used in the list..
   protected function generateMachineName($class_name = NULL) {
+    dpm(strtolower(pathinfo($this->arguments['source_file'], PATHINFO_FILENAME)));
     return strtolower(pathinfo($this->arguments['source_file'], PATHINFO_FILENAME));
   }
 

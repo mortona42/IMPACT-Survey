@@ -8,6 +8,9 @@ abstract class ImpactSurveyMigration extends Migration {
 // Imports data to create a new user
 class ImpactUserMigration extends ImpactSurveyMigration {
   public function __construct() {
+    global $base_url;
+    $folder = explode('//', $base_url);
+    $folder = $folder[1][]
     parent::__construct();
     $this->description = t('Library systems to register');
     $columns = impact_migrate_columns();
@@ -73,7 +76,7 @@ class ImpactRegistrationMigration extends ImpactSurveyMigration {
     parent::__construct();
     $this->description = t('Imports library registration profile');
     $columns = impact_migrate_columns();
-    $this->source = new MigrateSourceCSV('sites/local.impactsurvey.org/files/migrate/users.csv', $columns);
+    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/users.csv", $columns);
     $this->destination = new MigrateDestinationProfile2('library_registration');
     $this->map = new MigrateSQLMap($this->machineName,
         array('fscs_key' => array(
