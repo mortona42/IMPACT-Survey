@@ -181,7 +181,7 @@ function manage_libraries_select_query($user_list = array()) {
   $table_data->addField($table_data->leftJoin('file_managed', 'photo_f', 'photo_f.fid = photo.field_reg_library_pic_fid'), 'filename', 'photo_loc');
   $table_data->addField($table_data->leftJoin('field_data_field_reg_logo_pic', 'logo', 'logo.entity_id = pl.pid'), 'field_reg_logo_pic_fid', 'logo_id');
   $table_data->addField($table_data->leftJoin('file_managed', 'logo_f', 'logo_f.fid = logo.field_reg_logo_pic_fid'), 'filename', 'logo_loc');
-  $table_data->addField($table_data->leftJoin('survey_responses_counts', 'responses', 'fscs.field_library_reg_system_value = responses.fscs'), 'non_paper_count');
+  $table_data->addField($table_data->leftJoin('survey_responses_counts', 'responses', 'fscs.field_library_reg_system_value = responses.fscs_key'), 'non_paper_count');
   $table_data->addField('responses', 'paper_count');
   $table_data->addExpression('paper_count + non_paper_count', 'total_responses');
   $table_data->groupBy('u.uid');

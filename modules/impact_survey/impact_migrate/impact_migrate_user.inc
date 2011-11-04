@@ -124,7 +124,7 @@ class ImpactIMLSMigration extends ImpactSurveyMigration {
     parent::__construct();
     $this->description = t('Imports IMLS Data profile');
     $columns = impact_migrate_imls_columns();
-    $this->source = new MigrateSourceCSV('sites/local.impactsurvey.org/files/migrate/imls.csv', $columns);
+    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/imls.csv", $columns);
     $this->destination = new MigrateDestinationProfile2('imls_data');
     $this->map = new MigrateSQLMap($this->machineName,
         array('fscs_key' => array(
@@ -167,7 +167,7 @@ class ImpactIntakeMigration extends ImpactSurveyMigration {
     parent::__construct();
     $this->description = t('Imports Intake Form profile');
     $columns = impact_migrate_intake_columns();
-    $this->source = new MigrateSourceCSV('sites/local.impactsurvey.org/files/migrate/intake.csv', $columns);
+    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/intake.csv", $columns);
     $this->destination = new MigrateDestinationProfile2('pilot_intake');
     $this->map = new MigrateSQLMap($this->machineName,
         array('fscs_key' => array(
