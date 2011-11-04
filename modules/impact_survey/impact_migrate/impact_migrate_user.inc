@@ -2,21 +2,21 @@
 abstract class ImpactSurveyMigration extends Migration {
   public function __construct() {
     parent::__construct(MigrateGroup::getInstance('ImpactMigrate'));
+    global $base_url;
+    $folder = explode('//', $base_url);
+    $this->folder = $folder[1];
   }
 }
 
 // Imports data to create a new user
 class ImpactUserMigration extends ImpactSurveyMigration {
   public function __construct() {
-    global $base_url;
-    $folder = explode('//', $base_url);
-    $folder = $folder[1];
     parent::__construct();
     $this->description = t('Library systems to register');
     $columns = impact_migrate_columns();
     
     // TODO: Set the source to a better location.
-    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/users.csv", $columns);//(drupal_get_path('module', 'migrate').'/includes/dr_users.csv', $columns);
+    $this->source = new MigrateSourceCSV("sites/$this->folder/files/migrate/users.csv", $columns);//(drupal_get_path('module', 'migrate').'/includes/dr_users.csv', $columns);
     $this->destination = new MigrateDestinationUser();
     $this->map = new MigrateSQLMap(
       $this->machineName,
@@ -76,7 +76,7 @@ class ImpactRegistrationMigration extends ImpactSurveyMigration {
     parent::__construct();
     $this->description = t('Imports library registration profile');
     $columns = impact_migrate_columns();
-    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/users.csv", $columns);
+    $this->source = new MigrateSourceCSV("sites/$this->folder/files/migrate/users.csv", $columns);
     $this->destination = new MigrateDestinationProfile2('library_registration');
     $this->map = new MigrateSQLMap($this->machineName,
         array('fscs_key' => array(
@@ -124,7 +124,7 @@ class ImpactIMLSMigration extends ImpactSurveyMigration {
     parent::__construct();
     $this->description = t('Imports IMLS Data profile');
     $columns = impact_migrate_imls_columns();
-    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/imls.csv", $columns);
+    $this->source = new MigrateSourceCSV("sites/$this->folder/files/migrate/imls.csv", $columns);
     $this->destination = new MigrateDestinationProfile2('imls_data');
     $this->map = new MigrateSQLMap($this->machineName,
         array('fscs_key' => array(
@@ -167,7 +167,7 @@ class ImpactIntakeMigration extends ImpactSurveyMigration {
     parent::__construct();
     $this->description = t('Imports Intake Form profile');
     $columns = impact_migrate_intake_columns();
-    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/intake.csv", $columns);
+    $this->source = new MigrateSourceCSV("sites/$this->folder/files/migrate/intake.csv", $columns);
     $this->destination = new MigrateDestinationProfile2('pilot_intake');
     $this->map = new MigrateSQLMap($this->machineName,
         array('fscs_key' => array(
