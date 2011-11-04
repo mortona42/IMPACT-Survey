@@ -18,8 +18,10 @@ function impact_migrate_columns() {
       2 => array('email', 'Email'),
       3 => array('first_name', 'First Name'),
       4 => array('last_name', 'Last Name'),
-      5 => array('phone', 'Phone Number'),
-      6 => array('website', 'Website')
+      5 => array('position', 'Position'),
+      6 => array('phone', 'Phone Number'),
+      7 => array('extension', 'Phone Extension'),
+      8 => array('website', 'Website')
     );
 }
 
@@ -43,8 +45,12 @@ function impact_migrate_node_insert($node) {
   if($node->type == 'user_data_csv') {
     $source_csv = file_load($node->field_migrate_csv['und'][0]['fid']);
     $filename = explode('migrate/', $source_csv->uri);
-    Migration::registerMigration('ImpactDynamic', $filename[1], array('source_file' => $source_csv->uri));
-    //Migration::deregisterMigration('gl2000_18.csv');
+    $filename = explode('.', $filename[1]);
+    dpm($source_csv);
+    dpm($filename);
+    Migration::registerMigration('ImpactDynamic', $filename[0], array('source_file' => $source_csv->uri));
+    Migration::deregisterMigration('gl2000_18.csv');
+    Migration::deregisterMigration('gl2000_19.csv');
   }
 }
 

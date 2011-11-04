@@ -64,7 +64,7 @@ class ImpactUserMigration extends ImpactSurveyMigration {
     $this->addFieldMapping('pathauto')
       ->defaultValue(0);
       
-    $this->addUnmigratedSources(array('system_name', 'first_name', 'last_name', 'phone', 'website'));
+    $this->addUnmigratedSources(array('system_name', 'first_name', 'last_name', 'phone', 'extension', 'website'));
   }
 }
 
@@ -73,7 +73,7 @@ class ImpactRegistrationMigration extends ImpactSurveyMigration {
     parent::__construct();
     $this->description = t('Imports library registration profile');
     $columns = impact_migrate_columns();
-    $this->source = new MigrateSourceCSV('sites/local.impactsurvey.org/files/migrate/registration.csv', $columns);
+    $this->source = new MigrateSourceCSV('sites/local.impactsurvey.org/files/migrate/users.csv', $columns);
     $this->destination = new MigrateDestinationProfile2('library_registration');
     $this->map = new MigrateSQLMap($this->machineName,
         array('fscs_key' => array(
@@ -90,13 +90,14 @@ class ImpactRegistrationMigration extends ImpactSurveyMigration {
     $this->addFieldMapping('field_library_reg_pref', 'system_name');
     $this->addFieldMapping('field_library_reg_fname', 'first_name');
     $this->addFieldMapping('field_library_reg_lname', 'last_name');
-    $this->addFieldMapping('field_library_reg_position')
+    $this->addFieldMapping('field_library_reg_position', 'position')
       ->defaultValue('Library Director');
     $this->addFieldMapping('field_library_reg_auth')
       ->defaultValue(1);
     $this->addFieldMapping('field_library_reg_state')
-      ->defaultValue('ID');
+      ->defaultValue('DE');
     $this->addFieldMapping('field_library_reg_phone', 'phone');
+    $this->addFieldMapping('field_library_reg_extension', 'extension');
     $this->addFieldMapping('field_library_reg_website', 'website');
     
     $this->addFieldMapping('uid', 'fscs_key')
@@ -104,7 +105,7 @@ class ImpactRegistrationMigration extends ImpactSurveyMigration {
       ->defaultValue(1);
     
     $this->addUnmigratedSources(array('email'));
-    $this->addUnmigratedDestinations(array('field_library_reg_extension', 'field_library_reg_short_name', 'language', 'path', 'revision_uid'));
+    $this->addUnmigratedDestinations(array('field_library_reg_short_name', 'language', 'path', 'revision_uid'));
   }
   
   /*public function prepareRow($row) {
