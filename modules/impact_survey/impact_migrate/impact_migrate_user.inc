@@ -16,7 +16,7 @@ class ImpactUserMigration extends ImpactSurveyMigration {
     $columns = impact_migrate_columns();
     
     // TODO: Set the source to a better location.
-    $this->source = new MigrateSourceCSV('sites/local.impactsurvey.org/files/migrate/users.csv', $columns);//(drupal_get_path('module', 'migrate').'/includes/dr_users.csv', $columns);
+    $this->source = new MigrateSourceCSV("sites/$folder/files/migrate/users.csv", $columns);//(drupal_get_path('module', 'migrate').'/includes/dr_users.csv', $columns);
     $this->destination = new MigrateDestinationUser();
     $this->map = new MigrateSQLMap(
       $this->machineName,
