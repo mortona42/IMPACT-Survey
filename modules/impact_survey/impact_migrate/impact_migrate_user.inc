@@ -10,7 +10,7 @@ class ImpactUserMigration extends ImpactSurveyMigration {
   public function __construct() {
     global $base_url;
     $folder = explode('//', $base_url);
-    $folder = $folder[1][]
+    $folder = $folder[1];
     parent::__construct();
     $this->description = t('Library systems to register');
     $columns = impact_migrate_columns();
