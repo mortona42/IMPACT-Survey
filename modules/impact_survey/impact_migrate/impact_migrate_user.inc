@@ -111,12 +111,9 @@ class ImpactRegistrationMigration extends ImpactSurveyMigration {
     $this->addUnmigratedDestinations(array('field_library_reg_short_name', 'language', 'path', 'revision_uid'));
   }
   
-  /*public function prepareRow($row) {
-    $sql = "SELECT uid FROM {users} WHERE name='$row->fscs_key'";
-    $uid = db_query($sql)->fetchField();
-    
-    $row->uid = $uid;
-  }*/
+  public function prepareRow($row) {
+    $row->extension = !empty($row->extension) ? $row->extension : NULL;
+  }
 
 }
 class ImpactIMLSMigration extends ImpactSurveyMigration {
@@ -156,12 +153,17 @@ class ImpactIMLSMigration extends ImpactSurveyMigration {
   
   public function prepareRow($row) {
     $row->tot_branches = $row->num_branches + $row->num_bookmobiles;
-    /*
-    dpm($row);
-    $sql = "SELECT uid FROM {users} WHERE name='$row->fscs_key'";
-    $uid = db_query($sql)->fetchField();
-    
-    $row->uid = $uid;*/
+  }
+  // Submit forms in myimpact_profile_status
+  public function complete($entity, $row) {
+    db_insert('myimpact_profile_status')
+      ->fields(array(
+        'pid' => $entity->pid,
+        'uid' => $entity->uid,
+        'type' => 'imls_data',
+        'status' => 1
+      ))
+      ->execute();
   }
 }
 
@@ -209,12 +211,16 @@ class ImpactIntakeMigration extends ImpactSurveyMigration {
       ->sourceMigration('ImpactUser')
       ->defaultValue(1);
   }
-  public function prepareRow($row) {
-    /*
-    $sql = "SELECT uid FROM {users} WHERE name='$row->fscs_key'";
-    $uid = db_query($sql)->fetchField();
-    
-    $row->uid = $uid;*/
+  // Submit forms in myimpact_profile_status
+  public function complete($entity, $row) {
+    db_insert('myimpact_profile_status')
+      ->fields(array(
+        'pid' => $entity->pid,
+        'uid' => $entity->uid,
+        'type' => 'pilot_intake',
+        'status' => 1
+      ))
+      ->execute();
   }
 }
 class ImpactFieldingMigration extends ImpactSurveyMigration {
