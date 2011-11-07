@@ -76,3 +76,11 @@ function impact_migrate_intake_columns() {
       17 => array('dedicated', 'Dedicated PAC')
     );
 }
+function impact_migrate_fielding_columns() {
+  return array(
+      0 => array('fscs_key', 'FSCS Key'),
+      1 => array('start_date', 'Start Date'),
+      2 => array('end_date', 'End Date'),
+      3 => array('paper_survey', 'Paper Survey')
+    );
+}

@@ -210,3 +210,37 @@ class ImpactIntakeMigration extends ImpactSurveyMigration {
     $row->uid = $uid;
   }
 }
+class ImpactFieldingMigration extends ImpactSurveyMigration {
+  public function __construct() {
+    parent::__construct();
+    $this->description = t('Imports survey_fielding profiles');
+    $columns = impact_migrate_fielding_columns();
+    $this->source = new MigrateSourceCSV("sites/$this->folder/files/migrate/fielding.csv", $columns);
+    $this->destination = new MigrateDestinationProfile2('survey_fielding');
+    $this->map = new MigrateSQLMap($this->machineName,
+        array('fscs_key' => array(
+                'type' => 'varchar',
+                'length' => 6,
+                'not null' => TRUE,
+                'description' => 'FSCS Key'
+                )
+             ),
+        MigrateDestinationProfile2::getKeySchema()
+    );
+    $this->addFieldMapping('field_fielding_date', 'date_range_from');
+    $this->addFieldMapping('field_paper_survey', 'paper_survey');
+    
+    $this->addFieldMapping('uid', 'fscs_key')
+      ->sourceMigration('ImpactUser')
+      ->defaultValue(1);
+  }
+  
+  public function prepareRow($row) {
+    $row->date_range_from = array();
+    $date_data = array(
+      'from' => $row->start_date,
+      'to' => $row->end_date,
+    );
+    $row->date_range_from[] = drupal_json_encode($date_data);
+  }
+}
