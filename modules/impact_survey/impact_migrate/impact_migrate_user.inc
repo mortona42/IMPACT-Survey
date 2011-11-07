@@ -144,21 +144,24 @@ class ImpactIMLSMigration extends ImpactSurveyMigration {
     $this->addFieldMapping('field_pac_uses', 'num_uses');
     $this->addFieldMapping('field_legalpop', 'num_residents');
     $this->addFieldMapping('field_visits', 'num_visits');
-    $this->addFieldMapping('field_num_branches', 'num_branches');
+    $this->addFieldMapping('field_num_branches', 'tot_branches');
     
     $this->addFieldMapping('uid', 'fscs_key')
       ->sourceMigration('ImpactUser')
       ->defaultValue(1);
     
-    $this->addUnmigratedSources(array('email'));
+    $this->addUnmigratedSources(array('num_bookmobiles'));
     $this->addUnmigratedDestinations(array('language', 'path', 'revision_uid'));
   }
   
   public function prepareRow($row) {
+    $row->tot_branches = $row->num_branches + $row->num_bookmobiles;
+    /*
+    dpm($row);
     $sql = "SELECT uid FROM {users} WHERE name='$row->fscs_key'";
     $uid = db_query($sql)->fetchField();
     
-    $row->uid = $uid;
+    $row->uid = $uid;*/
   }
 }
 
@@ -179,11 +182,14 @@ class ImpactIntakeMigration extends ImpactSurveyMigration {
              ),
         MigrateDestinationProfile2::getKeySchema()
     );
-    $this->addFieldMapping('field_pilot_intake_it_support', 'it_source');
-    $this->addFieldMapping('field_pilot_intake_connection', 'isp');
+    $this->addFieldMapping('field_pilot_intake_it_support', 'it_source')
+      ->separator(';');
+    $this->addFieldMapping('field_pilot_intake_connection', 'isp')
+      ->separator(';');
     $this->addFieldMapping('field_pilot_intake_max_speed', 'dl_speed');
     $this->addFieldMapping('field_pilot_intake_wireless', 'wifi');
-    $this->addFieldMapping('field_pilot_intake_assistive', 'assistive');
+    $this->addFieldMapping('field_pilot_intake_assistive', 'assistive')
+      ->separator(';');
     $this->addFieldMapping('field_pilot_intake_session_m', 'session');
     $this->addFieldMapping('field_pilot_intake_staff_learn', 'staff_learn');
     $this->addFieldMapping('field_pilot_intake_vol_train', 'vol_training');
@@ -204,10 +210,11 @@ class ImpactIntakeMigration extends ImpactSurveyMigration {
       ->defaultValue(1);
   }
   public function prepareRow($row) {
+    /*
     $sql = "SELECT uid FROM {users} WHERE name='$row->fscs_key'";
     $uid = db_query($sql)->fetchField();
     
-    $row->uid = $uid;
+    $row->uid = $uid;*/
   }
 }
 class ImpactFieldingMigration extends ImpactSurveyMigration {

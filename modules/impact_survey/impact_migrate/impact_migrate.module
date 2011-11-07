@@ -29,29 +29,15 @@ function impact_migrate_imls_columns() {
   return array(
       0 => array('fscs_key', 'FSCS Key'),
       1 => array('num_branches', 'Number of Branches'),
-      2 => array('num_residents', 'Number of Residents'),
-      3 => array('num_visits', 'Number of Visits'),
-      4 => array('num_hours', 'Number of Hours'),
-      5 => array('op_exp', 'Operational Expenditures'),
-      6 => array('num_fte', 'Number of FTEs'),
-      7 => array('num_term', 'Number of PAC Terminals'),
-      8 => array('num_uses', 'Number of PAC Terminal Uses')
+      2 => array('num_bookmobiles', 'Number of Bookmobiles'),
+      3 => array('num_residents', 'Number of Residents'),
+      4 => array('num_visits', 'Number of Visits'),
+      5 => array('num_hours', 'Number of Hours'),
+      6 => array('op_exp', 'Operational Expenditures'),
+      7 => array('num_fte', 'Number of FTEs'),
+      8 => array('num_term', 'Number of PAC Terminals'),
+      9 => array('num_uses', 'Number of PAC Terminal Uses')
     );
-}
-// Add migration to list when a new csv file is uploaded
-// TODO:  Create this node type in module so it can easily be ported
-function impact_migrate_node_insert($node) {
-  // Just act on user_data_csv nodes
-  if($node->type == 'user_data_csv') {
-    $source_csv = file_load($node->field_migrate_csv['und'][0]['fid']);
-    $filename = explode('migrate/', $source_csv->uri);
-    $filename = explode('.', $filename[1]);
-    dpm($source_csv);
-    dpm($filename);
-    Migration::registerMigration('ImpactDynamic', $filename[0], array('source_file' => $source_csv->uri));
-    Migration::deregisterMigration('gl2000_18.csv');
-    Migration::deregisterMigration('gl2000_19.csv');
-  }
 }
 
 function impact_migrate_intake_columns() {
