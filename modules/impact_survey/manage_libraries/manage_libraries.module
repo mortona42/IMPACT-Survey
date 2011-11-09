@@ -156,6 +156,7 @@ function manage_libraries_select_query($user_list = array()) {
     array('data' => 'Photo', 'field' => 'photo_id'),
     array('data' => 'Logo', 'field' => 'logo_id'),
     array('data' => 'Survey Fielding', 'field' => 'end_date'),
+    array('data' => 'Reports')
     //array('data' => 'Photo&Logo', 'field' => 'pl_pid')
   );
   
@@ -208,6 +209,7 @@ function manage_libraries_select_query($user_list = array()) {
       manage_libraries_fix_photo_logo($row->uid, $row->pl_pid, $row->photo_id, $row->photo_loc, 'Photo'),
       manage_libraries_fix_photo_logo($row->uid, $row->pl_pid, $row->logo_id, $row->logo_loc, 'Logo'),
       manage_libraries_fix_date($row->uid, $row->fielding_pid, $row->start_date, $row->end_date),
+      "<a href='/_reports/pdf/report.php?fscs=$row->fscs_key'>report</a><br><a href='/_reports/pdf/report.php?fscs=$row->fscs_key&comments=uses'>uses</a><br><a href='/_reports/pdf/report.php?fscs=$row->fscs_key&comments=improve'>improve</a>"
     );
   }
   $variables = array(
