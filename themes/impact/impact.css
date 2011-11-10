@@ -129,21 +129,32 @@ a.impact_button:hover {
 	padding:14px;
 }
 /**  Footer  **/
-#block-views-footer-footer > .content,
-#block-myimpact_setting-survey_finished > .content 
-{
-	min-height:0;  /* need min-height to override style.css */
-	padding:15px 0;
-	background-color:#F2FCDF;
-	border-bottom:2px solid #7B309B;
+#footer {
+  width:960px;
+  text-align:center;
+  background-color:#F2FCDF;
+  border-bottom: 2px solid #7B309B;
 }
-#block-views-footer-footer table.views-view-grid,
-#block-myimpact_setting-survey_finished table.views-view-grid {
-	width:960px;
-	text-align:center;
+#footer > a {
+  height:60px;
+  margin: 15px 20px;
+  display:inline-block;
+  background-image: url(images/footer-sprite.png);
 }
-#block-myimpact_setting-survey_finished td {
-  width:50%;
+#footer-usimpact {
+  width:139px;
+}
+#footer-tascha {
+  background-position: -139px 0;
+  width:104px;
+}
+#footer-ischool {
+  background-position: -243px 0;
+  width:238px;
+}
+#footer-gates {
+  background-position: -481px 0;
+  width:215px;
 }
 /**  Sidebar **/
 .region-sidebar-first #block-menu-menu-my-impact ul.menu {

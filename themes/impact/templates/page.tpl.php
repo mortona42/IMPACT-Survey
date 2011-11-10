@@ -166,17 +166,10 @@
     
   </div><!-- /container -->
   
-  <div id="footer">
-    <div class="footer-text"><!-- Theme designed by <a href="http://www.carettedonny.be" title="Donny Carette">Donny Carette</a> -->
-      <?php if($page['footer_message']): ?>
-        | <?php print render($page['footer_message']); ?>
-      <?php endif; ?>
-    </div>
-                    
-    <?php if($page['footer_bottom']): ?>
-      <div id="footer_bottom" class="blockregion">
-        <?php print render($page['footer_bottom']); ?>
-      </div>
-    <?php endif; ?> 
+  <div id="footer">            
+    <a id="footer-usimpact" href="http://cis.washington.edu/usimpact/"></a>
+    <a id="footer-tascha" href="http://tascha.uw.edu"></a>
+    <a id="footer-ischool" href="https://ischool.uw.edu/"></a>
+    <a id="footer-gates" href="http://www.gatesfoundation.org/Pages/home.aspx"></a>
   </div><!-- /footer -->
   
