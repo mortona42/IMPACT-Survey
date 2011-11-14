@@ -45,4 +45,5 @@ $field_image = $node->field_image['und'][0]['filename'];
 $code = "&lt;a href='http://impactsurvey.org/libselect/index.php?fscs=$fscs&utm_source=codebox&utm_medium=button-hosted&utm_content=$field_image&utm_term=$fscs&utm_campaign=pilot'&gt;&lt;img title='Click here to take our survey' alt='Click here to take our survey' src='/impact/$field_image' border='0' /&gt;&lt;/a&gt;";
 print $code;?>
 </code></p>
+</div>
 <?php endif; ?>
